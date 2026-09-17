@@ -1,6 +1,8 @@
 # TranslateOCR
 
 ## License
+(c) 2026 - 2027 Joan Jerez, ToBeIT
+GPL 3
 
 (c) 2023 - 2024 Joan Jerez
 GPL 3
@@ -52,28 +54,73 @@ List of language pairs: https://wiki.apertium.org/wiki/List_of_language_pairs
 3. [ ] Belarusian <-\> Russian
 4. [ ] Russian <-\> Ukrainian
 
+## Language support (Firefox Translation)
+
+Main page: https://mozilla.github.io/translations/
+List of models trained: https://mozilla.github.io/translations/model-registry/
+
+### English 
+1. [ ] Afrikaans <-\> English
+2. [ ] Albanian -\> English
+3. [ ] Arabic <-\> English
+4. [ ] Azerbaijani <- English
+5. [ ] Bangla <-\> English
+6. [ ] Basque <-\> English
+7. [ ] Bosnian <-\> English
+8. [ ] Bulgarian <-\> English
+9. [ ] Catalan <-\> English
+10. [ ] Chinese <-\> English
+11. [ ] Croatian <- English
+12. [ ] Czech <-\> English
+13. [ ] Danish <-\> English
+14. [ ] Dutch <-\> English
+15. [ ] Estonian <-\> English
+16. [ ] Finnish <-\> English
+17. [ ] French <-\> English
+18. [ ] Galician <-\> English
+19. [ ] German <-\> English
+20. [ ] Greek <-\> English
+21. [ ] Gujarati <-\> English
+22. [ ] Hebrew <-\> English
+23. [ ] Hindi <-\> English
+24. [ ] Hungarian <-\> English
+25. [ ] Iceland <-\> English
+26. [ ] Indonesian <-\> English
+27. [ ] Italian <-\> English
+28. [ ] Japanese <-\> English
+29. [ ] Kannada <-\> English
+30. [ ] Korean <-\> English
+31. [ ] Latvian <-\> English
+32. [ ] Lithuanian <-\> English
+33. [ ] Malay <-\> English
+34. [ ] Malayalam <-\> English
+35. [ ] Marathi <-\> English
+36. [ ] Norwegian <-\> English
+37. [ ] Norwegian Bökmal <-\> English
+38. [ ] Persian <-\> English
+39. [ ] Polish <-\> English
+40. [ ] Portuguese <-\> English
+41. [ ] Romanian <-\> English
+42. [ ] Russian <-\> English
+43. [ ] Serbian <-\> English
+44. [ ] Slovak <-\> English
+45. [ ] Slovenian <-\> English
+46. [ ] Spanish <-\> English
+47. [ ] Swedish <-\> English
+48. [ ] Tamil <-\> English
+49. [ ] Telugu <-\> English
+50. [ ] Thai <-\> English
+51. [ ] Traditional Chinese <-\> English
+52. [ ] Turkish <-\> English
+53. [ ] Ukrainian <-\> English
+54. [ ] Urdu <-\> English
+55. [ ] Vietnamese <-\> English
+
 ## Language support (Tesseract OCR)
 
-Languages supported in different versions of Tesseract: https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html
+Several languages are supported in different versions of Tesseract: https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html
 
-1. [x] Belarusian [bel]
-2. [x] Bulgarian [bul]
-3. [x] Catalan [cat]
-4. [x] Danish [dan]
-5. [x] English [eng]
-6. [x] French [fra]
-7. [x] Icelandic [isl]
-8. [x] Italian [ita]
-9. [x] Macedonian [mkd]
-10. [x] Norwegian [nob]
-11. [x] Portuguese [por]
-12. [x] Romanian [ron]
-13. [x] Russian [rus]
-14. [x] Serbo-Croatian [srp]
-15. [x] Slovenian [slv]
-16. [x] Spanish [spa]
-17. [x] Ukrainian [ukr]
-18. [x] Welsh [cym]
+In TranslateOCR, we will support only English [eng].
 
 ## Language support (eSpeak NG)
 
@@ -102,55 +149,21 @@ Languages supported in different versions of Tesseract: https://tesseract-ocr.gi
 
 All languages supported: https://dl.fbaipublicfiles.com/mms/asr/mms1b_all_langs.html
 
-## Planificació
+## Planning
 
-### Entregable 3
+### Phase 1: Update dependencies & test
 
-* 11 i 12 de novembre: Crear la Activity i els fragments
+Latest SDK
 
-* 18 i 19 de novembre: Afegir les llibreries lttoolbox-java i tesseract4android. 
+### Phase 2: Dictionaries compatible with lttoolbox-java
 
-* 25 i 26 de novembre: Splash screen i traducció de textos bàsica amb Apertium
+Compile last version of Appium dictionaries compatible with lttoolbox-java.
 
-* 2 i 3 de de desembre: Esborrany del suport de múltiples diccionaris i la gestió de la configuració. Implementació bàsica del OCR.
+### Phase 3: Add eSpeak library
 
-* 4 de desembre: Suport final de múltiples diccionaris.
+espeak-ng: https://github.com/espeak-ng/espeak-ng/tree/master/android
 
-* 5 de desembre: Implementació final del OCR.
+### Phase 4: Add Bergamot Translator
 
-* 6 de desembre: Implementació final de la gestió de la configuració. Funcionalitats extra demanades pel usuaris.
-
-* 7 de desembre: Depuració de les errades de programació del projecte. Proves de instrumentació.
-
-* 8 de desembre: Redacció de la memòria del projecte
-
-* 9 de desembre: Redacció de la memòria del projecte
-
-* 10 de desembre: Redacció de la memòria del projecte
-
-* 11 de desembre: <última revisió>
-
-* 12 de desembre: <última revisió>
-
-### Entregable 4
-
-* 16 i 17 de desembre: Esborrany de l'historial de traduccions
-
-* 23 i 24 de desembre: Esborrany de la funcionalitat de favorits
-
-* 25 i 26 de desembre: Implementació final de l'historial i els favorits.
-
-* 30 de desembre: Depuració de les errades de programació del projecte.
-
-* 31 de desembre: Redacció final del treball de fi de màster
-
-* 1 de gener: Redacció final del treball de fi de màster
-
-* 5 de gener: Redacció final del treball de fi de màster
-
-* 6 i 7 de gener: Presentació final del projecte
-
-* 9 de gener: <última revisió>
-
-* 10 de gener: <última revisió>
+Firefox Translations: https://firefox-source-docs.mozilla.org/toolkit/components/translations/resources/03_bergamot.html
 

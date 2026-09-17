@@ -5,15 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "edu.uoc.jjerezt.translateocr"
+    namespace = "es.tobeit.jjerez.translateocr"
     flavorDimensions += listOf("parallelization")
 
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
-        applicationId = "edu.uoc.jjerezt.translateocr"
+        applicationId = "es.tobeit.jjerez.translateocr"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -73,7 +73,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(project(mapOf("path" to ":libraries:lttoolbox-java")))
     implementation(project(mapOf("path" to ":libraries:tesseract4android")))
-    implementation(project(mapOf("path" to ":libraries:espeak-ng:android")))
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

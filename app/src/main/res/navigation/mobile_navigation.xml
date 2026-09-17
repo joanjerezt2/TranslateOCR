@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="edu.uoc.jjerezt.translateocr.ui.home.HomeFragment"
+        android:name="es.tobeit.jjerez.translateocr.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_dictionaries"
-        android:name="edu.uoc.jjerezt.translateocr.ui.dictionary.DictionaryFragment"
+        android:name="es.tobeit.jjerez.translateocr.ui.dictionary.DictionaryFragment"
         android:label="@string/title_dictionaries"
         tools:layout="@layout/fragment_dictionary" />
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="edu.uoc.jjerezt.translateocr.ui.history.HistoryFragment"
+        android:name="es.tobeit.jjerez.translateocr.ui.history.HistoryFragment"
         android:label="@string/title_history"
         tools:layout="@layout/fragment_history" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="edu.uoc.jjerezt.translateocr.ui.settings.SettingsFragment"
+        android:name="es.tobeit.jjerez.translateocr.ui.settings.SettingsFragment"
         android:label="@string/title_settings" >
     </fragment>
 </navigation>
