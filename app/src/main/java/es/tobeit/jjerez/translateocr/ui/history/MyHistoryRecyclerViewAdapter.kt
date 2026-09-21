@@ -193,7 +193,7 @@ class MyHistoryRecyclerViewAdapter(
 
     override fun getItemCount(): Int = values.size
 
-    inner class ViewHolder(binding: FragmentHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(binding: FragmentHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
         val origText: TextView = binding.originalText
         val destText: TextView = binding.translatedText
         val favorite: Button = binding.favourite

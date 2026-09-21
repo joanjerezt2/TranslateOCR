@@ -16,6 +16,7 @@ import es.tobeit.jjerez.translateocr.runtime.dict.CopyViewModel
 import es.tobeit.jjerez.translateocr.runtime.dict.Language
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [RecyclerView.Adapter] that can display a [PlaceholderItem].
@@ -61,7 +62,7 @@ class MyDictionaryRecyclerViewAdapter(
 
         DataStoreManager.dict[code] = intPreferencesKey("dict_${code}")
         runBlocking {
-            withTimeoutOrNull(2000) {
+            withTimeoutOrNull(2000.milliseconds) {
                 status = DataStoreManager().readValue( holder.itemView.context, DataStoreManager.dict[code]!!
                 ) ?: 0
             }
@@ -112,7 +113,7 @@ class MyDictionaryRecyclerViewAdapter(
 
     override fun getItemCount(): Int = values.size
 
-    inner class ViewHolder(binding: FragmentDictionaryBinding) :
+    class ViewHolder(binding: FragmentDictionaryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         val contentView: TextView = binding.contentDict
         val downloadButton: Button = binding.download

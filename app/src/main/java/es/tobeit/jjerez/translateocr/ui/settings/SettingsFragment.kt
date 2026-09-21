@@ -8,6 +8,7 @@ import es.tobeit.jjerez.translateocr.R
 import es.tobeit.jjerez.translateocr.runtime.DataStoreManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -65,14 +66,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val unknownWordsValue = sharedPreferences?.getBoolean("words", false)
                 if (unknownWordsValue == true){
                     runBlocking {
-                        withTimeoutOrNull(2000) { // UI can freeze for 2 seconds
+                        withTimeoutOrNull(2000.milliseconds) { // UI can freeze for 2 seconds
                             markUnknown()
                         }
                     }
                 }
                 else{
                     runBlocking {
-                        withTimeoutOrNull(2000) { // UI can freeze for 2 seconds
+                        withTimeoutOrNull(2000.milliseconds) { // UI can freeze for 2 seconds
                             unmarkUnknown()
                         }
                     }
@@ -87,19 +88,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val unknownWordsValue = sharedPreferences?.getBoolean("ambiguity", false)
                 if (unknownWordsValue == true){
                     runBlocking {
-                        withTimeoutOrNull(2000) { // UI can freeze for 2 seconds
+                        withTimeoutOrNull(2000.milliseconds) { // UI can freeze for 2 seconds
                             markAmbiguity()
                         }
                     }
                 }
                 else{
                     runBlocking {
-                        withTimeoutOrNull(2000) { // UI can freeze for 2 seconds
+                        withTimeoutOrNull(2000.milliseconds) { // UI can freeze for 2 seconds
                             unmarkAmbiguity()
                         }
                     }
                 }
-                true;
+                true
             }
 
         /**

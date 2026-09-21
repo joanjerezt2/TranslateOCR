@@ -50,6 +50,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
@@ -151,7 +152,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val translateButton: Button = root.findViewById(R.id.button)
         origText = root.findViewById(R.id.editTextTextMultiLine)
         val destText: EditText = root.findViewById(R.id.editTextTextMultiLine2)
-        destText.showSoftInputOnFocus = false;
+        destText.showSoftInputOnFocus = false
 
         /**
          * Definim el selector dels idiomes d'origen
@@ -300,7 +301,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
          */
 
         runBlocking {
-            withTimeoutOrNull(2000) {
+            withTimeoutOrNull(2000.milliseconds) {
                 markUnknown = DataStoreManager().readValue(
                     view.context,
                     DataStoreManager.markUnknown
@@ -309,7 +310,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         runBlocking {
-            withTimeoutOrNull(2000) {
+            withTimeoutOrNull(2000.milliseconds) {
                 markAmbiguity = DataStoreManager().readValue(
                     view.context,
                     DataStoreManager.markAmbiguity
@@ -376,7 +377,7 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
      * Es formateja la sortida en HTML
      */
 
-    private val unknownPattern = Pattern.compile("\\B\\*((\\p{L}||\\p{N})+)\\b")
+    private val unknownPattern = Pattern.compile("\\B\\*((\\p{L}|\\p{N})+)\\b")
     private fun escape(s: String?): String {
         return TextUtils.htmlEncode(s).replace("\n".toRegex(), "<br/>")
     }

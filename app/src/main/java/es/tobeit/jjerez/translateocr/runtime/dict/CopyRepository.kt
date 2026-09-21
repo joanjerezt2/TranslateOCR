@@ -16,13 +16,13 @@ class CopyRepository {
 
         // https://www.baeldung.com/java-delete-directory
         private fun deleteDirectory(directoryToBeDeleted: File): Boolean {
-                val allContents = directoryToBeDeleted.listFiles();
+                val allContents = directoryToBeDeleted.listFiles()
                 if (allContents != null) {
                         for (file in allContents) {
-                                deleteDirectory(file);
+                                deleteDirectory(file)
                         }
                 }
-                return directoryToBeDeleted.delete();
+                return directoryToBeDeleted.delete()
         }
 
         fun removeDictionary(dictionary: TextView, holder: ViewHolder, download: Button) {
