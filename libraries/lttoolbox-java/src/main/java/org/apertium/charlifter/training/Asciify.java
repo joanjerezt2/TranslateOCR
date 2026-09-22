@@ -28,7 +28,7 @@ package org.apertium.charlifter.training;
 public class Asciify {
   /**
    * # data taken from the table in transtab package:
-   * # http://www.cl.cam.ac.uk/~mgk25/download/transtab.tar.gz
+   * # <a href="http://www.cl.cam.ac.uk/~mgk25/download/transtab.tar.gz">...</a>
    *
    * @param s UTF-8 string
    * @return ASCII-fied version
@@ -37,30 +37,30 @@ public class Asciify {
     // first batch are characters to delete - these need to get
     // added to charlifter script too...
     s = s.replaceAll("[\\x{A8}\\x{B4}\\x{B8}]", "");  // wipe out latin-1 diacriticals
-    s = s.replaceAll("[\\p{M}]", "");  // important to wipe out ALL marks (start at 0x0300)
+    s = s.replaceAll("\\p{M}", "");  // important to wipe out ALL marks (start at 0x0300)
     s = s.replaceAll("[\\x{02B9}-\\x{02DD}]", "");  // "modifier letters"
 
-    s = s.replaceAll("[\\x{02BB}]", "'");  // correct "okina" in Hawaiian, Samoan, etc.
+    s = s.replaceAll("\\x{02BB}", "'");  // correct "okina" in Hawaiian, Samoan, etc.
     s = s.replaceAll("[ʹʼ]", "'");
-    s = s.replaceAll("ˌ", ",");
-    s = s.replaceAll("ː", ":");
+    s = s.replace("ˌ", ",");
+    s = s.replace("ː", ":");
     // some latin-1 range stuff:
-    s = s.replaceAll("©", "(C)");
-    s = s.replaceAll("®", "(R)");
-    s = s.replaceAll("«", "<<");
-    s = s.replaceAll("»", ">>");
-    s = s.replaceAll("¼", "1/4");
-    s = s.replaceAll("½", "1/2");
-    s = s.replaceAll("¾", "3/4");
-    s = s.replaceAll("±", "+/-");
-    s = s.replaceAll("[\\x{A0}]", " ");  // nbsp
-    s = s.replaceAll("[\\x{A1}]", "!");  // inverted !
-    s = s.replaceAll("[\\x{A7}]", "\\S");  // section sign
-    s = s.replaceAll("°", "^o");
-    s = s.replaceAll("[\\x{B2}]", "^2");
-    s = s.replaceAll("[\\x{B3}]", "^3");
-    s = s.replaceAll("[\\x{B9}]", "^1");
-    s = s.replaceAll("[\\x{B7}]", "*");         // MIDDLE DOT
+    s = s.replace("©", "(C)");
+    s = s.replace("®", "(R)");
+    s = s.replace("«", "<<");
+    s = s.replace("»", ">>");
+    s = s.replace("¼", "1/4");
+    s = s.replace("½", "1/2");
+    s = s.replace("¾", "3/4");
+    s = s.replace("±", "+/-");
+    s = s.replaceAll("\\x{A0}", " ");  // nbsp
+    s = s.replaceAll("\\x{A1}", "!");  // inverted !
+    s = s.replaceAll("\\x{A7}", "S");  // section sign
+    s = s.replace("°", "^o");
+    s = s.replaceAll("\\x{B2}", "^2");
+    s = s.replaceAll("\\x{B3}", "^3");
+    s = s.replaceAll("\\x{B9}", "^1");
+    s = s.replaceAll("\\x{B7}", "*");         // MIDDLE DOT
     // Unicode general punc. block
     s = s.replaceAll("[\\x{2000}-\\x{200b}]", " ");   // all spaces even if thin or zero width!
     s = s.replaceAll("[\\x{200c}-\\x{200f}]", "");   // L to R, R to L, markers etc.
@@ -79,7 +79,7 @@ public class Asciify {
     s = s.replaceAll("\\x{2026}", "...");   // HORIZONTAL ELLIPSIS
     s = s.replaceAll("\\x{2027}", ".");
     s = s.replaceAll("\\x{2030}", "%");     // MILLE SIGN (close enough)
-    s = s.replaceAll("[\\x{20AC}]", "EUR");
+    s = s.replaceAll("\\x{20AC}", "EUR");
     s = s.replaceAll("[ÀÁÂÃÄÅĀĂĄÅǍǞǠǺȀȂȦḀẠẢẤẦẨẪẬẮẰẲẴẶ]", "A");
     s = s.replaceAll("[ÆǢǼ]", "AE");
     s = s.replaceAll("[ḂƁƂƄḄḆ]", "B");
@@ -87,37 +87,37 @@ public class Asciify {
     s = s.replaceAll("[ÐĎĐḊƉƊƋḌḎḐḒ]", "D");
     s = s.replaceAll("[ǄǱ]", "DZ");
     s = s.replaceAll("[ǅǲ]", "Dz");
-    s = s.replaceAll("[ÈÉÊËĒĔĖĘĚƐƎƏȄȆȨḔḖḘḚḜẸẺẼẾỀỂỄỆƏ]", "E");
+    s = s.replaceAll("[ÈÉÊËĒĔĖĘĚƐƎƏȄȆȨḔḖḘḚḜẸẺẼẾỀỂỄỆ]", "E");
     s = s.replaceAll("[ḞƑ]", "F");
     s = s.replaceAll("[ĜĞĠĢƓƔǤǦǴḠ]", "G");
     s = s.replaceAll("[ĤĦȞḢḤḦḨḪ]", "H");
-    s = s.replaceAll("Ƕ", "Hv");
+    s = s.replace("Ƕ", "Hv");
     s = s.replaceAll("[ÌÍÎÏĨĪĬĮİƖƗǏȈȊḬḮỈỊ]", "I");
-    s = s.replaceAll("Ĳ", "IJ");
-    s = s.replaceAll("Ĵ", "J");
+    s = s.replace("Ĳ", "IJ");
+    s = s.replace("Ĵ", "J");
     s = s.replaceAll("[ĶKƘǨḰḲḴ]", "K");
     s = s.replaceAll("[ĹĻĽĿŁḶḸḺḼ]", "L");
-    s = s.replaceAll("Ǉ", "LJ");
-    s = s.replaceAll("ǈ", "Lj");
+    s = s.replace("Ǉ", "LJ");
+    s = s.replace("ǈ", "Lj");
     s = s.replaceAll("[ṀƜḾṂ]", "M");
     s = s.replaceAll("[ÑŃŅŇŊƝǸṄṆṈṊ]", "N");
-    s = s.replaceAll("Ǌ", "NJ");
-    s = s.replaceAll("ǋ", "Nj");
+    s = s.replace("Ǌ", "NJ");
+    s = s.replace("ǋ", "Nj");
     s = s.replaceAll("[ÒÓÔÕÖØŌŎŐΩƆƟƠǑǪǬǾȌȎȪȬȮȰṌṎṐṒỌỎỐỒỔỖỘỚỜỞỠỢ]", "O");
-    s = s.replaceAll("Œ", "OE");
-    s = s.replaceAll("Ƣ", "OI");
+    s = s.replace("Œ", "OE");
+    s = s.replace("Ƣ", "OI");
     s = s.replaceAll("[ṖƤṔ]", "P");
     s = s.replaceAll("[ŔŖŘƦȐȒṘṚṜṞ]", "R");
     s = s.replaceAll("[ŚŜŞŠȘṠƧƩṢṤṦṨ]", "S");
     s = s.replaceAll("[ŢŤŦȚṪƬƮṬṮṰ]", "T");
-    s = s.replaceAll("Þ", "Th");
+    s = s.replace("Þ", "Th");
     s = s.replaceAll("[ÙÚÛÜŨŪŬŮŰŲƯƱǓǕǗǙǛȔȖṲṴṶṸṺỤỦỨỪỬỮỰ]", "U");
     s = s.replaceAll("[ṼṾƲ]", "V");
     s = s.replaceAll("[ŴẀẂẄẆẈ]", "W");
     s = s.replaceAll("[ẊẌ]", "X");
     s = s.replaceAll("[ÝŶŸỲƳȲẎỴỶỸ]", "Y");
     s = s.replaceAll("[ŹŻŽƵƷƸǮȤẐẒẔ]", "Z");
-    s = s.replaceAll("ˆ", "^");
+    s = s.replace("ˆ", "^");
     s = s.replaceAll("[ʻʽ]", "`");
     s = s.replaceAll("[ªàáâãäåāăąǎǟǡǻȁȃȧḁẚạảấầẩẫậắằẳẵặ]", "a");
     s = s.replaceAll("[æǣǽ]", "ae");
@@ -127,33 +127,33 @@ public class Asciify {
     s = s.replaceAll("[ǆǳ]", "dz");
     s = s.replaceAll("[èéêëēĕėęěɛǝȅȇȩḕḗḙḛḝẹẻẽếềểễệə]", "e");
     s = s.replaceAll("[ƒḟẛ]", "f");
-    s = s.replaceAll("ﬀ", "ff");
-    s = s.replaceAll("ﬃ", "ffi");
-    s = s.replaceAll("ﬄ", "ffl");
-    s = s.replaceAll("ﬁ", "fi");
-    s = s.replaceAll("ﬂ", "fl");
+    s = s.replace("ﬀ", "ff");
+    s = s.replace("ﬃ", "ffi");
+    s = s.replace("ﬄ", "ffl");
+    s = s.replace("ﬁ", "fi");
+    s = s.replace("ﬂ", "fl");
     s = s.replaceAll("[ĝğġģǥǧǵḡɣ]", "g");
     s = s.replaceAll("[ĥħȟḣḥḧḩḫẖ]", "h");
-    s = s.replaceAll("ƕ", "hv");
+    s = s.replace("ƕ", "hv");
     s = s.replaceAll("[ìíîïĩīĭįıǐȉȋḭḯỉịɩ]", "i");
-    s = s.replaceAll("ĳ", "ij");
+    s = s.replace("ĳ", "ij");
     s = s.replaceAll("[ĵǰ]", "j");
     s = s.replaceAll("[ķĸƙǩḱḳḵ]", "k");
     s = s.replaceAll("[ĺļľŀłℓƚƛḷḹḻḽ]", "l");
-    s = s.replaceAll("ǉ", "lj");
+    s = s.replace("ǉ", "lj");
     s = s.replaceAll("[ṁḿṃ]", "m");
     s = s.replaceAll("[ñńņňŉŋⁿƞǹṅṇṉṋɲ]", "n");
-    s = s.replaceAll("ǌ", "nj");
+    s = s.replace("ǌ", "nj");
     s = s.replaceAll("[ºòóôõöøōŏőɔơǒǫǭǿȍȏȫȭȯȱṍṏṑṓọỏốồổỗộớờởỡợ]", "o");
-    s = s.replaceAll("œ", "oe");
-    s = s.replaceAll("ƣ", "oi");
-    s = s.replaceAll("ṗƥṕ]", "p");
-    s = s.replaceAll("ŕŗřȑȓṙṛṝṟ]", "r");
+    s = s.replace("œ", "oe");
+    s = s.replace("ƣ", "oi");
+    s = s.replace("ṗƥṕ]", "p");
+    s = s.replace("ŕŗřȑȓṙṛṝṟ]", "r");
     s = s.replaceAll("[śŝşšſșṡƨṣṥṧṩ]", "s");
-    s = s.replaceAll("ß", "ss");
+    s = s.replace("ß", "ss");
     s = s.replaceAll("[ﬅﬆ]", "st");
     s = s.replaceAll("[ţťŧțṫƫƭṭṯṱẗ]", "t");
-    s = s.replaceAll("þ", "th");
+    s = s.replace("þ", "th");
     s = s.replaceAll("[µùúûüũūŭůűųưǔǖǘǚǜȕȗṳṵṷṹṻụủứừửữự]", "u");
     s = s.replaceAll("[ṽṿʋ]", "v");
     s = s.replaceAll("[ŵẁẃẅẇẉẘ]", "w");

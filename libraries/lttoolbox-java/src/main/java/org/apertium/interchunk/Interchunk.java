@@ -21,13 +21,11 @@ package org.apertium.interchunk;
 import org.apertium.transfer.AbstractTransfer;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apertium.transfer.Transfer;
 import org.apertium.transfer.TransferToken;
 import org.apertium.utils.IOUtils;
 import org.apertium.utils.Timing;
@@ -39,7 +37,7 @@ import org.apertium.utils.Timing;
 public class Interchunk extends AbstractTransfer {
   protected boolean inword;
 
-  /* Yes, this increases the linkage and entanglement of the classes, but
+  /* Yes, this increases the linkage and entanglement of the classes,
    * but it's better than duplicating so much code just for a change of a
    * couple of lines between Interchunk and Postchunk.
    * Defines the mode certain parts of code operates in, either in
@@ -52,12 +50,9 @@ public class Interchunk extends AbstractTransfer {
   protected InterchunkMode icMode = InterchunkMode.INTERCHUNK;
 
   /**
-   * Much of this code originally copied from {@link org.apertium.transfer.Transfer#readToken(Reader)}.
+   * Much of this code originally copied from {@link org.apertium.transfer.Transfer}.
    * Modified to be in-line with the differences between transfer.cc and interchunk.cc
    *
-   * @param in
-   * @return
-   * @throws IOException
    */
   private TransferToken readToken(Reader in) throws IOException {
     //TODO: Make sure this isn't broken XD The read-ahead might be a failure.
@@ -69,7 +64,7 @@ public class Interchunk extends AbstractTransfer {
      * single character look-ahead.
      */
     boolean skipRead = false;
-    String content = "";
+    StringBuilder content = new StringBuilder();
     int val = -1; //declare and initialize val outside of while statement.
     while (true) {
       if (skipRead) { //Already read ahead to the next character
@@ -79,39 +74,35 @@ public class Interchunk extends AbstractTransfer {
         //if (DEBUG) System.err.println("val = " + (char) val);
       }
       if (val == -1 || (val == 0 && internal_null_flush)) {
-        return input_buffer.add(new TransferToken(content,
+        return input_buffer.add(new TransferToken(content.toString(),
             TransferToken.TransferTokenType.tt_eof));
       }
       if (val == '\\') {
-        content += '\\';
-        content += (char) in.read();
+        content.append('\\');
+        content.append((char) in.read());
       } else if (val == '[') {
-        content += '[';
+        content.append('[');
         while (true) {
           int val2 = in.read();
           if (val2 == '\\') {
-            content += '\\';
-            content += (char) in.read();
+            content.append('\\');
+            content.append((char) in.read());
           } else if (val2 == ']') {
-            content += ']';
+            content.append(']');
             break;
           } else {
-            content += (char) val2;
+            content.append((char) val2);
           }
         }
       } else if (inword && val == '{') {
-        content += '{';
-        int val2 = -1; //declare and initialize val2 outside of while statement.
+        content.append('{');
+        int val2; //declare and initialize val2 outside of while statement.
         while (true) {
-          if (skipRead) { //Already read ahead to the next character
-            skipRead = false; //unset flag
-          } else {
             val2 = in.read();
             //if (DEBUG) System.err.println("val2 = " + (char) val2);
-          }
-          if (val2 == '\\') {
-            content += '\\';
-            content += (char) in.read();
+            if (val2 == '\\') {
+            content.append('\\');
+            content.append((char) in.read());
           } else if (val2 == '}') {
             /*
              * Here's where we peek ahead to see if the next char is
@@ -121,7 +112,7 @@ public class Interchunk extends AbstractTransfer {
              * Instead of storing it in a new val3, we just read the
              * next character into val2.
              */
-            content += '}';
+            content.append('}');
             val2 = in.read();
             if (val2 == '$') {
               val = val2; //pass read-ahead char into val
@@ -129,34 +120,26 @@ public class Interchunk extends AbstractTransfer {
               break; //exit inner while loop
             }
           } else {
-            content += (char) val2;
+            content.append((char) val2);
           }
         }
       } else if (inword && val == '$') {
         inword = false;
-        return input_buffer.add(new TransferToken(content,
+        return input_buffer.add(new TransferToken(content.toString(),
             TransferToken.TransferTokenType.tt_word));
       } else if (val == '^') {
         inword = true;
-        return input_buffer.add(new TransferToken(content,
+        return input_buffer.add(new TransferToken(content.toString(),
             TransferToken.TransferTokenType.tt_blank));
       } else {
-        content += (char) val;
+        content.append((char) val);
       }
     }
   }
 
   /**
-   * Much of this code originally copied from {@link org.apertium.transfer.Transfer#transfer(Reader, Writer)}.
+   * Much of this code originally copied from {@link org.apertium.transfer.Transfer}.
    * Modified to be in-line with the differences between transfer.cc and interchunk.cc
-   *
-   * @param in
-   * @param output
-   * @throws IOException
-   * @throws InvocationTargetException
-   * @throws IllegalAccessException
-   * @throws IllegalArgumentException
-   * @throws Exception
    */
   @Override
   public void process(Reader in, Appendable output) throws Exception {
@@ -169,10 +152,10 @@ public class Interchunk extends AbstractTransfer {
     output = checkIfOutputMustBeWriterCompatible(output, rule_map);
 
     Method lastMatchedRule = null; // xmlNode *lastrule;
-    ArrayList<String> tmpword = new ArrayList<String>(); // vector<wstring *> tmpword;
-    ArrayList<String> tmpblank = new ArrayList<String>(); // vector<wstring *> tmpblank;
-    ArrayList<String> matchedWords = new ArrayList<String>();
-    ArrayList<String> matchedBlanks = new ArrayList<String>();
+    ArrayList<String> tmpword = new ArrayList<>(); // vector<wstring *> tmpword;
+    ArrayList<String> tmpblank = new ArrayList<>(); // vector<wstring *> tmpblank;
+    ArrayList<String> matchedWords = new ArrayList<>();
+    ArrayList<String> matchedBlanks = new ArrayList<>();
     int lastPos = 0;
     ms.init(me.getInitial());
     if (DO_TIMING)
@@ -189,7 +172,7 @@ public class Interchunk extends AbstractTransfer {
           input_buffer.setPos(lastPos);
         } else {
           // no rule match. then default is to just output the stuff
-          if (tmpword.size() != 0) {
+          if (!tmpword.isEmpty()) {
             switch (icMode) {
               case POSTCHUNK:
                 unchunk(tmpword.get(0), output);
@@ -207,7 +190,7 @@ public class Interchunk extends AbstractTransfer {
             input_buffer.next();
             lastPos = input_buffer.getPos();
             ms.init(me.getInitial());
-          } else if (tmpblank.size() != 0) {
+          } else if (!tmpblank.isEmpty()) {
             output.append(tmpblank.get(0));
             tmpblank.clear();
             lastPos = input_buffer.getPos();
@@ -263,7 +246,7 @@ public class Interchunk extends AbstractTransfer {
           break;
 
         case tt_eof:
-          if (tmpword.size() != 0) {
+          if (!tmpword.isEmpty()) {
             tmpblank.add(current.content);
             ms.clear();
           } else {
@@ -291,14 +274,8 @@ public class Interchunk extends AbstractTransfer {
   }
 
   /**
-   * Much of this code originally copied from {@link org.apertium.transfer.Transfer#applyRule(Writer)}.
+   * Much of this code originally copied from {@link org.apertium.transfer.Transfer}.
    * Modified to be in-line with the differences between transfer.cc and interchunk.cc
-   *
-   * @param output
-   * @throws IOException
-   * @throws IllegalAccessException
-   * @throws IllegalArgumentException
-   * @throws InvocationTargetException
    */
   protected void applyRule(Appendable output, Method rule,
       ArrayList<String> words, ArrayList<String> blanks)
@@ -324,24 +301,14 @@ public class Interchunk extends AbstractTransfer {
 
     if (DEBUG)
       System.err.println("#args = " + args.length);
-//        if (DEBUG)
-//            System.err.println("processRule:" + lastrule.getName() + "("
-//                    + Arrays.toString(args));
+
     try {
       if (DO_TIMING)
         timing.log("applyRule 1");
       rule.invoke(transferObject, args);
       if (DO_TIMING)
         timing.log("rule invoke");
-    } catch (IllegalAccessException e) {
-      _outputInvokeErrorMsg(rule, null, args.length,
-          rule.getName() + "(" + Arrays.toString(args) + ")");
-      throw e;
-    } catch (IllegalArgumentException e) {
-      _outputInvokeErrorMsg(rule, null, args.length,
-          rule.getName() + "(" + Arrays.toString(args) + ")");
-      throw e;
-    } catch (InvocationTargetException e) {
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
       _outputInvokeErrorMsg(rule, null, args.length,
           rule.getName() + "(" + Arrays.toString(args) + ")");
       throw e;
@@ -358,10 +325,9 @@ public class Interchunk extends AbstractTransfer {
   }
 
   /**
-   * Much of this code originally copied from {@link org.apertium.transfer.Transfer#applyWord(string)}.
+   * Much of this code originally copied from {@link org.apertium.transfer.Transfer}.
    * Modified to be in-line with the differences between transfer.cc and interchunk.cc
    *
-   * @param word_str
    */
   private void applyWord(String word_str) {
     if (DO_TIMING)
@@ -408,12 +374,8 @@ public class Interchunk extends AbstractTransfer {
 
   /**
    * This function only exists to allow for the code in interchunk() to compile. This code helps eliminate
-   * duplicating almost all of the code in interchunk() in Postchunk.
+   * duplicating almost all the code in interchunk() in Postchunk.
    *
-   * @param chunk
-   * @param output
-   * @throws IOException
-   * @throws UnsupportedOperationException
    */
   protected void unchunk(final String chunk, Appendable output) throws IOException, UnsupportedOperationException {
     String message = "Interchunk.unchunk should never be called. Instead this should only be called from "

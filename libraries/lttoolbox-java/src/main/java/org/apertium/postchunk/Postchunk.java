@@ -19,9 +19,6 @@
 package org.apertium.postchunk;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -58,7 +55,7 @@ public class Postchunk extends Interchunk {
    * @return An ArrayList of tags in the beginning part of the chunk.
    */
   private static ArrayList<String> getVecTags(final String chunk) {
-    ArrayList<String> vecTags = new ArrayList<String>();
+    ArrayList<String> vecTags = new ArrayList<>();
 
     for (int i = 0, limit = chunk.length(); i != limit; i++) {
       if (chunk.charAt(i) == '\\') {
@@ -120,9 +117,6 @@ public class Postchunk extends Interchunk {
    * This will return the beginning part of the chunk, up to
    * the end part (the first '{'), or an empty string of there is
    * no end part found.
-   *
-   * @param chunk
-   * @return
    */
   private String wordZero(final String chunk) {
     for (int i = 0, limit = chunk.length(); i != limit; i++) {
@@ -157,13 +151,10 @@ public class Postchunk extends Interchunk {
     return "";
   }
 
-  /**
+  /*
    *
    * Called from interchunk as a workaround to avoid code duplication
    *
-   * @param chunk
-   * @param output
-   * @throws java.io.IOException
    */
   @Override
   protected void unchunk(final String chunk, Appendable output) throws IOException {
@@ -340,7 +331,7 @@ public class Postchunk extends Interchunk {
   }
 
   /**
-   * Much of this code originally copied from {@link org.apertium.transfer.Transfer#applyRule(Writer)}.
+   * Much of this code originally copied from {@link org.apertium.transfer.Transfer}.
    * Modified to be in-line with the differences between transfer.cc and interchunk.cc
    */
   @Override

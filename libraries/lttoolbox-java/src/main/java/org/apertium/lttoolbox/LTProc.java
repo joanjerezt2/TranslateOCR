@@ -42,7 +42,7 @@ class MyGetOpt extends Getopt {
  * @author Raah
  */
 public class LTProc {
-  private static HashMap<String, FSTProcessor> cache = new HashMap<String, FSTProcessor>();
+  private static final HashMap<String, FSTProcessor> cache = new HashMap<>();
   private static boolean cacheEnabled = false;
 
   public static void setCacheEnabled(boolean enabled) {
@@ -55,9 +55,9 @@ public class LTProc {
     cache.clear();
   }
 
-  private static void showHelp(String name) {
-    System.out.print(name + CommandLineInterface.PACKAGE_VERSION + ": process a stream with a letter transducer\n"
-        + "USAGE: " + name + " [-c] [-a|-g|-n|-d|-b|-p|-s|-t] fst_file [input_file [output_file]]\n"
+  private static void showHelp() {
+    System.out.print("LTProc" + CommandLineInterface.PACKAGE_VERSION + ": process a stream with a letter transducer\n"
+        + "USAGE: " + "LTProc" + " [-c] [-a|-g|-n|-d|-b|-p|-s|-t] fst_file [input_file [output_file]]\n"
         + "Options:\n"
         + "  -a:   morphological analysis (default behavior)\n"
         + "  -c:   use the literal case of the incoming characters\n"
@@ -94,7 +94,7 @@ public class LTProc {
   public static void doMain(String[] argv, Reader input, Appendable output) throws IOException {
 
     if (argv.length == 0) {
-      showHelp("LTProc");
+      showHelp();
       return;
     }
 
@@ -164,12 +164,12 @@ public class LTProc {
           case 'h':
           default:
             System.err.println("Unregognized parameter: " + (char) c);
-            showHelp("LTProc");
+            showHelp();
             return;
         }
 
       } catch (Exception e) {
-        showHelp("LTProc");
+        showHelp();
         return;
       }
     }
@@ -195,20 +195,20 @@ public class LTProc {
     int optind = getopt.getOptind() - 1;
     if (optind == (argc - 4) && !pipelineMode) { //Both input and output files specified, and not in pipeline mode
       if ((input = openInFileReader(argv[optind + 2])) == null
-          || (output = openOutFileWriter(argv[optind + 3])) == null) {
-        showHelp("LTProc");
+              || (((output = openOutFileWriter(argv[optind + 3]))) == null)) {
+        showHelp();
         return;
       }
     } else if (optind == (argc - 3) && !pipelineMode) { //Only input file specified, and not in pipeline mode
       if ((input = openInFileReader(argv[optind + 2])) == null) {
-        showHelp("LTProc");
+        showHelp();
         return;
       }
     } else { //Neither file specified, or in pipeline mode
       if (input == null)
         input = getStdinReader(); //Only assign if it hasn't been assigned yet
       if (optind != (argc - 2)) {
-        showHelp("LTProc");
+        showHelp();
         return;
       }
     }
@@ -216,7 +216,7 @@ public class LTProc {
     if (IOUtils.timing != null)
       IOUtils.timing.log("");
 
-    FSTProcessor fstp = null;
+    FSTProcessor fstp;
     final String filename = argv[optind + 1];
     fstp = cache.get(filename);
     if (fstp == null) {
@@ -302,11 +302,12 @@ public class LTProc {
       System.out.flush();
       try {
         Thread.sleep(10);
-      } catch (InterruptedException e1) {
+      } catch (InterruptedException ignored) {
       }
       e.printStackTrace();
       if (fstp.getNullFlush()) {
-        output.append('\0');
+          assert output != null;
+          output.append('\0');
       }
       //Not JDK 1.5 compliant: throw new IOException(e); // Send to parent
       throw new RuntimeException(e); // Send to parent

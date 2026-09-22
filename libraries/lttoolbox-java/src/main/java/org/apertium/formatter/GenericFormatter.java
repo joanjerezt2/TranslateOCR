@@ -65,7 +65,7 @@ public abstract class GenericFormatter {
    * The command-line label used for this formatter. It is used in help() and
    * error messages.
    */
-  protected String _commandLabel = null;
+  protected String _commandLabel;
   /**
    * This flag determines if the output precisely mimics the output of the C++ version,
    * for compatibility, or if it is a bit smarter in its output.
@@ -84,8 +84,6 @@ public abstract class GenericFormatter {
    * If the command-line is invalid (missing or extraneous command-line options)
    * then help text is printed out, and FormatterMode.NOMODE is returned.
    *
-   * @param argv
-   * @param commandLabel
    * @return A FormatterMode object representing the mode selected, or null if
    * there was no mode selected or there otherwise was a bad command line.
    */
@@ -184,9 +182,6 @@ public abstract class GenericFormatter {
    * Reads the command-line arguments, sets up the mode and input/output streams,
    * and calls the appropriate deFormat or reFormat function.
    *
-   * @param args
-   * @throws FileNotFoundException
-   * @throws UnsupportedEncodingException
    */
   public void doMain(String[] args) throws IOException {
     doMain(args, null, null);
@@ -231,7 +226,7 @@ public abstract class GenericFormatter {
       default:
         //We should never get here, if we do, something is broken.
         String errorString = _commandLabel + ": invalid mode";
-        errorString += System.getProperty("line.separator") + "Cannot continue.";
+        errorString += System.lineSeparator() + "Cannot continue.";
         throw new IllegalArgumentException(errorString);
     }
 

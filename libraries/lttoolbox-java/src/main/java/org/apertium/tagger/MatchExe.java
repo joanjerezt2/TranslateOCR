@@ -37,15 +37,14 @@ class MatchExe {
   /**
    * MatchNode list
    * Schema:
-   * - node_list[node_id] gives transitions.for node_id
+   * - node_list[node_id] gives transitions for node_id
    * - node_list[node_id][0] gives 1st input symbol
    * - node_list[node_id][1] gives 1st input symbol's target node_id
    * - node_list[node_id][2] gives 2nd input symbol
    * - node_list[node_id][3] gives 2nd input symbol's target node_id
    * ...
-   * if there is an UNEVEN number of elements in node_list[node_id], then its a FINAL node, and
+   * if there is an UNEVEN number of elements in node_list[node_id], then it's a FINAL node, and
    * - node_list[node_id][node_list[node_id].length-1] gives the finalnumber=output symbol=rule number
-   *
    * SO: Set of final nodes is those which 2nd index of node_list is uneven
    */
   int[][] node_list;
@@ -86,7 +85,7 @@ class MatchExe {
       /* Using an ArrayList because we don't know how many elements we'll have
        * up front, and it's not worth trying to calculate ahead of time.
        */
-      ArrayList<Integer> currArray = new ArrayList<Integer>();
+      ArrayList<Integer> currArray = new ArrayList<>();
       for (Integer it2First : second.keySet()) { //Loop through input symbols
         IntSet it2Second = second.get(it2First);
         for (Integer integer : it2Second) { //Loop through targets

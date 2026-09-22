@@ -11,13 +11,13 @@ import java.util.HashSet;
  * @author Jacob Nordfalk
  */
 public class WordList {
-  private HashSet<String> elements;
-  private HashSet<String> elementsLowercase;
+  private final HashSet<String> elements;
+  private final HashSet<String> elementsLowercase;
 
   public WordList(String[] list) {
     int cap = Math.max((int) (list.length / .75f) + 1, 16);
-    elements = new HashSet<String>(cap);
-    elementsLowercase = new HashSet<String>(cap);
+    elements = new HashSet<>(cap);
+    elementsLowercase = new HashSet<>(cap);
     for (String e : list) {
       elements.add(e);
       elementsLowercase.add(e.toLowerCase());
@@ -41,10 +41,11 @@ public class WordList {
   }
 
   public boolean containsBeginningWith(String source) {
-    String s = source;
-    for (String e : elements)
-      if (e.startsWith(s))
+    for (String e : elements){
+      if (e.startsWith(source)){
         return true;
+      }
+    }
     return false;
   }
 
@@ -57,10 +58,11 @@ public class WordList {
   }
 
   public boolean containsEndingWith(String source) {
-    String s = source;
-    for (String e : elements)
-      if (e.endsWith(s))
+    for (String e : elements){
+      if (e.endsWith(source)){
         return true;
+      }
+    }
     return false;
   }
 }

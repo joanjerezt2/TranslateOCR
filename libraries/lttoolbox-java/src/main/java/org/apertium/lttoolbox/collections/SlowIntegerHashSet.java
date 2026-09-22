@@ -5,7 +5,6 @@
 package org.apertium.lttoolbox.collections;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  *
@@ -34,10 +33,9 @@ public class SlowIntegerHashSet extends HashSet<Integer> implements IntSet {
 
   @Override
   public boolean addAll(IntSet c) {
-    Iterator<? extends Integer> e = c.iterator();
-    while (e.hasNext()) {
-      add(e.next());
-    }
+      for (Integer integer : c) {
+          add(integer);
+      }
     return true;
   }
 }

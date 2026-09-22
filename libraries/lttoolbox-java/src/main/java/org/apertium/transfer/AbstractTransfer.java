@@ -5,7 +5,6 @@
 package org.apertium.transfer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -35,10 +34,10 @@ public abstract class AbstractTransfer {
   /**
    * So, how do we set up the array of rule_map Method?
    * Well, during compilation the ParseTransferFile.java takes the XML hell of for example apertium-eo-en.en-eo.t1x, and converts it into Java code like the apertium_eo_en_eo_en_t1x java class (in package org.apertium.transfer.generated), which is loaded during runtime.
-   * So the array of rule_map Method is taken by introspection, taking all methods beginning with rule<number>, like rule0__la__num_ord__de__monato, rule1__de_ekde__tempo etc etc and kicks them into the array.
+   * So the array of rule_map Method is taken by introspection, taking all methods beginning with rule<number>, like rule0__la__num_ord__de__monato, rule1__de_ekde__tempo etc. and kicks them into the array.
    */
   protected Method[] rule_map = null; // vector<xmlNode *> rule_map;
-  protected BufferT<TransferToken> input_buffer = new BufferT<TransferToken>(); // Buffer<TransferToken> input_buffer;
+  protected BufferT<TransferToken> input_buffer = new BufferT<>(); // Buffer<TransferToken> input_buffer;
   public GeneratedTransferBase transferObject;
   /**
    * if true, flush the output when the null character is found
@@ -95,13 +94,11 @@ public abstract class AbstractTransfer {
   /**
    * Reads data
    *
-   * @param classFile the file name of the java bytecode file containing the transfer instructions
+   * @param transferClass the file name of the java bytecode file containing the transfer instructions
    * so, preprocessed by, apertium-preprocess-transfer-bytecode-j (.class)
    * @param datafile same file, preprocessed by, apertium-preprocess-transfer (.bin)
-   * @param bilFstFile bilingual FST file - might be null
-   * @throws Exception
    */
-  @SuppressWarnings(value = "unchecked")
+
   public void read(Class transferClass, String datafile) throws Exception {
     if (IOUtils.timing != null)
       IOUtils.timing.log("");
@@ -117,7 +114,7 @@ public abstract class AbstractTransfer {
     rule_map = new Method[mets.length];
     // Find all methods starting with name 'rule'
     // So the array of rule_map Method is taken by introspection, taking all methods beginning with rule<number>,
-    // like rule0__la__num_ord__de__monato, rule1__de_ekde__tempo etc etc and kicks them into the array.
+    // like rule0__la__num_ord__de__monato, rule1__de_ekde__tempo etc. and kicks them into the array.
     for (Method method : mets) {
       String name = method.getName();
       if (DEBUG) {
@@ -177,11 +174,11 @@ public abstract class AbstractTransfer {
         }
 
         @Override
-        public void flush() throws IOException {
+        public void flush() {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
         }
         // Source: http://www.java2s.com/Code/Java/File-Input-Output/WriterthatplacesalloutputonanlinkAppendabletarget.htm
         /*

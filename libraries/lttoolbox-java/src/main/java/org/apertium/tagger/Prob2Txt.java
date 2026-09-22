@@ -20,6 +20,8 @@
  */
 package org.apertium.tagger;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
 import org.apertium.lttoolbox.Getopt;
 import java.io.*;
@@ -41,7 +43,7 @@ class LocalGetOpt extends Getopt {
 public class Prob2Txt {
   static TaggerData td = new TaggerData();
   Integer eos;
-  private static String program = "prob2txt";
+  private static final String program = "prob2txt";
 
   static void help() {
     System.err.println("HMM parameters are writen in text format");
@@ -74,13 +76,13 @@ public class Prob2Txt {
         if (td.getOutput().get(k).contains(i)) {
           if (human_readable) {
             Set<Integer> tags = td.getOutput().get(k);
-            String str = "";
+            StringBuilder str = new StringBuilder();
 
             for (Integer it : tags) {
               if (str.length() > 0) {
-                str += ", ";
+                str.append(", ");
               }
-              str += td.getArrayTags().get(i);
+              str.append(td.getArrayTags().get(i));
             }
             System.out.print("B[" + td.getArrayTags().get(i) + "][");
             System.out.print(str + "] = ");
@@ -102,8 +104,7 @@ public class Prob2Txt {
     boolean human_readable = false;
 
     System.err.print("Command line: ");
-    for (int i = 0; i < argv.length; i++)
-      System.err.print(argv[i] + " ");
+    for (String s : argv) System.err.print(s + " ");
     System.err.println();
 
     MyGetOpt getopt = new MyGetOpt(argv, "fu");
@@ -123,7 +124,6 @@ public class Prob2Txt {
 
         default:
           help();
-          cont = false;
           return;
       }
     }
@@ -135,7 +135,7 @@ public class Prob2Txt {
     }
 
     System.err.println("File: " + file);
-    InputStream fin = new FileInputStream(file);
+    InputStream fin = Files.newInputStream(Paths.get(file));
     BufferedInputStream buf = new BufferedInputStream(fin);
 
     System.err.println("Reading data");

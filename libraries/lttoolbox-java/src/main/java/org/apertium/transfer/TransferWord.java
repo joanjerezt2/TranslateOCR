@@ -101,9 +101,9 @@ public class TransferWord {
 
   public static String copycase(String s_word, String t_word) {
     // These 2 checks are needed to support buggy tranfer files
-    if (s_word.length() == 0)
+    if (s_word.isEmpty())
       return t_word;
-    if (t_word.length() == 0)
+    if (t_word.isEmpty())
       return t_word;
 
     String result;
@@ -111,7 +111,7 @@ public class TransferWord {
     boolean uppercase = firstupper && Character.isUpperCase(s_word.charAt(s_word.length() - 1));
     boolean sizeone = s_word.length() == 1;
 
-    if (!uppercase || (sizeone && uppercase)) {
+    if (!uppercase || sizeone) {
       result = Character.toLowerCase(t_word.charAt(0)) + t_word.substring(1);
       //result = StringUtils::tolower(t_word);
     } else {
@@ -125,7 +125,7 @@ public class TransferWord {
   }
 
   public static String caseOf(String s_word) {
-    if (s_word.length() == 0)
+    if (s_word.isEmpty())
       return "aa";
 
     if (s_word.length() > 1) {

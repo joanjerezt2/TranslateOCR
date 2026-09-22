@@ -25,18 +25,15 @@ import org.apertium.interchunk.ApertiumInterchunk;
  *
  */
 public class ApertiumPostchunk extends ApertiumInterchunk {
-  /**
-   * @param args
-   * @throws Exception
-   */
-  public static int main(String[] args) throws Exception {
+
+  public static int parse(String[] args) throws Exception {
     System.setProperty("file.encoding", "UTF-8");
 
     CommandLineParams par = new CommandLineParams();
     /* Parse the command line. The passed-in CommandLineParams object
      * will be modified by this method.
      */
-    if (!parseCommandLine(args, par, "Postchunk", false)) {
+    if (parseCommandLine(args, par, "Postchunk", false)) {
       return 1;
     }
 

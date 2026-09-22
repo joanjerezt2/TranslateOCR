@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 
-/**
+/*
  *
  * @author jimregan
  */
@@ -38,10 +38,10 @@ import java.io.UnsupportedEncodingException;
 public class MorphoStream {
   private boolean foundEOF;
   //Normal debugging (-d parameter)
-  private boolean debug = false;
+  private final boolean debug;
   private String last_string_tag;
-  private int ca_any_char;
-  private int ca_any_tag;
+  private final int ca_any_char;
+  private final int ca_any_tag;
   private int ca_kignorar;
   private int ca_kbarra;
   private int ca_kdollar;
@@ -49,35 +49,33 @@ public class MorphoStream {
   private int ca_kmot;
   private int ca_kmas;
   private int ca_kunknown;
-  private int ca_tag_keof;
-  private int ca_tag_kundef;
-  private ArrayList<TaggerWord> vwords;
+  private final int ca_tag_keof;
+  private final int ca_tag_kundef;
+  private final ArrayList<TaggerWord> vwords;
   private InputStream input;
   /**
    * This exists to fix the character encoding issues that crop up by reading
    * directly byte-by-byte from the InputStream. ALL reading from the input stream
    * should be done through this reader instead of the InputStream directly.
    */
-  private Reader inputReader;
-  private MatchExe me;
-  private TaggerData td;
-  private Alphabet alphabet;
-  private MatchState ms;
+  private final Reader inputReader;
+  private final MatchExe me;
+  private final TaggerData td;
+  private final Alphabet alphabet;
+  private final MatchState ms;
   private boolean end_of_file;
   private boolean null_flush;
-  private Map<String, Integer> tag_index;
-  private ConstantManager constants;
+  private final Map<String, Integer> tag_index;
+  private final ConstantManager constants;
   //Deep-level dev debugging
-  private boolean DEBUG = false;
+  private final boolean DEBUG = false;
 
-//    MorphoStream() {
-//    }
   /**
    * Constructor
    *
    * @param ftxt the input stream.
    */
-  MorphoStream(Reader ftxt, boolean d, TaggerData t) throws UnsupportedEncodingException {
+  MorphoStream(Reader ftxt, boolean d, TaggerData t) {
     // this();
     foundEOF = false;
     debug = d;
@@ -109,7 +107,7 @@ public class MorphoStream {
     this.tag_index = td.getTagIndex();
     this.ca_tag_keof = tag_index.get("TAG_kEOF");
     this.ca_tag_kundef = tag_index.get("TAG_kUNDEF");
-    this.vwords = new ArrayList<TaggerWord>();
+    this.vwords = new ArrayList<>();
   }
 
   /**
@@ -123,7 +121,7 @@ public class MorphoStream {
       System.out.println("MorphoStream.getNextWord -- vwords: " + vwords);
     }
 
-    if (vwords.size() != 0) {
+    if (!vwords.isEmpty()) {
       TaggerWord word = vwords.get(0);
       vwords.remove(0);
 
@@ -203,44 +201,44 @@ public class MorphoStream {
         // word read, use above code to return it
         return get_next_word();
       } else {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         if (symbol == (int) '\\') {
           symbol = inputReader.read();
-          str += '\\';
-          str += (char) symbol;
-          symbol = (int) '\\';
+          str.append('\\');
+          str.append((char) symbol);
+          symbol = '\\';
         } else {
-          str += (char) symbol;
+          str.append((char) symbol);
 
         }
         while (symbol != (int) '^') {
           symbol = inputReader.read();
           if (symbol == -1 || (null_flush && symbol == '\0')) {
             end_of_file = true;
-            vwords.get(ivwords).add_ignored_string(str);
+            vwords.get(ivwords).add_ignored_string(str.toString());
             vwords.get(ivwords).add_tag(ca_tag_keof, "", td.getPreferRules());
             // word read, use above code to return it
             return get_next_word();
           } else if (symbol == (int) '\\') {
-            str += '\\';
+            str.append('\\');
             symbol = inputReader.read();
             if (symbol == -1 || (null_flush && symbol == '\0')) {
               end_of_file = true;
-              vwords.get(ivwords).add_ignored_string(str);
+              vwords.get(ivwords).add_ignored_string(str.toString());
               vwords.get(ivwords).add_tag(ca_tag_keof, "", td.getPreferRules());
               // word read, use above code to return it
               return get_next_word();
             }
-            str += (char) symbol;
-            symbol = (int) '\\';
+            str.append((char) symbol);
+            symbol = '\\';
           } else if (symbol == (int) '^') {
             if (str.length() > 0) {
-              vwords.get(ivwords).add_ignored_string(str);
+              vwords.get(ivwords).add_ignored_string(str.toString());
             }
             readRestOfWord(ivwords);
             return get_next_word();
           } else {
-            str += (char) symbol;
+            str.append((char) symbol);
           }
         }
 
@@ -259,13 +257,13 @@ public class MorphoStream {
    * The first ^ has been processed, so something like can/can<n><sg>/can<vaux><pres>$. is expected now.
    */
   void readRestOfWord(int ivwords) throws IOException {
-    String str = "";
+    StringBuilder str = new StringBuilder();
     while (true) {
       int symbol = inputReader.read();
       if (symbol == -1 || (null_flush && symbol == (int) '\0')) {
         end_of_file = true;
         if (str.length() > 0) {
-          vwords.get(ivwords).add_ignored_string(str);
+          vwords.get(ivwords).add_ignored_string(str.toString());
 
           System.err.println("Warning (internal): kIGNORE was returned while reading a word");
           System.err.println("Word being read: " + vwords.get(ivwords).get_superficial_form());
@@ -275,18 +273,18 @@ public class MorphoStream {
         return;
       } else if (symbol == (int) '\\') {
         symbol = inputReader.read();
-        str += '\\';
-        str += (char) symbol;
+        str.append('\\');
+        str.append((char) symbol);
       } else if (symbol == (int) '/') {
-        vwords.get(ivwords).set_superficial_form(str);
-        str = "";
+        vwords.get(ivwords).set_superficial_form(str.toString());
+        str = new StringBuilder();
         break;
       } else if (symbol == (int) '$') {
-        vwords.get(ivwords).set_superficial_form(str);
+        vwords.get(ivwords).set_superficial_form(str.toString());
         vwords.get(ivwords).add_ignored_string("$");
         break;
       } else {
-        str += (char) symbol;
+        str.append((char) symbol);
       }
     }
 
@@ -295,7 +293,7 @@ public class MorphoStream {
       if (symbol == -1 || (null_flush && symbol == '\0')) {
         end_of_file = true;
         if (str.length() > 0) {
-          vwords.get(ivwords).add_ignored_string(str);
+          vwords.get(ivwords).add_ignored_string(str.toString());
           System.err.println("Warning (internal): kIGNORE was returned while reading a word");
           System.err.println("Word being read: " + vwords.get(ivwords).get_superficial_form());
           System.err.println("Debug: " + str);
@@ -304,32 +302,29 @@ public class MorphoStream {
         return;
       } else if (symbol == (int) '\\') {
         symbol = inputReader.read();
-        str += '\\';
-        str += (char) symbol;
-        symbol = '\\';
+        str.append('\\');
+        str.append((char) symbol);
       } else if (symbol == (int) '/') {
-        lrlmClassify(str, ivwords);
-        str = "";
+        lrlmClassify(str.toString(), ivwords);
+        str = new StringBuilder();
         ivwords = 0;
-        continue;
       } else if (symbol == (int) '$') {
         if (str.charAt(0) != '*') {
-          lrlmClassify(str, ivwords);
+          lrlmClassify(str.toString(), ivwords);
         }
         return;
       } else {
-        str += (char) symbol;
+        str.append((char) symbol);
       }
 
     }
   }
 
   /**
-   * lrlm = left-right longest match (parse from left to right, matching the longest you can, like "greedy" matching)
+   * lrlm = left-right the longest match (parse from left to right, matching the longest you can, like "greedy" matching)
    * We need to find the coarse tag categories
    *
    * @param str An input word, somethink like "can<n><sg>" (Jacob thinks)
-   * @param ivwords
    */
   void lrlmClassify(String str, int ivwords) {
     if (DEBUG) {
@@ -501,4 +496,60 @@ public class MorphoStream {
   void setEndOfFile(boolean eof) {
     end_of_file = eof;
   }
+
+    public int getCa_kdollar() {
+        return ca_kdollar;
+    }
+
+    public void setCa_kdollar(int ca_kdollar) {
+        this.ca_kdollar = ca_kdollar;
+    }
+
+    public int getCa_kignorar() {
+        return ca_kignorar;
+    }
+
+    public void setCa_kignorar(int ca_kignorar) {
+        this.ca_kignorar = ca_kignorar;
+    }
+
+    public int getCa_kbarra() {
+        return ca_kbarra;
+    }
+
+    public void setCa_kbarra(int ca_kbarra) {
+        this.ca_kbarra = ca_kbarra;
+    }
+
+    public int getCa_kbegin() {
+        return ca_kbegin;
+    }
+
+    public void setCa_kbegin(int ca_kbegin) {
+        this.ca_kbegin = ca_kbegin;
+    }
+
+    public int getCa_kmot() {
+        return ca_kmot;
+    }
+
+    public void setCa_kmot(int ca_kmot) {
+        this.ca_kmot = ca_kmot;
+    }
+
+    public int getCa_kmas() {
+        return ca_kmas;
+    }
+
+    public void setCa_kmas(int ca_kmas) {
+        this.ca_kmas = ca_kmas;
+    }
+
+    public int getCa_kunknown() {
+        return ca_kunknown;
+    }
+
+    public void setCa_kunknown(int ca_kunknown) {
+        this.ca_kunknown = ca_kunknown;
+    }
 }

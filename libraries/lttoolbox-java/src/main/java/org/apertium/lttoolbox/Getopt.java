@@ -1,6 +1,6 @@
 package org.apertium.lttoolbox;
 
-/** ************************************************************************
+/* ************************************************************************
  * /* Getopt.java -- Java port of GNU getopt from glibc 2.0.6
  * /*
  * /* Copyright (c) 1987-1997 Free Software Foundation, Inc.
@@ -22,20 +22,17 @@ package org.apertium.lttoolbox;
  * /* Boston, MA 02111-1307 USA
  * /************************************************************************* */
 //package gnu.getopt;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.PropertyResourceBundle;
 import java.text.MessageFormat;
 
-/** *********************************************************************** */
+/* *********************************************************************** */
 /**
  * This is a Java port of GNU getopt, a class for parsing command line
- * arguments passed to programs. It it based on the C getopt() functions
+ * arguments passed to programs. It is based on the C getopt() functions
  * in glibc 2.0.6 and should parse options in a 100% compatible manner.
  * If it does not, that is a bug. The programmer's interface is also
  * very compatible.
  * <p>
- * To use Getopt, create a Getopt object with a argv array passed to the
+ * To use Getopt, create a Getopt object with an argv array passed to the
  * main method, then call the getopt() method in a loop. It will return an
  * int that contains the value of the option character parsed from the
  * command line. When there are no more options to be parsed, it
@@ -206,14 +203,14 @@ import java.text.MessageFormat;
  * <p>
  * Long options can also be specified using a special POSIX argument
  * format (one that I highly discourage). This form of entry is
- * enabled by placing a "W;" (yes, 'W' then a semi-colon) in the valid
+ * enabled by placing a "W;" (yes, 'W' then a semicolon) in the valid
  * option string. This causes getopt to treat the name following the
  * "-W" as the name of the long option. For example, "-W outputdir=foo"
  * would be equivalent to "--outputdir=foo". The name can immediately
  * follow the "-W" like so: "-Woutputdir=foo". Option arguments are
  * handled identically to normal long options. If a string follows the
  * "-W" that does not represent a valid long option, then getopt() returns
- * 'W' and the caller must decide what to do. Otherwise getopt() returns
+ * 'W' and the caller must decide what to do. Otherwise, getopt() returns
  * a long option value as described below.
  * <p>
  * While long options offer convenience, they can also be tedious to type
@@ -230,7 +227,7 @@ import java.text.MessageFormat;
  * <p>
  * Long options are defined by LongOpt objects. These objects are created
  * with a contructor that takes four params: a String representing the
- * object name, a integer specifying what arguments the option takes
+ * object name, an integer specifying what arguments the option takes
  * (the value is one of LongOpt.NO_ARGUMENT, LongOpt.REQUIRED_ARGUMENT,
  * or LongOpt.OPTIONAL_ARGUMENT), a StringBuffer flag object (described
  * below), and an integer value (described below).
@@ -253,7 +250,7 @@ import java.text.MessageFormat;
  * (say, "-h" and "--help") that do the exact same thing.
  * <p>
  * With long options, there is an alternative method of determining
- * which option was selected. The method getLongind() will return the
+ * which option was selected. The method getLongind() will return
  * the index in the long option array (NOT argv) of the long option found.
  * So if multiple long options are configured to return the same value,
  * the application can use getLongind() to distinguish between them.
@@ -286,7 +283,7 @@ import java.text.MessageFormat;
  *          break;
  *          //
  *        case 1:
- *          System.out.println("I see you have return in order set and that " +
+ *          System.out.println("I see you have returned in order set and that " +
  *                             "a non-option argv element was just found " +
  *                             "with the value '" + g.getOptarg() + "'");
  *          break;
@@ -344,9 +341,9 @@ import java.text.MessageFormat;
  * above. This takes a trailing boolean flag. If set to false, Getopt
  * performs identically to the example, but if the boolean flag is true
  * then long options are allowed to start with a single '-' instead of
- * "--". If the first character of the option is a valid short option
+ * \"--". If the first character of the option is a valid short option
  * character, then the option is treated as if it were the short option.
- * Otherwise it behaves as if the option is a long option. Note that
+ * Otherwise, it behaves as if the option is a long option. Note that
  * the name given to this option - long_only - is very counter-intuitive.
  * It does not cause only long options to be parsed but instead enables
  * the behavior described above.
@@ -370,26 +367,21 @@ import java.text.MessageFormat;
  * @author Roland McGrath (roland@gnu.ai.mit.edu)
  * @author Ulrich Drepper (drepper@cygnus.com)
  * @author Aaron M. Renn (arenn@urbanophile.com)
- *
- * @see LongOpt
  */
-public class Getopt extends Object {
-  /** *********************************************************************** */
+public class Getopt {
+  /* *********************************************************************** */
 
   /*
    * Class Variables
    */
   /**
    * Describe how to deal with options that follow non-option ARGV-elements.
-   *
    * If the caller did not specify anything,
    * the default is REQUIRE_ORDER if the property
    * gnu.posixly_correct is defined, PERMUTE otherwise.
-   *
    * The special argument `--' forces an end of option-scanning regardless
    * of the value of `ordering'. In the case of RETURN_IN_ORDER, only
    * `--' can cause `getopt' to return -1 with `optind' != ARGC.
-   *
    * REQUIRE_ORDER means don't recognize them as options;
    * stop option processing when the first non-option is seen.
    * This is what Unix does.
@@ -414,7 +406,7 @@ public class Getopt extends Object {
    * selects this mode of operation.
    */
   protected static final int RETURN_IN_ORDER = 3;
-  /** *********************************************************************** */
+  /* *********************************************************************** */
 
   /*
    * Instance Variables
@@ -431,12 +423,9 @@ public class Getopt extends Object {
    * Index in ARGV of the next element to be scanned.
    * This is used for communication to and from the caller
    * and for communication between successive calls to `getopt'.
-   *
    * On entry to `getopt', zero means this is the first call; initialize.
-   *
    * When `getopt' returns -1, this is the index of the first of the
    * non-option elements that the caller should itself scan.
-   *
    * Otherwise, `optind' communicates from one call to the next
    * how much of ARGV has been scanned so far.
    */
@@ -455,7 +444,6 @@ public class Getopt extends Object {
    * The next char to be scanned in the option-element
    * in which the last option character we returned was found.
    * This allows us to pick up the scan where we left off.
-   *
    * If this is zero, or a null string, it means resume the scan
    * by advancing to the next ARGV-element.
    */
@@ -465,7 +453,7 @@ public class Getopt extends Object {
    */
   protected String optstring;
   /**
-   * This flag determines whether or not we are parsing only long args
+   * This flag determines whether we are parsing only long args
    */
   protected boolean long_only;
   /**
@@ -473,7 +461,7 @@ public class Getopt extends Object {
    */
   protected int longind;
   /**
-   * The flag determines whether or not we operate in strict POSIX compliance
+   * The flag determines whether we operate in strict POSIX compliance
    */
   protected boolean posixly_correct;
   /**
@@ -503,7 +491,7 @@ public class Getopt extends Object {
    */
   protected String progname;
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
 
   /*
    * Constructors
@@ -520,11 +508,11 @@ public class Getopt extends Object {
     this(progname, argv, optstring, null, false);
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * Construct a Getopt instance with given input data that is capable of
    * parsing long options and short options. Contrary to what you might
-   * think, the flag 'long_only' does not determine whether or not we
+   * think, the flag 'long_only' does not determine whether we
    * scan for only long arguments. Instead, a value of true here allows
    * long arguments to start with a '-' instead of '--' unless there is a
    * conflict with a short option name.
@@ -537,7 +525,7 @@ public class Getopt extends Object {
    */
   public Getopt(String progname, String[] argv, String optstring,
       String[] long_options, boolean long_only) {
-    if (optstring.length() == 0)
+    if (optstring.isEmpty())
       optstring = " ";
 
     // This function is essentially _getopt_initialize from GNU getopt
@@ -571,7 +559,7 @@ public class Getopt extends Object {
     }
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
 
   /*
    * Instance Methods
@@ -585,21 +573,19 @@ public class Getopt extends Object {
    * @param optstring The new option string to use
    */
   public void setOptstring(String optstring) {
-    if (optstring.length() == 0)
+    if (optstring.isEmpty())
       optstring = " ";
 
     this.optstring = optstring;
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * optind it the index in ARGV of the next element to be scanned.
    * This is used for communication to and from the caller
    * and for communication between successive calls to `getopt'.
-   *
    * When `getopt' returns -1, this is the index of the first of the
    * non-option elements that the caller should itself scan.
-   *
    * Otherwise, `optind' communicates from one call to the next
    * how much of ARGV has been scanned so far.
    */
@@ -607,11 +593,11 @@ public class Getopt extends Object {
     return (optind);
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * This method allows the optind index to be set manually. Normally this
    * is not necessary (and incorrect usage of this method can lead to serious
-   * lossage), but optind is a public symbol in GNU getopt, so this method
+   * lossage), but optind is a public symbol in GNU getopt. So this method
    * was added to allow it to be modified by the caller if desired.
    *
    * @param optind The new value of optind
@@ -620,7 +606,7 @@ public class Getopt extends Object {
     this.optind = optind;
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * Since in GNU getopt() the argument vector is passed back in to the
    * function every time, the caller can swap out argv on the fly. Since
@@ -634,7 +620,7 @@ public class Getopt extends Object {
     this.argv = argv;
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * For communication from `getopt' to the caller.
    * When `getopt' finds an option that takes an argument,
@@ -647,7 +633,7 @@ public class Getopt extends Object {
     return (optarg);
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * Normally Getopt will print a message to the standard error when an
    * invalid option is encountered. This can be suppressed (or re-enabled)
@@ -658,7 +644,7 @@ public class Getopt extends Object {
     this.opterr = opterr;
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * When getopt() encounters an invalid option, it stores the value of that
    * option in optopt which can be retrieved with this method. There is
@@ -668,7 +654,7 @@ public class Getopt extends Object {
     return (optopt);
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * Returns the index into the array of long options (NOT argv) representing
    * the long option that was found.
@@ -677,7 +663,7 @@ public class Getopt extends Object {
     return (longind);
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * Exchange the shorter segment with the far end of the longer segment.
    * That puts the shorter segment into the right place.
@@ -727,12 +713,12 @@ public class Getopt extends Object {
     last_nonopt = optind;
   }
 
-  /** *********************************************************************** */
+  /* *********************************************************************** */
   /**
    * This method returns a char that is the current option that has been
    * parsed from the command line. If the option takes an argument, then
    * the internal variable 'optarg' is set which is a String representing
-   * the the value of the argument. This value can be retrieved by the
+   * the value of the argument. This value can be retrieved by the
    * caller using the getOptarg() method. If an invalid option is found,
    * an error message is printed and a '?' is returned. The name of the
    * invalid option character can be retrieved by calling the getOptopt()
@@ -745,10 +731,10 @@ public class Getopt extends Object {
   public int getopt() {
     optarg = null;
 
-    if (endparse == true)
+    if (endparse)
       return (-1);
 
-    if ((nextchar == null) || (nextchar.equals(""))) {
+    if ((nextchar == null) || (nextchar.isEmpty())) {
       // If we have just processed some options following some non-options,
       //  exchange them so that the options come first.
       if (last_nonopt > optind)
@@ -766,7 +752,7 @@ public class Getopt extends Object {
 
         // Skip any additional non-options
         // and extend the range of non-options previously skipped.
-        while ((optind < argv.length) && (argv[optind].equals("")
+        while ((optind < argv.length) && (argv[optind].isEmpty()
             || (argv[optind].charAt(0) != '-') || argv[optind].equals("-"))) {
           optind++;
         }
@@ -804,7 +790,7 @@ public class Getopt extends Object {
 
       // If we have come to a non-option and did not permute it,
       // either stop the scan or describe it to the caller and pass it by.
-      if (argv[optind].equals("") || (argv[optind].charAt(0) != '-')
+      if (argv[optind].isEmpty() || (argv[optind].charAt(0) != '-')
           || argv[optind].equals("-")) {
         if (ordering == REQUIRE_ORDER)
           return (-1);
@@ -835,19 +821,18 @@ public class Getopt extends Object {
     if (optstring.indexOf(c) != -1)
       temp = optstring.substring(optstring.indexOf(c));
 
-    if (nextchar.equals(""))
+    if (nextchar.isEmpty())
       ++optind;
 
     if ((temp == null) || (c == ':')) {
       if (opterr) {
-        if (posixly_correct) {
+          Object[] msgArgs = {progname, Character.toString((char) c)};
+          if (posixly_correct) {
           // 1003.2 specifies the format of this message
-          Object[] msgArgs = {progname, new Character((char) c).toString()};
-          System.err.println(MessageFormat.format(
+              System.err.println(MessageFormat.format(
               ("getopt.illegal"), msgArgs));
         } else {
-          Object[] msgArgs = {progname, new Character((char) c).toString()};
-          System.err.println(MessageFormat.format(
+              System.err.println(MessageFormat.format(
               ("getopt.invalid"), msgArgs));
         }
       }
@@ -859,13 +844,13 @@ public class Getopt extends Object {
 
     // Convenience. Treat POSIX -W foo same as long option --foo
     if ((temp.charAt(0) == 'W') && (temp.length() > 1) && (temp.charAt(1) == ';')) {
-      if (!nextchar.equals("")) {
+      if (!nextchar.isEmpty()) {
         optarg = nextchar;
       } // No further cars in this argv element and no more argv elements
       else if (optind == argv.length) {
         if (opterr) {
           // 1003.2 specifies the format of this message.
-          Object[] msgArgs = {progname, new Character((char) c).toString()};
+          Object[] msgArgs = {progname, Character.toString((char) c)};
           System.err.println(MessageFormat.format(
               ("getopt.requires2"), msgArgs));
         }
@@ -893,22 +878,21 @@ public class Getopt extends Object {
     if ((temp.length() > 1) && (temp.charAt(1) == ':')) {
       if ((temp.length() > 2) && (temp.charAt(2) == ':')) // This is an option that accepts and argument optionally
       {
-        if (!nextchar.equals("")) {
+        if (!nextchar.isEmpty()) {
           optarg = nextchar;
           ++optind;
         } else {
           optarg = null;
         }
 
-        nextchar = null;
       } else {
-        if (!nextchar.equals("")) {
+        if (!nextchar.isEmpty()) {
           optarg = nextchar;
           ++optind;
         } else if (optind == argv.length) {
           if (opterr) {
             // 1003.2 specifies the format of this message
-            Object[] msgArgs = {progname, new Character((char) c).toString()};
+            Object[] msgArgs = {progname, Character.toString((char) c)};
             System.err.println(MessageFormat.format(
                 ("getopt.requires2"), msgArgs));
           }
@@ -932,7 +916,7 @@ public class Getopt extends Object {
             if (optind == argv.length) {
               if (opterr) {
                 // 1003.2 specifies the format of this message
-                Object[] msgArgs = {progname, new Character((char) c).toString()};
+                Object[] msgArgs = {progname, Character.toString((char) c)};
                 System.err.println(MessageFormat.format(
                     ("getopt.requires2"), msgArgs));
               }
@@ -956,8 +940,8 @@ public class Getopt extends Object {
           }
         }
 
-        nextchar = null;
       }
+        nextchar = null;
     }
 
     return (c);

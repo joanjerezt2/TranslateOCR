@@ -18,6 +18,7 @@
  */
 package org.apertium.tagger;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.Map;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import org.apertium.transfer.ApertiumRE;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
@@ -40,7 +40,7 @@ import java.util.LinkedHashSet;
 public class TaggerWord {
   private String superficial_form;
   private Set<Integer> tags;
-  private Map<Integer, String> lexical_forms;
+  private final Map<Integer, String> lexical_forms;
   private String ignored_string;
   /**
    * Flag to distinguish the way in which the word was ended.
@@ -53,7 +53,7 @@ public class TaggerWord {
    * previous word was ended. It has the same
    * plus_cut meaning
    */
-  private boolean previous_plus_cut;
+  private final boolean previous_plus_cut;
   /**
    * Show the superficial form in the output
    */
@@ -66,15 +66,15 @@ public class TaggerWord {
   private static boolean generate_marks = false;
   public static ArrayList<String> array_tags;
   public static boolean show_ignored_string = true;
-  private static Map<String, ApertiumRE> patterns = new LinkedHashMap<String, ApertiumRE>();
-  private static boolean DEBUG = false;
+  private static final Map<String, ApertiumRE> patterns = new LinkedHashMap<>();
+  private static final boolean DEBUG = false;
 
   public TaggerWord(boolean prev_plus_cut) {
     ignored_string = "";
     plus_cut = false;
     previous_plus_cut = prev_plus_cut;
-    tags = new LinkedHashSet<Integer>();
-    lexical_forms = new LinkedHashMap<Integer, String>();
+    tags = new LinkedHashSet<>();
+    lexical_forms = new LinkedHashMap<>();
   }
 
   public TaggerWord() {
@@ -86,7 +86,6 @@ public class TaggerWord {
    * Keep in mind when doing testing that the state of this flag may be retained
    * across tests.
    *
-   * @param genMarks
    */
   public static void setGenerateMarks(boolean genMarks) {
     generate_marks = genMarks;
@@ -96,7 +95,6 @@ public class TaggerWord {
    * Sets the flag that determines if superficial forms will be output
    * along with the lexical forms.
    *
-   * @param sf
    */
   public void set_show_sf(boolean sf) {
     this.show_sf = sf;
@@ -109,7 +107,7 @@ public class TaggerWord {
   /**
    * Set the superficial form of the word.
    *
-   * @param s the superficial form
+   * @param sf the superficial form
    */
   public void set_superficial_form(String sf) {
     this.superficial_form = sf;
@@ -134,13 +132,12 @@ public class TaggerWord {
     }
     //Map<String, ApertiumRE>.Iterator it = patterns.find(pattern);
     if (!patterns.containsKey(pattern)) {
-      String regexp = pattern;
 
-      if (regexp.contains("<*>")) {
-        regexp.replaceAll("<*>", "(<[^>]+>)+");
+        if (pattern.contains("<*>")) {
+        pattern.replaceAll("<*>", "(<[^>]+>)+");
       }
 
-      patterns.put(pattern, new ApertiumRE(regexp));
+      patterns.put(pattern, new ApertiumRE(pattern));
       //return "".equals(patterns.get(pattern).match(s));
             /* The line above makes no sense and produces different behavior
        * depending on if the pattern existed or not, also this seems to be an artifact
@@ -149,11 +146,9 @@ public class TaggerWord {
        * This fixed the issue of this method wrongly matching on input that didn't match.
        * (Such as matching prefer tags when it shouldn't have.)
        */
-      return pattern.matches(s);
 
-    } else {
-      return pattern.matches(s);
     }
+      return pattern.matches(s);
   }
 
   /**
@@ -206,18 +201,18 @@ public class TaggerWord {
    * Get a string with the set of tags
    */
   public String get_string_tags() {
-    String st = "{";
+    StringBuilder st = new StringBuilder("{");
 
-    if (tags.size() > 0) {
-      st += array_tags.get(0);
+    if (!tags.isEmpty()) {
+      st.append(array_tags.get(0));
     }
     for (int i = 1; i < tags.size(); i++) {
-      st += ",";
-      st += array_tags.get(i);
+      st.append(",");
+      st.append(array_tags.get(i));
     }
-    st += "}";
+    st.append("}");
 
-    return st;
+    return st.toString();
   }
 
   /**
@@ -250,7 +245,7 @@ public class TaggerWord {
       }
     }
 
-    if (lexical_forms.size() == 0) {
+    if (lexical_forms.isEmpty()) {
       ret += '*';
       ret += superficial_form;
     } else if (lexical_forms.get(0) != null && lexical_forms.get(0).startsWith("*")) {
@@ -276,49 +271,49 @@ public class TaggerWord {
   }
 
   public String get_all_chosen_tag_first(Integer t, int TAG_kEOF) {
-    String ret = "";
+    StringBuilder ret = new StringBuilder();
     if (show_ignored_string)
-      ret += ignored_string;
+      ret.append(ignored_string);
 
     if (t == TAG_kEOF)
-      return ret;
+      return ret.toString();
 
     if (!previous_plus_cut) {
       if (generate_marks && isAmbiguous()) {
-        ret += "^=";
+        ret.append("^=");
       } else {
-        ret += "^";
+        ret.append("^");
       }
 
-      ret += superficial_form;
+      ret.append(superficial_form);
 
-      if (lexical_forms.size() == 0) { // This is an UNKNOWN WORD
-        ret += "/*";
-        ret += superficial_form;
+      if (lexical_forms.isEmpty()) { // This is an UNKNOWN WORD
+        ret.append("/*");
+        ret.append(superficial_form);
       } else {
-        ret += "/";
-        ret += lexical_forms.get(t);
+        ret.append("/");
+        ret.append(lexical_forms.get(t));
         if (lexical_forms.size() > 1) {
           for (Integer it : tags) {
             /* Make sure we're not adding the tag at 't' twice(?)
              */
-            if (it != t) {
-              ret += "/";
-              ret += lexical_forms.get(it);
+            if (!Objects.equals(it, t)) {
+              ret.append("/");
+              ret.append(lexical_forms.get(it));
             }
           }
         }
       }
     }
 
-    if (!ignored_string.equals(ret)) {
+    if (!ignored_string.contentEquals(ret)) {
       if (plus_cut)
-        ret += "+";
+        ret.append("+");
       else
-        ret += "$";
+        ret.append("$");
     }
 
-    return ret;
+    return ret.toString();
   }
 
   /**
@@ -349,27 +344,27 @@ public class TaggerWord {
    */
   public void print() {
     //This functionality was reworked into the toString() method
-    System.out.println(toString());
+    System.out.println(this);
   }
 
   @Override
   public String toString() {
-    String tempString = new String();
-    tempString += "[#" + superficial_form + "# ";
+    StringBuilder tempString = new StringBuilder();
+    tempString.append("[#").append(superficial_form).append("# ");
     for (Integer f : tags) {
-      tempString += "(" + f + " " + lexical_forms.get(f) + ") ";
+      tempString.append("(").append(f).append(" ").append(lexical_forms.get(f)).append(") ");
     }
-    tempString += "\b]";
-    return tempString;
+    tempString.append("\b]");
+    return tempString.toString();
   }
 
   public void outputOriginal(Appendable out2) throws IOException {
-    String s = this.superficial_form;
+    StringBuilder s = new StringBuilder(this.superficial_form);
 
     for (String form : lexical_forms.values()) {
-      if (form.length() > 0) {
-        s += "/";
-        s += form;
+      if (!form.isEmpty()) {
+        s.append("/");
+        s.append(form);
       }
     }
 
@@ -387,7 +382,7 @@ public class TaggerWord {
     if (isAmbiguous()) {
       Iterator<Map.Entry<Integer, String>> it = lexical_forms.entrySet().iterator();
 
-      Set<Integer> newsettag = new LinkedHashSet<Integer>();
+      Set<Integer> newsettag = new LinkedHashSet<>();
       while (it.hasNext()) {
         Map.Entry<Integer, String> cur = it.next();
 

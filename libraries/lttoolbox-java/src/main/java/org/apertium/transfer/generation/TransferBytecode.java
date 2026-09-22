@@ -15,6 +15,8 @@ import java.util.HashMap;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Objects;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -86,13 +88,13 @@ public class TransferBytecode {
   private static final Type INTERCHUNK_WORD_ARRAY = new ArrayType(INTERCHUNK_WORD, 1);
   private static final Type STRING_ARRAY = new ArrayType(STRING, 1);
   private static final Type CHAR_SEQUENCE = getType(java.lang.CharSequence.class);
-  private Type WORD;
-  private String className;
-  private String fullClassName;
-  private ClassGen cg;
-  private ConstantPoolGen cp;
+  private final Type WORD;
+  private final String className;
+  private final String fullClassName;
+  private final ClassGen cg;
+  private final ConstantPoolGen cp;
   private InstructionList il;
-  private InstructionFactory factory;
+  private final InstructionFactory factory;
   private FieldGen fg;
   private MethodGen mg;
 
@@ -100,15 +102,15 @@ public class TransferBytecode {
     TRANSFER, INTERCHUNK, POSTCHUNK
   }
 
-  private ParseMode parseMode;
+  private final ParseMode parseMode;
   //For checking macro names and numbers of parameters
-  private HashMap<String, Integer> macroList = new HashMap<String, Integer>();
+  private final HashMap<String, Integer> macroList = new HashMap<>();
   //For checking attributes. Order is important
-  private LinkedHashSet<String> attrList = new LinkedHashSet<String>();
+  private final LinkedHashSet<String> attrList = new LinkedHashSet<>();
   //For checking variables
-  private LinkedHashSet<String> varList = new LinkedHashSet<String>();
+  private final LinkedHashSet<String> varList = new LinkedHashSet<>();
   //For checking lists
-  private LinkedHashSet<String> listList = new LinkedHashSet<String>();
+  private final LinkedHashSet<String> listList = new LinkedHashSet<>();
   //The number of parameters in the rule/macro/method currently being defined
   private int currentNumberOfWordInParameterList;
   private Element currentNode;
@@ -170,19 +172,19 @@ public class TransferBytecode {
   private String getPathAsString(Node n) {
     if (n == null)
       return "";
-    String path = "";
+    StringBuilder path = new StringBuilder();
     do {
-      String attrss = "";
+      StringBuilder attrss = new StringBuilder();
       NamedNodeMap attrs = n.getAttributes();
       //for (int i=0; i<attrs.getLength(); i++) attrss += " "+attrs.item(i).getNodeName()+"="+attrs.item(i).getNodeValue();
       if (attrs != null) {
         for (int i = 0; i < attrs.getLength(); i++)
-          attrss += " " + attrs.item(i);
+          attrss.append(" ").append(attrs.item(i));
       }
 
       if (path.length() > 0)
-        path = "/" + path;
-      path = "<" + n.getNodeName() + attrss + ">" + path;
+        path.insert(0, "/");
+      path.insert(0, "<" + n.getNodeName() + attrss + ">");
       n = n.getParentNode();
     } while (!(n instanceof Document));
     return " - for " + path;
@@ -232,7 +234,7 @@ public class TransferBytecode {
         re.append('|');
       re.append(escapeStr(item.substring(startSame, item.length() - stopSame)));
     }
-    String res = "<" + item0.substring(0, startSame) + (re.length() == 0 ? "" : "(?:" + re.toString() + ")") + item0.substring(item0.length() - stopSame) + ">";
+    String res = "<" + item0.substring(0, startSame) + (re.length() == 0 ? "" : "(?:" + re + ")") + item0.substring(item0.length() - stopSame) + ">";
     res = res.replace(".", "><");
 
 //		System.err.println("attrItemRegexp("+items+") gave "+res);
@@ -328,7 +330,7 @@ public class TransferBytecode {
       il.append(factory.createInvoke("java.lang.StringBuilder", "toString", STRING, NO_ARGS, INVOKEVIRTUAL));
     } else if (n.equals("lu-count") && parseMode == ParseMode.POSTCHUNK) {
       // the number of lexical units inside the chunk is the length of the words array, but as we might be in a
-      // macro, where we dont have access to the array, we use a global variable
+      // macro, where we don't have access to the array, we use a global variable
       il.append(createThis());
       il.append(factory.createGetField(fullClassName, "lu_count", STRING));
     } else {
@@ -341,34 +343,39 @@ public class TransferBytecode {
     currentNode = instr;
     for (Element e : listChildren(instr)) {
       String n = e.getTagName();
-      if (n.equals("lu")) {
-        processLu(e);
-      } else if (n.equals("mlu")) {
-        il.append(createLoad(APPENDABLE, 1));
-        il.append(factory.createConstant('^'));
-        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
-        for (java.util.Iterator<Element> it = listChildren(e).iterator(); it.hasNext();) {
-          Element mlu = it.next();
-          for (Element lu : listChildren(mlu)) {
-            evalString(lu);
-            il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
-          }
-          if (it.hasNext()) {
-            il.append(factory.createConstant('+'));
-            il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
-          }
+        switch (n) {
+            case "lu":
+                processLu(e);
+                break;
+            case "mlu":
+                il.append(createLoad(APPENDABLE, 1));
+                il.append(factory.createConstant('^'));
+                il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
+                for (java.util.Iterator<Element> it = listChildren(e).iterator(); it.hasNext(); ) {
+                    Element mlu = it.next();
+                    for (Element lu : listChildren(mlu)) {
+                        evalString(lu);
+                        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
+                    }
+                    if (it.hasNext()) {
+                        il.append(factory.createConstant('+'));
+                        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
+                    }
+                }
+                il.append(factory.createConstant('$'));
+                il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
+                il.append(POP);
+                break;
+            case "chunk":
+                processChunk(e);
+                break;
+            default:
+                il.append(createLoad(APPENDABLE, 1));
+                evalString(e);
+                il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
+                il.append(POP);
+                break;
         }
-        il.append(factory.createConstant('$'));
-        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
-        il.append(POP);
-      } else if (n.equals("chunk")) {
-        processChunk(e);
-      } else {
-        il.append(createLoad(APPENDABLE, 1));
-        evalString(e);
-        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
-        il.append(POP);
-      }
     }
   }
 
@@ -426,35 +433,40 @@ public class TransferBytecode {
 
     for (Element c0 : listChildren(e)) {
       String n = c0.getTagName();
-      if (n.equals("tags")) {
-        for (Element tag : listChildren(c0)) {
-          evalString(findElementSibling(tag.getFirstChild()));
-          il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
+        switch (n) {
+            case "tags":
+                for (Element tag : listChildren(c0)) {
+                    evalString(findElementSibling(tag.getFirstChild()));
+                    il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
+                }
+                il.append(factory.createConstant('{'));
+                il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
+                break;
+            case "lu":
+                processLu(c0);
+                break;
+            case "mlu":
+                il.append(factory.createConstant('^'));
+                il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
+                for (java.util.Iterator<Element> it = listChildren(c0).iterator(); it.hasNext(); ) {
+                    Element mlu = it.next();
+                    for (Element lu : listChildren(mlu)) {
+                        evalString(lu);
+                        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
+                    }
+                    if (it.hasNext()) {
+                        il.append(factory.createConstant('+'));
+                        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
+                    }
+                }
+                il.append(factory.createConstant('$'));
+                il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
+                break;
+            default:
+                evalString(c0);
+                il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
+                break;
         }
-        il.append(factory.createConstant('{'));
-        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
-      } else if (n.equals("lu")) {
-        processLu(c0);
-      } else if (n.equals("mlu")) {
-        il.append(factory.createConstant('^'));
-        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
-        for (java.util.Iterator<Element> it = listChildren(c0).iterator(); it.hasNext();) {
-          Element mlu = it.next();
-          for (Element lu : listChildren(mlu)) {
-            evalString(lu);
-            il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
-          }
-          if (it.hasNext()) {
-            il.append(factory.createConstant('+'));
-            il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
-          }
-        }
-        il.append(factory.createConstant('$'));
-        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR}, INVOKEINTERFACE));
-      } else {
-        evalString(c0);
-        il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
-      }
     }
     il.append(factory.createConstant("}$"));
     il.append(factory.createInvoke("java.lang.Appendable", "append", APPENDABLE, new Type[]{CHAR_SEQUENCE}, INVOKEINTERFACE));
@@ -464,21 +476,29 @@ public class TransferBytecode {
   private void processInstruction(Element instr) {
     currentNode = instr;
     String n = instr.getTagName();
-    if (n.equals("choose")) {
-      processChoose(instr);
-    } else if (n.equals("let")) {
-      processLet(instr);
-    } else if (n.equals("append")) {
-      processAppend(instr);
-    } else if (n.equals("out")) {
-      processOut(instr);
-    } else if (n.equals("call-macro")) {
-      processCallMacro(instr);
-    } else if (n.equals("modify-case")) {
-      processModifyCase(instr);
-    } else {
-      throwParseError("processInstruction(n = " + n);
-    }
+      switch (n) {
+          case "choose":
+              processChoose(instr);
+              break;
+          case "let":
+              processLet(instr);
+              break;
+          case "append":
+              processAppend(instr);
+              break;
+          case "out":
+              processOut(instr);
+              break;
+          case "call-macro":
+              processCallMacro(instr);
+              break;
+          case "modify-case":
+              processModifyCase(instr);
+              break;
+          default:
+              throwParseError("processInstruction(n = " + n);
+              break;
+      }
   }
 
   private void processLet(Element instr) {
@@ -590,7 +610,7 @@ public class TransferBytecode {
     il.append(createThis());
     il.append(createLoad(APPENDABLE, 1));
     int macronpar = macroList.get(n);
-    Type args[] = new Type[macronpar != 0 ? macronpar * 2 : 1];
+    Type[] args = new Type[macronpar != 0 ? macronpar * 2 : 1];
     args[0] = APPENDABLE;
     int npar = 0;
     for (Element c : listChildren(instr)) {
@@ -641,7 +661,7 @@ public class TransferBytecode {
   private void processChoose(Element e) {
     currentNode = e;
     LinkedList<BranchHandle> branchHandles = null;
-    LinkedList<BranchHandle> gotoBranchHandles = new LinkedList<BranchHandle>();
+    LinkedList<BranchHandle> gotoBranchHandles = new LinkedList<>();
     for (Element whenC : listChildren(e)) {
       if (branchHandles != null) { //Every iteration except the first one
         gotoBranchHandles.push(il.append(new GOTO(null)));
@@ -657,7 +677,7 @@ public class TransferBytecode {
         branchHandles = processLogical(getFirstChildElement(c0));
         c0 = findElementSibling(c0.getNextSibling());
       } else {
-        branchHandles = new LinkedList<BranchHandle>();
+        branchHandles = new LinkedList<>();
         assert (n.equals("otherwise"));
       }
       while (c0 != null) {
@@ -666,10 +686,11 @@ public class TransferBytecode {
       }
     }
     InstructionHandle nop = il.append(NOP);
-    for (BranchHandle bh : branchHandles)
-      bh.setTarget(nop);
-    for (BranchHandle bh : gotoBranchHandles)
-      bh.setTarget(nop);
+    assert branchHandles != null;
+    for (BranchHandle bh : branchHandles){
+      bh.setTarget(nop);}
+    for (BranchHandle bh : gotoBranchHandles){
+      bh.setTarget(nop);}
   }
 
   private LinkedList<BranchHandle> processLogical(Element e) {
@@ -681,41 +702,41 @@ public class TransferBytecode {
     String n = e.getTagName();
     if (n.equals("equal")) {
       processEqual(e);
-      LinkedList<BranchHandle> result = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> result = new LinkedList<>();
       result.push(il.append(branchIfTrue ? new IFNE(null) : new IFEQ(null)));
       return result;
     } else if (n.equals("begins-with")) {
       processBeginsWith(e);
-      LinkedList<BranchHandle> result = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> result = new LinkedList<>();
       result.push(il.append(branchIfTrue ? new IFNE(null) : new IFEQ(null)));
       return result;
     } else if (n.equals("begins-with-list")) {
       processBeginsWithList(e);
-      LinkedList<BranchHandle> result = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> result = new LinkedList<>();
       result.push(il.append(branchIfTrue ? new IFNE(null) : new IFEQ(null)));
       return result;
     } else if (n.equals("ends-with")) {
       processEndsWith(e);
-      LinkedList<BranchHandle> result = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> result = new LinkedList<>();
       result.push(il.append(branchIfTrue ? new IFNE(null) : new IFEQ(null)));
       return result;
     } else if (n.equals("ends-with-list")) {
       processEndsWithList(e);
-      LinkedList<BranchHandle> result = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> result = new LinkedList<>();
       result.push(il.append(branchIfTrue ? new IFNE(null) : new IFEQ(null)));
       return result;
     } else if (n.equals("contains-substring")) {
       processContainsSubstring(e);
-      LinkedList<BranchHandle> result = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> result = new LinkedList<>();
       result.push(il.append(branchIfTrue ? new IFNE(null) : new IFEQ(null)));
       return result;
     } else if (n.equals("in")) {
       processIn(e);
-      LinkedList<BranchHandle> result = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> result = new LinkedList<>();
       result.push(il.append(branchIfTrue ? new IFNE(null) : new IFEQ(null)));
       return result;
     } else if (n.equals("or") && !branchIfTrue || n.equals("and") && branchIfTrue) {
-      LinkedList<BranchHandle> branchHandles = new LinkedList<BranchHandle>();
+      LinkedList<BranchHandle> branchHandles = new LinkedList<>();
       Element next = getFirstChildElement(e);
       while (findElementSibling(next.getNextSibling()) != null) {
         branchHandles.addAll(processLogical(next, !branchIfTrue));
@@ -726,8 +747,8 @@ public class TransferBytecode {
       for (BranchHandle bh : branchHandles)
         bh.setTarget(nop);
       return result;
-    } else if (n.equals("and") && !branchIfTrue || n.equals("or") && branchIfTrue) {
-      LinkedList<BranchHandle> branchHandles = new LinkedList<BranchHandle>();
+    } else if (n.equals("and") || n.equals("or")) {
+      LinkedList<BranchHandle> branchHandles = new LinkedList<>();
       Element next = getFirstChildElement(e);
       while (next != null) {
         branchHandles.addAll(processLogical(next, branchIfTrue));
@@ -738,7 +759,7 @@ public class TransferBytecode {
       return processLogical(getFirstChildElement(e), !branchIfTrue);
     }
     printErrorMessage("SORRY: not supported yet: processLogical(c0 = " + e);
-    return new LinkedList<BranchHandle>();
+    return new LinkedList<>();
   }
 
   private void processEqual(Element e) {
@@ -866,15 +887,15 @@ public class TransferBytecode {
     return "error_UNKNOWN_LIST";
   }
   /**
-   * // in postchunk there is no certain fixed number of words when a rule is invoked
+   * // in postchunk there isn't a certain fixed number of words when a rule is invoked
    * // therefore word and blank parameters are implemented as an array
    * // however, macros are the same, so we have to know if we are in a macro or not
    */
-  private boolean inMacro = false;
+  private boolean inMacro;
 
   private void word(int pos) {
     if (parseMode == ParseMode.POSTCHUNK && !inMacro) {
-      // in postchunk there is no certain fixed number of words in the rules.
+      // in postchunk there isn't a certain fixed number of words in the rules.
       // therefore its implemented as an array
       // word[0] refers to the chunk lemma and tags
       il.append(createLoad(INTERCHUNK_WORD_ARRAY, 2));
@@ -945,18 +966,22 @@ public class TransferBytecode {
       Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(openFile(txFilename));
       Element root = doc.getDocumentElement();
       String rootTagName = root.getTagName();
-      if (rootTagName.equals("transfer")) {
-        parseMode = ParseMode.TRANSFER;
-        WORD = TRANSFER_WORD;
-      } else if (rootTagName.equals("interchunk")) {
-        parseMode = ParseMode.INTERCHUNK;
-        WORD = INTERCHUNK_WORD;
-      } else if (rootTagName.equals("postchunk")) {
-        parseMode = ParseMode.POSTCHUNK;
-        WORD = INTERCHUNK_WORD;
-      } else {
-        throw new IllegalArgumentException("illegal rootTagName: " + rootTagName);
-      }
+        switch (rootTagName) {
+            case "transfer":
+                parseMode = ParseMode.TRANSFER;
+                WORD = TRANSFER_WORD;
+                break;
+            case "interchunk":
+                parseMode = ParseMode.INTERCHUNK;
+                WORD = INTERCHUNK_WORD;
+                break;
+            case "postchunk":
+                parseMode = ParseMode.POSTCHUNK;
+                WORD = INTERCHUNK_WORD;
+                break;
+            default:
+                throw new IllegalArgumentException("illegal rootTagName: " + rootTagName);
+        }
 
       //MethodGen for isOutputChunked
       mg = new MethodGen(ACC_PUBLIC, BOOLEAN, NO_ARGS, null, "isOutputChunked", fullClassName, il, cp);
@@ -973,7 +998,7 @@ public class TransferBytecode {
       il.append(factory.createInvoke("org.apertium.transfer.generated.GeneratedTransferBase", "<init>", VOID, NO_ARGS, INVOKESPECIAL));
       for (Element c0 : getChildsChildrenElements(root, "section-def-attrs")) {
         String n = c0.getAttribute("n");
-        ArrayList<String> items = new ArrayList<String>();
+        ArrayList<String> items = new ArrayList<>();
         for (Element c1 : listChildren(c0)) {
 					String tags = c1.getAttribute("tags");
 					// Clumsy hack to allow + as special characters to allow tags like <@+FMAINV>
@@ -1006,7 +1031,7 @@ public class TransferBytecode {
         String regexp = attrItemRegexp(items);
 		// Clumsy hack to allow + as special characters to allow tags like <@+FMAINV>
 		// (<attr-item tags="@\+FMAINV"/> in apertium-sme-sma.sme-sma.t1x)
-        regexp = regexp.replaceAll("\\+", "\\\\\\+"); // escape + to \+
+        regexp = regexp.replaceAll("\\+", "\\\\+"); // escape + to \+
         il.append(factory.createConstant(regexp));
         il.append(factory.createInvoke("org.apertium.transfer.ApertiumRE", "<init>", VOID, new Type[]{STRING}, INVOKESPECIAL));
         il.append(factory.createPutField(fullClassName, "attr_" + javaIdentifier(n), APERTIUM_RE));
@@ -1031,9 +1056,9 @@ public class TransferBytecode {
         {"lemh", "(([^<#]|\"\\<\"|\"\\#\")+)"},
         {"whole", "(.+)"},
         {"tags", "((<[^>]+>)+)"},
-        {"chname", "(\\{([^/]+)\\/)"}, // includes delimiters { and / !!!
+        {"chname", "(\\{([^/]+)\\/)"}, // includes delimiters "{" and / !!!
         {"chcontent", "(\\{.+)"},
-        {"content", "(\\{.+)"}, // "\\{(.+)\\}" } would be correct, but wont work as InterchunkWord.chunkPart()
+        {"content", "(\\{.+)"}, // "\\{(.+)\\}" "}" would be correct, but won't work as InterchunkWord.chunkPart()
       // requires the match to have the same length as the matched string
       };
 
@@ -1075,7 +1100,7 @@ public class TransferBytecode {
 
       for (Element c0 : getChildsChildrenElements(root, "section-def-lists")) {
         String n = c0.getAttribute("n");
-        ArrayList<String> items = new ArrayList<String>();
+        ArrayList<String> items = new ArrayList<>();
         for (Element c1 : listChildren(c0))
           items.add(c1.getAttribute("v"));
         listList.add(n);
@@ -1111,11 +1136,11 @@ public class TransferBytecode {
         currentNode = c0;
         String name = c0.getAttribute("n");
         String npars = c0.getAttribute("npar");
-        int npar = npars.length() > 0 ? Integer.parseInt(npars) : 0;
+        int npar = !npars.isEmpty() ? Integer.parseInt(npars) : 0;
         currentNumberOfWordInParameterList = npar;
         macroList.put(name, npar);
 
-        ArrayList<Type> args = new ArrayList<Type>();
+        ArrayList<Type> args = new ArrayList<>();
         args.add(APPENDABLE);
 
         if (this.parseMode == ParseMode.TRANSFER) {
@@ -1133,7 +1158,7 @@ public class TransferBytecode {
         }
         String methodName = "macro_" + javaIdentifier(name);
 
-        mg = new MethodGen(ACC_PRIVATE, VOID, args.toArray(new Type[args.size()]), null, methodName, fullClassName, il, cp);
+        mg = new MethodGen(ACC_PRIVATE, VOID, args.toArray(new Type[0]), null, methodName, fullClassName, il, cp);
         mg.addException("java.io.IOException");
 
         il.append(createThis());
@@ -1166,17 +1191,17 @@ public class TransferBytecode {
       int ruleNo = 0;
       for (Element c0 : getChildsChildrenElements(root, "section-rules")) {
         currentNode = c0;
-        ArrayList<String> patternItems = new ArrayList<String>();
+        ArrayList<String> patternItems = new ArrayList<>();
 
-        String methodName = "rule" + (ruleNo++);
+        StringBuilder methodName = new StringBuilder("rule" + (ruleNo++));
         for (Element c1 : getChildsChildrenElements(c0, "pattern")) {
           String n = c1.getAttribute("n");
-          methodName += "__" + javaIdentifier(n);
+          methodName.append("__").append(javaIdentifier(n));
           patternItems.add(n);
         }
         currentNumberOfWordInParameterList = patternItems.size();
 
-        ArrayList<Type> args = new ArrayList<Type>();
+        ArrayList<Type> args = new ArrayList<>();
         args.add(APPENDABLE);
 
         if (this.parseMode == ParseMode.TRANSFER) {
@@ -1192,22 +1217,21 @@ public class TransferBytecode {
             args.add(INTERCHUNK_WORD);
           }
         } else {
-          assert (parseMode == ParseMode.POSTCHUNK);
-          // in postchunk there is no certain fixed number of words when a rule is invoked
+            // in postchunk there isn't a certain fixed number of words when a rule is invoked
           // therefore its implemented as an array
           // words[0] refers to the chunk lemma (and tags)
           args.add(INTERCHUNK_WORD_ARRAY);
           args.add(STRING_ARRAY);
         }
 
-        mg = new MethodGen(ACC_PUBLIC, VOID, args.toArray(new Type[args.size()]), null, methodName, fullClassName, il, cp);
+        mg = new MethodGen(ACC_PUBLIC, VOID, args.toArray(new Type[0]), null, methodName.toString(), fullClassName, il, cp);
         mg.addException("java.io.IOException");
 
         il.append(createThis());
         il.append(factory.createGetField(fullClassName, "debug", BOOLEAN));
         BranchHandle ifeq = il.append(new IFEQ(null));
         il.append(createThis());
-        il.append(factory.createConstant(methodName));
+        il.append(factory.createConstant(methodName.toString()));
         il.append(factory.createConstant(currentNumberOfWordInParameterList * 2 - 1));
         il.append(factory.createNewArray(OBJECT, (short) 1));
         for (int i = 0; i < currentNumberOfWordInParameterList * 2 - 1; i++) {
@@ -1229,7 +1253,7 @@ public class TransferBytecode {
           il.append(factory.createPutField(fullClassName, "lu_count", STRING));
         }
 
-        writeMethodBody((Element) getElement(c0, "action"));
+        writeMethodBody(Objects.requireNonNull(getElement(c0, "action")));
 
         il.append(RETURN);
         mg.setMaxStack();
@@ -1246,7 +1270,7 @@ public class TransferBytecode {
         il = mg.getInstructionList();
         try {
           il.delete(il.getEnd());
-        } catch (TargetLostException ex) {
+        } catch (TargetLostException ignored) {
         }
         il.append(createThis());
         il.append(factory.createNew("org.apertium.transfer.ApertiumRE"));
@@ -1268,7 +1292,7 @@ public class TransferBytecode {
         il = mg.getInstructionList();
         try {
           il.delete(il.getEnd());
-        } catch (TargetLostException ex) {
+        } catch (TargetLostException ignored) {
         }
         il.append(createThis());
         il.append(factory.createConstant(""));
@@ -1287,7 +1311,7 @@ public class TransferBytecode {
         il = mg.getInstructionList();
         try {
           il.delete(il.getEnd());
-        } catch (TargetLostException ex) {
+        } catch (TargetLostException ignored) {
         }
         il.append(createThis());
         il.append(factory.createNew("org.apertium.transfer.WordList"));
@@ -1308,7 +1332,7 @@ public class TransferBytecode {
     }
   }
 
-  private class BytecodeLoader extends ClassLoader {
+  private static class BytecodeLoader extends ClassLoader {
     public Class getClassFromBytes(byte[] bytes) {
       return defineClass(null, bytes, 0, bytes.length);
     }
@@ -1327,17 +1351,16 @@ public class TransferBytecode {
     cg.getJavaClass().dump(filename);
   }
 
-  private static void showHelp(String name) {
-    System.out.print(name + CommandLineInterface.PACKAGE_VERSION + ": \n"
-        + "USAGE: " + name + " trules  trules-class\n"
+  private static void showHelp() {
+    System.out.print("apertium-preprocess-transfer-bytecode-j" + CommandLineInterface.PACKAGE_VERSION + ": \n"
+        + "USAGE: " + "apertium-preprocess-transfer-bytecode-j" + " trules  trules-class\n"
         + "  trules     transfer rule (.t1x) source file\n"
-        + "  trules-class  Java bytecode compiled transfer rules (.class) output file\n"
-        + "");
+        + "  trules-class  Java bytecode compiled transfer rules (.class) output file\n");
   }
 
   public static void main(String[] argv) throws Exception {
     if (argv.length != 2)
-      showHelp("apertium-preprocess-transfer-bytecode-j");
+      showHelp();
     else
       new TransferBytecode(argv[0]).dump(argv[1]);
   }

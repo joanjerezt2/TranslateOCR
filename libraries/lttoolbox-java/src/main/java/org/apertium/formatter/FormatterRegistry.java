@@ -23,13 +23,12 @@ import java.util.ArrayList;
 /**
  * @author Stephen Tigner
  * When creating new formatters, please add them to this registry.
- * Also, don't forget to add them to {@link org.apertium.modes.Program}.
  */
 public class FormatterRegistry {
   private static ArrayList<String> _registry = null;
 
   private static void initializeRegistry() {
-    _registry = new ArrayList<String>();
+    _registry = new ArrayList<>();
     _registry.add("txt");
   }
 
@@ -49,6 +48,6 @@ public class FormatterRegistry {
     if (_registry == null) {
       initializeRegistry();
     }
-    return (_registry.indexOf(formatterName) != -1);
+    return (_registry.contains(formatterName));
   }
 }

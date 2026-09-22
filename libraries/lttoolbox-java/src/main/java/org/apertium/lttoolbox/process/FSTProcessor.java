@@ -59,14 +59,11 @@ package org.apertium.lttoolbox.process;
  */
 import java.io.*;
 import org.apertium.lttoolbox.*;
-import java.nio.ByteBuffer;
+
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import org.apertium.utils.IOUtils;
@@ -245,7 +242,7 @@ public class FSTProcessor extends BasicFSTProcessor {
   private static final int EOF_int = -1;
 
   private char readAnalysis(Reader input) throws IOException {
-    if (!input_buffer.isEmpty()) {
+    if (input_buffer.isEmpty()) {
       return input_buffer.next();
     }
 
@@ -286,7 +283,7 @@ public class FSTProcessor extends BasicFSTProcessor {
 
   private char readTMAnalysis(Reader input) throws IOException {
     isLastBlankTM = false;
-    if (!input_buffer.isEmpty()) {
+    if (input_buffer.isEmpty()) {
       return input_buffer.next();
     }
     char val = (char) input.read();
@@ -350,7 +347,7 @@ public class FSTProcessor extends BasicFSTProcessor {
   }
 
   private char readPostgeneration(Reader input) throws IOException {
-    if (!input_buffer.isEmpty()) {
+    if (input_buffer.isEmpty()) {
       return input_buffer.next();
     }
 
@@ -1433,7 +1430,7 @@ public class FSTProcessor extends BasicFSTProcessor {
 
           String mybuf = "";
           for (int i = sf.length() - 1; i >= 0; i--) {
-            if (!Alphabet.isLetter(sf.charAt(i))) {
+            if (Alphabet.isLetter(sf.charAt(i))) {
               break;
             } else {
               mybuf = sf.charAt(i) + mybuf;
@@ -1445,7 +1442,7 @@ public class FSTProcessor extends BasicFSTProcessor {
             boolean myuppercase = mybuf.length() > 1 && Alphabet.isUpperCase(mybuf.charAt(1));
 
             for (int i = lf.length() - 1; i >= 0; i--) {
-              if (!Alphabet.isLetter(lf.charAt(i))) {
+              if (Alphabet.isLetter(lf.charAt(i))) {
                 if (myfirstupper && i != lf.length() - 1) {
                   lf.setCharAt(i + 1, Alphabet.toUpperCase(lf.charAt(i + 1)));
                 } else {
@@ -2062,7 +2059,7 @@ public class FSTProcessor extends BasicFSTProcessor {
   }
 
   char readSAO(Reader input) throws IOException {
-    if (!input_buffer.isEmpty()) {
+    if (input_buffer.isEmpty()) {
       return input_buffer.next();
     }
 

@@ -23,7 +23,7 @@ import static org.apertium.utils.IOUtils.openFileAsByteBuffer;
  *
  * I will take apertium-eo-en (which works as 'pure' C++ as well as 'Java verson') as example.
  *
- * And here you just *must* be able to debug the Java code step-by-step. Its mandatory to step-by-step the whole TransferEoEnTest.java test class.
+ * And here you just *must* be able to debug the Java code step-by-step. It's mandatory to step-by-step the whole TransferEoEnTest.java test class.
  *
  *
  *
@@ -33,7 +33,7 @@ import static org.apertium.utils.IOUtils.openFileAsByteBuffer;
  * 2) some rules are matched (for example adjective_noun)
  * 3) for each rule matched a transfer action is being done
  *
- * 1) is called bilingual transfer. Here you have for each word a SL (source language - English) and a TL (target language - Esperanto) - see TransferWord. C++ and Java are same.
+ * 1) is called bilingual transfer. Here you have for each word: an SL (source language - English) and a TL (target language - Esperanto) - see TransferWord. C++ and Java are same.
  *
  * 2) the rule MATCHING, is done by the FSTProcessor. This is normally used to match letters in a word, but can also be used to match a sequence of words. C++ and Java are same.
  *
@@ -76,7 +76,7 @@ import static org.apertium.utils.IOUtils.openFileAsByteBuffer;
  *
  *
  * So, you see:  en-eo.t1x.bin is for rule matching (much like the other .bin files, they are just for matching words).
- * In the end of en-eo.t1x.bin some stuff is added which makes the C++ version run faster (attr_items, variables, macros, lists). We ignore that as its compiled into the bytecode (see Transfer.java public void readData() line 96-141).
+ * In the end of en-eo.t1x.bin some stuff is added which makes the C++ version run faster (attr_items, variables, macros, lists). We ignore that as it's compiled into the bytecode (see Transfer.java public void readData() line 96-141).
  *
  * In Transfer.java public void transfer() you see the main loop, collecting characters.  If you want to see how the rule match works, set debug breakpoints in ms.step() and look.  ms.classifyFinals() gives the rule index that was matched.
  *
@@ -92,7 +92,7 @@ import static org.apertium.utils.IOUtils.openFileAsByteBuffer;
  *
  * Well, during compilation the ParseTransferFile.java takes the XML hell of for example apertium-eo-en.en-eo.t1x, and converts it into Java code like the apertium_eo_en_eo_en_t1x java class (in package org.apertium.transfer.generated), which is loaded during runtime.
  *
- * So the array of rule_map Method is taken by introspection, taking all methods beginning with rule<number>, like rule0__la__num_ord__de__monato, rule1__de_ekde__tempo etc etc and kicks them into the array.
+ * So the array of rule_map Method is taken by introspection, taking all methods beginning with rule<number>, like rule0__la__num_ord__de__monato, rule1__de_ekde__tempo etc. and kicks them into the array.
  *
  *
  * Now, the transfer code could need a big cleanup. This is the stuff I experimented most with. Rename stuff in the code, comment it as hell, etc. Please make sure more or less evrything I covered above (and what you self found out) gets in somewhere in the documentation.
@@ -101,7 +101,7 @@ import static org.apertium.utils.IOUtils.openFileAsByteBuffer;
  * @author Jacob Nordfalk
  */
 public class Transfer extends AbstractTransfer {
-  private FSTProcessor fstp = new FSTProcessor();
+  private final FSTProcessor fstp = new FSTProcessor();
   private FSTProcessor extended;
   private boolean isExtended;
   //map<xmlNode *, TransferInstr> evalStringCache;
@@ -124,7 +124,6 @@ public class Transfer extends AbstractTransfer {
    * apertium-transfer -x extended trules preproc biltrans [input [output]]
    * -x bindix extended mode with user dictionary
    *
-   * @param fstfile
    */
   private void setExtendedDictionary(String fstfile) throws IOException {
     extended = new FSTProcessor();
@@ -137,61 +136,56 @@ public class Transfer extends AbstractTransfer {
   /**
    * Reads data
    *
-   * @param 'classFile the file name of the java bytecode file containing the transfer instructions
+   * @param transferClass the file name of the java bytecode file containing the transfer instructions
    * so, preprocessed by, apertium-preprocess-transfer-bytecode-j (.class)
    * @param datafile same file, preprocessed by, apertium-preprocess-transfer (.bin)
    * @param bilFstFile bilingual FST file - might be null
-   * @throws ClassNotFoundException
-   * @throws IllegalAccessException
-   * @throws InstantiationException
-   * @throws IOException
    */
-  @SuppressWarnings("unchecked")
   public void read(Class transferClass, String datafile, String bilFstFile) throws Exception {
     super.read(transferClass, datafile);
 
-    if (bilFstFile != null && bilFstFile.length() > 0) {
+    if (bilFstFile != null && !bilFstFile.isEmpty()) {
       readBil(bilFstFile);
       if (IOUtils.timing != null)
         IOUtils.timing.log("Load bilingual transfer transducer " + bilFstFile);
     }
   }
 
-  //private void readTransfer()  and the following methods should not implemented, as we use bytecode compiled transfer
+  //private void readTransfer() and the following methods should not be implemented, as we use bytecode compiled transfer
   TransferToken readToken(Reader in) throws IOException {
     if (!input_buffer.isEmpty()) {
       return input_buffer.next();
     }
 
-    String content = "";
+    StringBuilder content = new StringBuilder();
     while (true) {
       int val = in.read();
       if (val == -1 || (val == 0 && internal_null_flush)) {
-        return input_buffer.add(new TransferToken(content, TransferToken.TransferTokenType.tt_eof));
+        return input_buffer.add(new TransferToken(content.toString(), TransferToken.TransferTokenType.tt_eof));
       }
       if (val == '\\') {
-        content += '\\';
-        content += (char) in.read();
+        content.append('\\');
+        content.append((char) in.read());
       } else if (val == '[') {
-        content += '[';
+        content.append('[');
         while (true) {
           int val2 = in.read();
           if (val2 == '\\') {
-            content += '\\';
-            content += (char) in.read();
+            content.append('\\');
+            content.append((char) in.read());
           } else if (val2 == ']') {
-            content += ']';
+            content.append(']');
             break;
           } else {
-            content += (char) val2;
+            content.append((char) val2);
           }
         }
       } else if (val == '$') {
-        return input_buffer.add(new TransferToken(content, TransferToken.TransferTokenType.tt_word));
+        return input_buffer.add(new TransferToken(content.toString(), TransferToken.TransferTokenType.tt_word));
       } else if (val == '^') {
-        return input_buffer.add(new TransferToken(content, TransferToken.TransferTokenType.tt_blank));
+        return input_buffer.add(new TransferToken(content.toString(), TransferToken.TransferTokenType.tt_blank));
       } else {
-        content += (char) val;
+        content.append((char) val);
       }
     }
   }
@@ -207,10 +201,10 @@ public class Transfer extends AbstractTransfer {
     output = checkIfOutputMustBeWriterCompatible(output, rule_map);
 
     Method lastMatchedRule = null;
-    ArrayList<String> tmpword = new ArrayList<String>();
-    ArrayList<String> tmpblank = new ArrayList<String>();
-    ArrayList<String> matchedWords = new ArrayList<String>();
-    ArrayList<String> matchedBlanks = new ArrayList<String>();
+    ArrayList<String> tmpword = new ArrayList<>();
+    ArrayList<String> tmpblank = new ArrayList<>();
+    ArrayList<String> matchedWords = new ArrayList<>();
+    ArrayList<String> matchedBlanks = new ArrayList<>();
 
     int lastPos = 0;
     ms.init(me.getInitial());
@@ -227,10 +221,10 @@ public class Transfer extends AbstractTransfer {
           ms.init(me.getInitial());
           input_buffer.setPos(lastPos);
         } else {
-          if (tmpword.size() != 0) {
+          if (!tmpword.isEmpty()) {
             // no rule match. then default is to just output the stuff word by word
             Pair<String, Integer> tr;
-            if (useBilingual && preBilingual == false) {
+            if (useBilingual && !preBilingual) {
               if (isExtended && (tmpword.get(0)).charAt(0) == '*') {
                 tr = extended.biltransWithQueue((tmpword.get(0)).substring(1), false);
                 if (tr.first.charAt(0) == '@') {
@@ -255,12 +249,12 @@ public class Transfer extends AbstractTransfer {
               String tl = splits.length > 1 ? splits[1] : "";
               // http://freedict.svn.sourceforge.net/viewvc/apertium/trunk/apertium/apertium/transfer.cc?r1=35560&r2=35639
               // tmpword.set(0, sl);
-              tr = new Pair<String, Integer>(tl, 0);
+              tr = new Pair<>(tl, 0);
             } else {
-              tr = new Pair<String, Integer>(tmpword.get(0), 0);
+              tr = new Pair<>(tmpword.get(0), 0);
             }
 
-            if (tr.first.length() != 0) {
+            if (!tr.first.isEmpty()) {
               if (!transferObject.isOutputChunked()) {
                 output.append('^');
                 output.append(tr.first);
@@ -280,7 +274,7 @@ public class Transfer extends AbstractTransfer {
             input_buffer.next();
             lastPos = input_buffer.getPos();
             ms.init(me.getInitial());
-          } else if (tmpblank.size() != 0) {
+          } else if (!tmpblank.isEmpty()) {
             fputws_unlocked(tmpblank.get(0), output);
             tmpblank.clear();
             lastPos = input_buffer.getPos();
@@ -332,7 +326,7 @@ public class Transfer extends AbstractTransfer {
           break;
 
         case tt_eof:
-          if (tmpword.size() != 0) {
+          if (!tmpword.isEmpty()) {
             tmpblank.add(current.content);
             ms.clear();
           } else {
@@ -375,7 +369,7 @@ public class Transfer extends AbstractTransfer {
         args[argn++] = blanks.get(i - 1);
 
       Pair<String, Integer> tr;
-      if (useBilingual && preBilingual == false) {
+      if (useBilingual && !preBilingual) {
         if (DO_TIMING)
           timing.log("applyRule 1");
         tr = fstp.biltransWithQueue(words.get(i), false);
@@ -391,10 +385,10 @@ public class Transfer extends AbstractTransfer {
         String tl = splits.length > 1 ? splits[1] : "";
         // http://freedict.svn.sourceforge.net/viewvc/apertium/trunk/apertium/apertium/transfer.cc?r1=35560&r2=35639
         //words.set(i, sl);
-        tr = new Pair<String, Integer>(tl, 0);
+        tr = new Pair<>(tl, 0);
       } else {
         // If no bilingual dictionary is used (i.e. for apertium-transfer -n, for apertium-interchunk and for apertium-postchunk), then the sl and tl values will be the same.
-        tr = new Pair<String, Integer>(words.get(i), 0);
+        tr = new Pair<>(words.get(i), 0);
       }
 
       args[argn++] = new TransferWord(words.get(i), tr.first, tr.second);

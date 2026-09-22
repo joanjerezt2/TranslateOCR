@@ -38,7 +38,7 @@ public class Node {
   private Map<Integer, Transition> transitions;
 
   public void initTransitions(int number_of_local_transitions) {
-    transitions = new HashMap<Integer, Transition>();//number_of_local_transitions);
+    transitions = new HashMap<>();//number_of_local_transitions);
   }
   private static final boolean FAST_BUT_REVERSE_ORDER = false;
 
@@ -56,9 +56,8 @@ public class Node {
     newTransition.node_dest = node_dest;
 
     if (FAST_BUT_REVERSE_ORDER) {
-      Transition oldTransition = transitions.put(ins, newTransition);
-      // if there was already a transition it is putted behind the new one in a linked list structure
-      newTransition.next = oldTransition;
+        // if there was already a transition it is putted behind the new one in a linked list structure
+      newTransition.next = transitions.put(ins, newTransition);
     } else {
       Transition oldTransition = transitions.get(ins);
       if (oldTransition == null) {
@@ -74,8 +73,7 @@ public class Node {
 
   static Transition transitions_getIterator(TransducerExe transducer, int node_no, int input_symbol) {
     Node node = transducer.getNode(node_no);
-    Transition tr = node.transitions.get(input_symbol);
-    return tr;
+      return node.transitions.get(input_symbol);
   }
 
   @Override
@@ -84,13 +82,13 @@ public class Node {
   }
 
   /** Note that this method is neccesarily very slow as the number of nodes increases,
-   * as the nodes don't (and for memory usage reasont shouldnt) know their own node number */
+   * as the nodes don't (and for memory usage reasont shouldn't) know their own node number */
   void show_DEBUG(int n, Alphabet a, Node[] node_list) {
     // TreeSet is used to get the list sorted
-    for (Integer i : new TreeSet<Integer>(transitions.keySet())) {
+    for (Integer i : new TreeSet<>(transitions.keySet())) {
       Transition t = transitions.get(i);
-      while (t != null) {
-        /*
+      /*while (t != null) {
+
          * if (t.node_dest.nodeLoadInfo!=null) t.node_dest.load();
          * int dest_node_no = -1;
          * for (int j=0; j<node_list.length; j++) {
@@ -98,8 +96,8 @@ public class Node {
          * }
          * System.err.println(dest_node_no + "\t" + n + "\t'" + a.getSymbol(i)+"'"+i+"\t'"+a.getSymbol(t.output_symbol)+"'"+t.output_symbol);
          * t = t.next;
-         */
-      }
+
+      }*/
     }
   }
 

@@ -26,7 +26,7 @@ import org.apertium.transfer.ApertiumRE;
  */
 public class InterchunkWord {
 
-  /* Private members and methods
+  /* Private members and methods.
    * Added a _ (underscore) before the private members as a visual hint that
    * they are private, and to avoid getting them confused with method parameters
    * that, in some cases, are named the same (just w/o the underscore).
@@ -42,7 +42,7 @@ public class InterchunkWord {
 
   //Public members and methods
   /**
-   * Copies the the supplied InterchunkWord to this one.
+   * Copies the supplied InterchunkWord to this one.
    *
    * @param o - The other InterchunkWord object to copy from.
    */
@@ -86,7 +86,7 @@ public class InterchunkWord {
 
   public String chunkPart(final ApertiumRE part) {
     String result = part.match(_chunk);
-    if (result.length() == 0) {
+    if (result.isEmpty()) {
       result = part.match(_queue);
       if (result.length() != _queue.length()) {
         return "";

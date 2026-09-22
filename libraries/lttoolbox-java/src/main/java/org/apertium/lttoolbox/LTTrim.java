@@ -6,7 +6,7 @@ package org.apertium.lttoolbox;
 
 import org.apertium.lttoolbox.compile.TransducerCollection;
 import java.io.IOException;
-import java.util.Map;
+
 import org.apertium.CommandLineInterface;
 import org.apertium.lttoolbox.compile.TransducerComp;
 import org.apertium.lttoolbox.compile.TransducerTrim;

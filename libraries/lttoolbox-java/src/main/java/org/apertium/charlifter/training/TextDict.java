@@ -18,12 +18,9 @@
  */
 package org.apertium.charlifter.training;
 
-import org.apertium.charlifter.Data;
 import org.apertium.charlifter.Process;
-import java.util.Map;
+
 import java.util.HashMap;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 /**
  *
@@ -34,7 +31,7 @@ public class TextDict {
    * hash of asciifications of xx-clean.txt words. Not saved for -r or -e;
    * just used to avoid keeping "prettyclean" or corpus words for dictionary
    * lookup if their asciification coincides with asciification of a truly
-   * clean word, e.g. ac\'u, etc.
+   * clean word, e.g. ac'u, etc.
    */
   HashMap<String, Integer> clean;
   /**
@@ -43,9 +40,9 @@ public class TextDict {
   HashMap<Character, Integer> ambigchars;
   TrainData td;
 
-  void TextDict() {
-    clean = new HashMap<String, Integer>();
-    ambigchars = new HashMap<Character, Integer>();
+  public TextDict() {
+    clean = new HashMap<>();
+    ambigchars = new HashMap<>();
     td = new TrainData();
   }
 
@@ -59,7 +56,7 @@ public class TextDict {
         String asc = Asciify.toascii(lwr);
         if (Process.isOkina() && asc.contains("'")) {
           String stripped = asc;
-          stripped.replaceAll("'", "");
+          stripped = stripped.replace("'", "");
           clean_increment(stripped);
           tableref_increment(stripped, lwr);
         }
@@ -96,7 +93,7 @@ public class TextDict {
   }
 
   private void tableref_increment(String stripped, String lwr) {
-    HashMap<String, Integer> e = new HashMap<String, Integer>();
+    HashMap<String, Integer> e = new HashMap<>();
     if (td.tableref.containsKey(stripped)) {
       e = td.tableref.get(stripped);
       if (e.containsKey(lwr)) {
@@ -116,7 +113,7 @@ public class TextDict {
     Character asc = ascii.charAt(0);
     HashMap<Character, Integer> e = td.charsref.get(asc);
     if (e == null)
-      td.charsref.put(asc, e = new HashMap<Character, Integer>());
+      td.charsref.put(asc, e = new HashMap<>());
     Integer i1 = e.get(chr);
     e.put(chr, i1 == null ? 1 : i1 + 1);
     Integer i2 = e.get(asc);

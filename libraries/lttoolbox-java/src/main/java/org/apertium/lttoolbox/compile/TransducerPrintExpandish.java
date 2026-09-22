@@ -4,7 +4,6 @@
  */
 package org.apertium.lttoolbox.compile;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
@@ -68,9 +67,9 @@ public class TransducerPrintExpandish extends TransducerComp {
       visited[state] = true;
 
       Map<Integer, IntSet> it = transitions.get(state);
-      LinkedHashMap<Integer, TargetStateLR> targetStatesLR = new LinkedHashMap<Integer,TargetStateLR>();
+      LinkedHashMap<Integer, TargetStateLR> targetStatesLR = new LinkedHashMap<>();
 
-      // first, run thru and collect transitions according to target state
+      // first, run through and collect transitions according to target state
       for (Map.Entry<Integer, IntSet> it2 : it.entrySet()) {
         Integer it2_first = it2.getKey();
         Alphabet.IntegerPair t = alphabet.decode(it2_first);
@@ -89,17 +88,17 @@ public class TransducerPrintExpandish extends TransducerComp {
           out.println("__CYCLE__ "+  left+lr.getLeft()+"…" + ":" + right+lr.getRight()+"…");
           return;
         }
-        String lettersl = "";
-        String lettersr = "";
-        Integer target_state = lr.target_state;
+        StringBuilder lettersl = new StringBuilder();
+        StringBuilder lettersr = new StringBuilder();
+        int target_state = lr.target_state;
         while (lr != null) {
           if (lr.left.length() != 1 || lr.right.length() != 1) {
             // Symbol or empty value. Print out seperately
             showLtExpandish(alphabet, out, lr.target_state, visited, left+lr.left, right+lr.right);
           } else {
             // letter. Collect all of them and show together
-            lettersl += lr.left;
-            lettersr += lr.right;
+            lettersl.append(lr.left);
+            lettersr.append(lr.right);
           }
           lr = lr.next;
         }
@@ -120,7 +119,7 @@ public class TransducerPrintExpandish extends TransducerComp {
 
 
 
-  public static void main(String[] args) throws FileNotFoundException, IOException {
+  public static void main(String[] args) throws IOException {
     LTPrint.main(new String[]{"-s", "testdata/trimming3/test-en.bin" });
     //LTPrint.main(new String[]{"-s", "testdata/bilingual/eo-en.autobil.bin" });
   }

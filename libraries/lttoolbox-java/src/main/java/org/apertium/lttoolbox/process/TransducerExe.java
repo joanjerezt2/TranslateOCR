@@ -28,7 +28,7 @@ import org.apertium.lttoolbox.Alphabet.IntegerPair;
 import org.apertium.utils.IOUtils;
 
 /**
- * Transducer class for execution of lexical processing algorithms. Formerly named TransExe, but its really the runtime
+ * Transducer class for execution of lexical processing algorithms. Formerly named TransExe, but it's really the runtime
  * parallel to compile.Transducer
  *
  * @author Raah
@@ -231,7 +231,7 @@ public class TransducerExe {
     for (int nodeNo__current_state = 0; nodeNo__current_state < number_of_states; nodeNo__current_state++) {
 
       byteBufferPositions.putInt(input.position());
-      //System.out.println(number_of_states+"  "+nodeNo__current_state+ " "+input.position());
+      //System.out.println(number_of_states+\"  "+nodeNo__current_state+ " "+input.position());
       int number_of_local_transitions = Compression.multibyte_read(input); // typically 20-40, max seen is 694
 
 

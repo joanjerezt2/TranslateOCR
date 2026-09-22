@@ -18,8 +18,6 @@
  */
 package org.apertium.charlifter.training;
 
-import java.util.Set;
-import java.util.HashSet;
 import java.util.HashMap;
 import org.apertium.charlifter.Data;
 
@@ -43,7 +41,7 @@ public class TrainData extends Data {
 
   TrainData() {
     super();
-    charcount = new HashMap<Character, Integer>();
-    contextcount = new HashMap<String, Integer>();
+    charcount = new HashMap<>();
+    contextcount = new HashMap<>();
   }
 }

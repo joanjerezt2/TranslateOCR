@@ -58,14 +58,14 @@ public class TaggerData {
     b = null;
     N = 0;
     M = 0;
-    // I'm just gonna go nuts with initialisations, k?
-    discard = new ArrayList<String>();
-    enforce_rules = new ArrayList<TEnforceAfterRule>();
-    prefer_rules = new ArrayList<String>();
-    array_tags = new ArrayList<String>();
-    open_class = new LinkedHashSet<Integer>();
-    forbid_rules = new ArrayList<TForbidRule>();
-    tag_index = new LinkedHashMap<String, Integer>();
+    // I'm just gonna go nuts with initializations, k?
+    discard = new ArrayList<>();
+    enforce_rules = new ArrayList<>();
+    prefer_rules = new ArrayList<>();
+    array_tags = new ArrayList<>();
+    open_class = new LinkedHashSet<>();
+    forbid_rules = new ArrayList<>();
+    tag_index = new LinkedHashMap<>();
     constants = new ConstantManager();
     plist = new PatternList();
     output = new Collection();
@@ -81,12 +81,12 @@ public class TaggerData {
    * @param o - The TaggerData object to copy.
    */
   private void copy(TaggerData o) {
-    open_class = new LinkedHashSet<Integer>(o.open_class);
-    forbid_rules = new ArrayList<TForbidRule>(o.forbid_rules);
-    tag_index = new LinkedHashMap<String, Integer>(o.tag_index);
-    array_tags = new ArrayList<String>(o.array_tags);
-    enforce_rules = new ArrayList<TEnforceAfterRule>(o.enforce_rules);
-    prefer_rules = new ArrayList<String>(o.prefer_rules);
+    open_class = new LinkedHashSet<>(o.open_class);
+    forbid_rules = new ArrayList<>(o.forbid_rules);
+    tag_index = new LinkedHashMap<>(o.tag_index);
+    array_tags = new ArrayList<>(o.array_tags);
+    enforce_rules = new ArrayList<>(o.enforce_rules);
+    prefer_rules = new ArrayList<>(o.prefer_rules);
     constants = new ConstantManager(o.constants);
     plist = new PatternList(o.plist);
   }
@@ -336,7 +336,7 @@ public class TaggerData {
 
     plist.write(out);
 
-    if (discard.size() != 0) {
+    if (!discard.isEmpty()) {
       Compression.multibyte_write(discard.size(), out);
       for (int i = 0; i != discard.size(); i++) {
         Compression.String_write(discard.get(i), out);
@@ -382,9 +382,7 @@ public class TaggerData {
       for (int i = 0; i != N; i++) {
         a[i] = new double[N];
         if (myA != null) {
-          for (int j = 0; j != N; j++) {
-            a[i][j] = myA[i][j];
-          }
+            System.arraycopy(myA[i], 0, a[i], 0, N);
         }
       }
 
@@ -393,9 +391,7 @@ public class TaggerData {
       for (int i = 0; i != N; i++) {
         b[i] = new double[M];
         if (myB != null) {
-          for (int j = 0; j != M; j++) {
-            b[i][j] = myB[i][j];
-          }
+            System.arraycopy(myB[i], 0, b[i], 0, M);
         }
       }
 

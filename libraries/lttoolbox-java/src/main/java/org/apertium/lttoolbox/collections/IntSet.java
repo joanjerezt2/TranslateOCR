@@ -11,19 +11,19 @@ import java.util.Collection;
  * @author Jacob Nordfalk
  */
 public interface IntSet extends Iterable<Integer> {
-  public void clear();
+  void clear();
 
-  public int size();
+  int size();
 
-  public void add(int i);
+  void add(int i);
 
-  public void remove(int i);
+  void remove(int i);
 
-  public boolean contains(int i);
+  boolean contains(int i);
 
-  public int firstInt();
+  int firstInt();
 
-  public boolean addAll(Collection<? extends Integer> c);
+  boolean addAll(Collection<? extends Integer> c);
 
-  public boolean addAll(IntSet c);
+  boolean addAll(IntSet c);
 }

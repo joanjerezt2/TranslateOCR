@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.SoftReference;
 import java.util.HashMap;
 
 import org.apertium.lttoolbox.Getopt;
@@ -46,7 +45,7 @@ public class ApertiumInterchunk {
 		private boolean trace;
   }
 
-  private static HashMap<String, Interchunk> cache = new HashMap<String, Interchunk>();
+  private static final HashMap<String, Interchunk> cache = new HashMap<>();
   private static boolean cacheEnabled = false;
 
   public static void setCacheEnabled(boolean enabled) {
@@ -81,7 +80,7 @@ public class ApertiumInterchunk {
       if (!pipelineMode) {
         message(commandName);
       }
-      return false;
+      return true;
     }
 
     Getopt getopt = new Getopt(commandName, args, "tzh");
@@ -105,7 +104,7 @@ public class ApertiumInterchunk {
           if (!pipelineMode) {
             message(commandName);
           }
-          return false;
+          return true;
       }
     }
 
@@ -136,19 +135,16 @@ public class ApertiumInterchunk {
         if (!pipelineMode) {
           message(commandName);
         }
-        return false;
+        return true;
     }
-    return true;
+    return false;
   }
 
   /**
    * Split this off from the main() function to help facilitate inter-jvm
    * launching of different components from a central dispatcher.
    *
-   * @param par
-   * @throws Exception
    */
-  @SuppressWarnings("unchecked")
   public static void doMain(CommandLineParams par, Interchunk newInterOrPostchunk) throws Exception {
 
     String key = par.t2xFile + "; " + par.preprocFile;
@@ -168,22 +164,17 @@ public class ApertiumInterchunk {
     IOUtils.flush(par.output);
   }
 
-  /**
-   * @param args
-   * @throws Exception
-   */
-  public static int main(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     System.setProperty("file.encoding", "UTF-8");
 
     CommandLineParams par = new CommandLineParams();
     /* Parse the command line. The passed-in CommandLineParams object
      * will be modified by this method.
      */
-    if (!parseCommandLine(args, par, "Interchunk", false)) {
-      return 1;
+    if (parseCommandLine(args, par, "Interchunk", false)) {
+      return;
     }
 
     doMain(par, new Interchunk());
-    return 0;
   }
 }

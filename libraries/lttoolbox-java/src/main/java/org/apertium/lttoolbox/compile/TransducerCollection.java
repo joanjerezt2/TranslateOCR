@@ -6,11 +6,11 @@ package org.apertium.lttoolbox.compile;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apertium.lttoolbox.Alphabet;
@@ -27,10 +27,10 @@ public class TransducerCollection {
   public Map<String, TransducerComp> sections;
 
   public void read(String file) throws IOException {
-    InputStream input = new BufferedInputStream (new FileInputStream(file));
+    InputStream input = new BufferedInputStream (Files.newInputStream(Paths.get(file)));
     letters = Compression.String_read(input);
     alphabet = Alphabet.read(input);
-    sections = new LinkedHashMap<String, TransducerComp>();
+    sections = new LinkedHashMap<>();
 
     int len = Compression.multibyte_read(input);
     while (len > 0) {
@@ -46,7 +46,7 @@ public class TransducerCollection {
   }
 
   public void write(String file) throws IOException {
-    OutputStream output = new BufferedOutputStream(new FileOutputStream(file));
+    OutputStream output = new BufferedOutputStream(Files.newOutputStream(Paths.get(file)));
     // letters
     Compression.String_write(letters, output);
 

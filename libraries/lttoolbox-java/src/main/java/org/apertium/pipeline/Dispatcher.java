@@ -20,14 +20,13 @@ package org.apertium.pipeline;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import static org.apertium.utils.MiscUtils.getLineSeparator;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apertium.formatter.OmegatFormatter;
@@ -58,7 +57,7 @@ public class Dispatcher {
     if (trace) {
       args = prependParameter("-t", args);
     }
-    if (!ApertiumInterchunk.parseCommandLine(args.toArray(STRARR0), par, "Interchunk", true)) {
+    if (ApertiumInterchunk.parseCommandLine(args.toArray(STRARR0), par, "Interchunk", true)) {
       throw new IllegalArgumentException("Failed to parse Interchunk arguments.");
     }
     /* Assume internal i/o, don't allow for specifying external temp
@@ -83,8 +82,8 @@ public class Dispatcher {
      * will be modified by this method.
      */
     String[] args = prog.getParameterList().toArray(STRARR0);
-    if (!ApertiumPostchunk.parseCommandLine(args, par, "Interchunk", true)) {
-      throw new IllegalArgumentException("Failed to parse Postchunk arguments." + args);
+    if (ApertiumPostchunk.parseCommandLine(args, par, "Interchunk", true)) {
+      throw new IllegalArgumentException("Failed to parse Postchunk arguments." + Arrays.toString(args));
     }
     /* Assume internal I/O, don't allow for specifying external temp
      * files for I/O.
@@ -192,17 +191,17 @@ public class Dispatcher {
         File dest = new File(tempDir, filename);
         dest.getParentFile().mkdirs();
         int b;
-        byte buffer[] = new byte[1024];
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest), 1024);
+        byte[] buffer = new byte[1024];
+        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(dest.toPath()), 1024);
         while ((b = bis.read(buffer, 0, 1024)) != -1)
           bos.write(buffer, 0, b);
         bos.flush();
         bos.close();
         bis.close();
-      } catch (Exception e) {
+      } catch (Exception ignored) {
       } // Ignore errors comming from that it wasn't a file name
     }
-    List<String> args = new ArrayList<String>(prog.getParameterList());
+    List<String> args = new ArrayList<>(prog.getParameterList());
     args = Program.replaceParameter(args, "$1", dispMarks ? "-g" : "-n");
     args = Program.replaceParameter(args, "$2", dispAmb ? "-m" : null);
     args.add(0, prog.getFullPath());
@@ -212,15 +211,15 @@ public class Dispatcher {
     // external process (note that we must convert the input to UTF-8)
     // The following variable is used to be able to propagate an exception that might happen
     // inside the new thread
-    final AtomicReference<Exception> writingException = new AtomicReference<Exception>();
+    final AtomicReference<Exception> writingException = new AtomicReference<>();
     new Thread(new Runnable() {
       @Override
       public void run() {
         try {
-          char buffer[] = new char[1024];
+          char[] buffer = new char[1024];
           int count;
           while ((count = input.read(buffer)) != -1)
-            extProcess.getOutputStream().write(new String(buffer, 0, count).getBytes("UTF-8"));
+            extProcess.getOutputStream().write(new String(buffer, 0, count).getBytes(StandardCharsets.UTF_8));
           extProcess.getOutputStream().close();
         } catch (Exception ex) {
           writingException.set(ex);
@@ -230,10 +229,10 @@ public class Dispatcher {
 
     // We copy from the OutputStream of the external process to the output Appendable that
     // we were given (note that we must convert the output to UTF-16)
-    byte buffer[] = new byte[1024];
+    byte[] buffer = new byte[1024];
     int count;
     while ((count = extProcess.getInputStream().read(buffer)) != -1)
-      output.append(new String(buffer, 0, count, "UTF-8"));
+      output.append(new String(buffer, 0, count, StandardCharsets.UTF_8));
 
     // We wait for the external process to end (its InputStream is surely closed, but the
     // process might still be running)
@@ -305,7 +304,7 @@ public class Dispatcher {
   private final static String[] STRARR0 = new String[0];
   /** Prepend an item to an array, returning the result as a new array */
   private static ArrayList<String> prependParameter(String prepend, List<String> args) {
-    ArrayList<String> args2 = new ArrayList<String>(args.size()+1);
+    ArrayList<String> args2 = new ArrayList<>(args.size() + 1);
     args2.add(prepend);
     args2.addAll(args);
     return args2;

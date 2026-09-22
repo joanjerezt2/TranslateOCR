@@ -34,9 +34,8 @@ public class State {
   /**
    * Whether object pooling should be done. Object allocation (of small objects) on modern JVMs is even so fast that
    * making a copy of immutable objects sometimes outperforms modification of mutable (and often old) objects. See also
-   * "Object pooling is now a serious performance loss": http://www.theserverside.com/news/thread.tss?thread_id=37146
-   *
-   * Pooling seems to do no difference on JDK 1.6, but it might make a big difference for smaller VMs, like Androids or
+   * "Object pooling is now a serious performance loss": <a href="http://www.theserverside.com/news/thread.tss?thread_id=37146">...</a>
+   * Pooling seems to do not difference on JDK 1.6, but it might make a big difference for smaller VMs, like Androids or
    * J2ME JVMs in phones, so we turn it on for now
    */
   public static final boolean REUSE_OBJECTS = true;
@@ -61,7 +60,7 @@ public class State {
      * Which transducer does this node belong to
      */
     final TransducerExe transducer;
-    /**
+    /*
      * Which node in the transducer we are currently visiting
      */
     /**
@@ -89,12 +88,12 @@ public class State {
      * special constructor to signal that the sequence list must be initialized
      */
     TNodeState(TransducerExe transducer, boolean b) {
-      sequence = new ArrayList<Integer>();
+      sequence = new ArrayList<>();
       this.transducer = transducer;
     }
 
     TNodeState(TransducerExe transducer, int sequence_size) {
-      sequence = new ArrayList<Integer>(sequence_size);
+      sequence = new ArrayList<>(sequence_size);
       this.transducer = transducer;
     }
 
@@ -117,7 +116,7 @@ public class State {
     }
   }
 
-  ArrayList<TNodeState> state = new ArrayList<TNodeState>(50);
+  ArrayList<TNodeState> state = new ArrayList<>(50);
 
   State copy(State other_state) {
 
@@ -143,7 +142,7 @@ public class State {
 
         this.state.add(copy);
       } else {
-        this.state.add(new TNodeState(tn.transducer, tn.where_node_id, new ArrayList<Integer>(tn.sequence), tn.caseWasChanged));
+        this.state.add(new TNodeState(tn.transducer, tn.where_node_id, new ArrayList<>(tn.sequence), tn.caseWasChanged));
       }
     }
     return this;
@@ -182,7 +181,7 @@ public class State {
   }
 
   public void init(TransducerExe transducer) {
-    ArrayList<TransducerExe> c = new ArrayList<TransducerExe>();
+    ArrayList<TransducerExe> c = new ArrayList<>();
     c.add(transducer);
     init(c);
   }
@@ -206,11 +205,11 @@ public class State {
       reusable_state.clear();
       new_state = reusable_state;
     } else {
-      new_state = new ArrayList<TNodeState>(state.size() * 2);
+      new_state = new ArrayList<>(state.size() * 2);
     }
     consistency_check();
 
-    if (input == 0) { // in transfer it happens an unknown symbol is translated to 0. Avoid interpreting that as an epsilon.
+    if (input == 0) { // in transfer, it happens an unknown symbol is translated to 0. Avoid interpreting that as an epsilon.
       if (REUSE_OBJECTS)
         reusable_state = state;
       state = new_state;
@@ -264,7 +263,7 @@ public class State {
       reusable_state.clear();
       new_state = reusable_state;
     } else {
-      new_state = new ArrayList<TNodeState>(state.size() * 2);
+      new_state = new ArrayList<>(state.size() * 2);
     }
     //System.err.println("apply i="+input+ "  state.size()="+state.size());
 
@@ -360,7 +359,7 @@ public class State {
    * step = apply + epsilonClosure
    *
    * @param input the input symbol
-   * @param alt the alternative input symbol (typically lowercase version of input symbol)
+   * @param lowerCasedInput the alternative input symbol (typically lowercase version of input symbol)
    */
   public void step(int input, int lowerCasedInput) {
     apply(input, lowerCasedInput);
@@ -386,7 +385,7 @@ public class State {
   /**
    * Return true if at least one record of the state references a final node of the set
    *
-   * @param finals set of final nodes
+   * @param transducers set of final nodes
    * @return true if the state is final
    */
   public boolean isFinal(Set<TransducerExe> transducers) {
@@ -427,7 +426,6 @@ public class State {
    * /le<prn><pro><p3><nt>/le<det><def><m><sg>/le<prn><pro><p3><m><sg> /domaine<n><m><sg> /,<cm>
    *
    * @param result append to this buffer
-   * @param finals the set of final nodes
    * @param alphabet the alphabet to decode strings
    * @param escaped_chars the set of chars to be preceeded with one backslash
    * @param uppercase true if the word is uppercase
@@ -447,7 +445,7 @@ public class State {
         boolean upc = uppercase && state_i.caseWasChanged;
 
         for (int j = 0, limit2 = state_i.sequence.size(); j != limit2; j++) {
-          int symbol = ((state_i.sequence).get(j)).intValue();
+          int symbol = (state_i.sequence).get(j);
           if (escaped_chars.contains((char) symbol)) {
             result.append('\\');
           }
@@ -481,7 +479,7 @@ public class State {
         result.append('/');
 
         for (int j = 0, limit2 = state_i.sequence.size(); j != limit2; j++) {
-          int symbol = ((state_i.sequence).get(j)).intValue();
+          int symbol = (state_i.sequence).get(j);
           if (escaped_chars.contains((char) symbol)) {
             result.append('\\');
           }
@@ -496,15 +494,10 @@ public class State {
   /**
    * Find final states, remove those that not has a requiredSymbol and 'restart' each of them as the set of initial
    * states, but remembering the sequence and adding a separationSymbol
-   *
-   * @param finals
-   * @param requiredSymbol
-   * @param restart_state
-   * @param separationSymbol
    */
   void restartFinals(int requiredSymbol, State restart_state, int separationSymbol) {
 
-    ArrayList<TNodeState> added_states = new ArrayList<TNodeState>();
+    ArrayList<TNodeState> added_states = new ArrayList<>();
 
     for (int i = 0; i < state.size(); i++) {
       TNodeState state_i = state.get(i);
@@ -610,7 +603,7 @@ public class State {
    * @return the result of the transduction
    */
   String filterFinalsSAO(Alphabet alphabet, SetOfCharacters escaped_chars, boolean uppercase, boolean firstupper, int firstchar) {
-    StringBuilder result = new StringBuilder("");
+    StringBuilder result = new StringBuilder();
 
     for (int i = 0, limit = state.size(); i != limit; i++) {
       TNodeState state_i = state.get(i);
@@ -622,7 +615,7 @@ public class State {
           if (escaped_chars.contains((char) (state_i.sequence).get(j).intValue())) {
             result.append('\\');
           }
-          if (alphabet.isTag(((state_i.sequence)).get(j))) {
+          if (Alphabet.isTag(((state_i.sequence)).get(j))) {
             result.append('&');
             result.append(alphabet.getSymbol(state_i.sequence.get(j)));
             result.setCharAt(result.length() - 1, ';');
@@ -647,31 +640,28 @@ public class State {
   /**
    * Same as previous one, but the output is adapted to the TM system
    *
-   * @param finals the set of final nodes
+   * @param numbers the set of final nodes
    * @param alphabet the alphabet to decode strings
    * @param escaped_chars the set of chars to be preceeded with one backslash
-   * @param uppercase true if the word is uppercase
-   * @param firstupper true if the first letter of a word is uppercase
-   * @param firstchar first character of the word
    * @return the result of the transduction
    */
   String filterFinalsTM(Alphabet alphabet, SetOfCharacters escaped_chars, LinkedList<String> blankqueue, ArrayList<String> numbers) {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     for (int i = 0, limit = state.size(); i < limit; i++) {
       TNodeState state_i = state.get(i);
       //if (finals.contains(state_i.where)) {
       if (state_i.isFinal()) {
-        result += '/';
+        result.append('/');
         for (int j = 0, limit2 = state_i.sequence.size(); j < limit2; j++) {
           if (escaped_chars.contains((char) state_i.sequence.get(j).intValue())) {
-            result += '\\';
+            result.append('\\');
           }
-          result += alphabet.getSymbol(state_i.sequence.get(j));
+          result.append(alphabet.getSymbol(state_i.sequence.get(j)));
         }
       }
     }
     String result2 = "";
-    ArrayList<String> fragments = new ArrayList<String>();
+    ArrayList<String> fragments = new ArrayList<>();
     fragments.add("");
     for (int i = 0, limit = result.length(); i < limit; i++) {
       if (result.charAt(i) == ')') {
@@ -684,9 +674,9 @@ public class State {
     for (int i = 0, limit = fragments.size(); i < limit; i++) {
       if (i < limit - 1) {
         if (fragments.get(i).length() >= 2
-            && fragments.get(i).substring(fragments.get(i).length() - 2).equals("(#")) {
+            && fragments.get(i).endsWith("(#")) {
           String whitespace = "";
-          if (blankqueue.size() != 0) {
+          if (!blankqueue.isEmpty()) {
             whitespace = blankqueue.getFirst().substring(1);
             blankqueue.removeFirst();
             whitespace = whitespace.substring(0, whitespace.length() - 1);
@@ -724,11 +714,11 @@ public class State {
         }
       }
     }
-    result = "";
+    result = new StringBuilder();
     for (int i = 0, limit = fragments.size(); i < limit; i++) {
-      result += fragments.get(i);
+      result.append(fragments.get(i));
     }
-    return result;
+    return result.toString();
   }
 
   /**
@@ -738,7 +728,6 @@ public class State {
    * @return true if the c is a digit
    */
   private boolean iswdigit(char c) {
-    int i = (int) c;
-    return ((i >= 48 && i <= 57) || i == 178 || i == 179 || i == 185);
+      return (((int) c >= 48 && (int) c <= 57) || (int) c == 178 || (int) c == 179 || (int) c == 185);
   }
 }

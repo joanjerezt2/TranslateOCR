@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.apertium.lttoolbox.Compression;
 
-/**
+/*
  *
  * @author jimregan
  */
@@ -41,8 +41,8 @@ public class Collection {
   ArrayList<Set<Integer>> element;
 
   Collection() {
-    index = new LinkedHashMap<Set<Integer>, Integer>();
-    element = new ArrayList<Set<Integer>>();
+    index = new LinkedHashMap<>();
+    element = new ArrayList<>();
   }
 
   int size() {
@@ -53,7 +53,7 @@ public class Collection {
   }
 
   /**
-   * Checks whether or not the collection has the element received as
+   * Checks whether the collection has the element received as
    * a parameter.
    *
    * @param t element
@@ -88,13 +88,13 @@ public class Collection {
    *
    * @param t the element to be added
    */
-  int add(Set<Integer> t) {
+  void add(Set<Integer> t) {
     try {
       if (index == null) {
-        index = new LinkedHashMap<Set<Integer>, Integer>();
+        index = new LinkedHashMap<>();
       }
       if (element == null) {
-        element = new ArrayList<Set<Integer>>();
+        element = new ArrayList<>();
       }
 
       /* So here's the original line:
@@ -103,12 +103,12 @@ public class Collection {
        * this caused the value stored in the map to be 1 less than it should be.
        * Remove the -1, and it works properly now.
        */
-      index.put(t, Integer.valueOf(index.size()));
+      index.put(t, index.size());
       element.add(t);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return index.get(t);
+    index.get(t);
   }
 
   /**
@@ -116,12 +116,12 @@ public class Collection {
    *
    * @param input the input stream
    */
-  void read(InputStream input) throws IOException {
+  void read(InputStream input) {
     try {
       int size = Compression.multibyte_read(input);
 
       for (; size != 0; size--) {
-        Set<Integer> myset = new LinkedHashSet<Integer>();
+        Set<Integer> myset = new LinkedHashSet<>();
         int set_size = Compression.multibyte_read(input);
         for (; set_size != 0; set_size--) {
           myset.add(Compression.multibyte_read(input));
@@ -143,7 +143,10 @@ public class Collection {
 
     for (int i = 0; i != element.size(); i++) {
       Compression.multibyte_write(element.get(i).size(), output);
-      for (Integer it : element.toArray(new Integer[element.size()])) {
+      /* for (Integer it : element.toArray(new Integer[element.size()])) {
+        Compression.multibyte_write(it, output);
+       } */
+      for (Integer it: element.get(i)){
         Compression.multibyte_write(it, output);
       }
     }

@@ -63,8 +63,8 @@ public class Tagger {
   List<String> filenames;
   private static String name;
   //Low-level dev debugging
-  private static boolean DEBUG = false;
-  private static HashMap<String, TaggerData> cache = new HashMap<String, TaggerData>();
+  private static final boolean DEBUG = false;
+  private static final HashMap<String, TaggerData> cache = new HashMap<>();
   private static boolean cacheEnabled = false;
 
   public static void setCacheEnabled(boolean enabled) {
@@ -81,7 +81,7 @@ public class Tagger {
     debug = false;
     showSF = false;
     null_flush = false;
-    filenames = new ArrayList<String>();
+    filenames = new ArrayList<>();
     name = new ClassName().getName();
   }
 
@@ -140,10 +140,6 @@ public class Tagger {
             mode = TAGGER_MODE;
             break;
 
-          case 'h':
-            help();
-            break;
-
           case 'm':
             TaggerWord.setGenerateMarks(true);
             break;
@@ -183,32 +179,15 @@ public class Tagger {
           + ", mode: " + mode);
     }
     switch (argv.length - getopt.getOptind()) {
-      case 6:
-        if (mode != TRAIN_SUPERVISED_MODE) {
-          help();
-        }
-        break;
 
-      case 4:
-        if (mode != TRAIN_MODE) {
-          help();
-        }
-        break;
-
-      case 3:
-        if ((mode != TAGGER_MODE) && (mode != TAGGER_FIRST_MODE)) {
+      case 1:
+            if ((mode != TAGGER_MODE) && (mode != TAGGER_FIRST_MODE)) {
           help();
         }
         break;
 
       case 2:
-        if ((mode != RETRAIN_MODE) && (mode != TAGGER_MODE)) {
-          help();
-        }
-        break;
-
-      case 1:
-        if ((mode != TAGGER_MODE) && (mode != TAGGER_FIRST_MODE)) {
+        if (mode != TAGGER_MODE) {
           help();
         }
         break;
@@ -264,7 +243,7 @@ public class Tagger {
 
 
   }
-  /* Class to get name of program since arg[0] in java dosen't provide program */
+  /* Class to get name of program since arg[0] in java doesn't provide program */
 
   static class ClassName {
     String getName() {

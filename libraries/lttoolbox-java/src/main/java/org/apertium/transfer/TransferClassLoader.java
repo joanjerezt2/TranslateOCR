@@ -20,9 +20,8 @@ public class TransferClassLoader extends ClassLoader {
     super(TransferClassLoader.class.getClassLoader());
   }
 
-  @SuppressWarnings("unchecked")
   public Class loadClassFile(String filename) throws ClassNotFoundException, IOException {
-    byte data[] = loadByteArray(filename);
+    byte[] data = loadByteArray(filename);
     return defineClass(null, data, 0, data.length);
   }
 
@@ -39,7 +38,7 @@ public class TransferClassLoader extends ClassLoader {
         className = className.substring(0, className.length() - 6);
       ClassLoader loader = getLoader() != null ? getLoader() : TransferClassLoader.class.getClassLoader();
       return loader.loadClass(className);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     } //If it fails we will keep trying and, if necessary, generate it
     finally {
       if (IOUtils.timing != null)
@@ -103,7 +102,7 @@ public class TransferClassLoader extends ClassLoader {
 		//  || classFile.lastModified()<txFilelastModified
 
     File classFile = openFile(addTrailingSlash(binFile.getParent()) + classFilename);
-    // If it doesn't exist in the binFile directory, or its too old, try the temp directory
+    // If it doesn't exist in the binFile directory, or it's too old, try the temp directory
     if (!classFile.exists()|| classFile.lastModified()<txFilelastModified) {
 			File tmpDirClassFile = openFile(tempDir + classFilename);
 			if (tmpDirClassFile.exists()) {
@@ -111,7 +110,7 @@ public class TransferClassLoader extends ClassLoader {
 			}
     }
 
-    // If the class file exists already, and its not too old, try and load it.
+    // If the class file exists already, and it's not too old, try and load it.
     if (classFile.exists() && classFile.lastModified()>=txFilelastModified) {
       return tcl.loadClassFile(classFile.getPath());
     }
@@ -128,9 +127,7 @@ public class TransferClassLoader extends ClassLoader {
         } //Do nothing (the class will be generated again next time)
       }
       return tb.getJavaClass();
-    } catch (ParserConfigurationException e) {
-      throw new IOException("TX File (" + txFile + ") parsing failed -- " + e.getLocalizedMessage());
-    } catch (SAXException e) {
+    } catch (ParserConfigurationException | SAXException e) {
       throw new IOException("TX File (" + txFile + ") parsing failed -- " + e.getLocalizedMessage());
     }
 

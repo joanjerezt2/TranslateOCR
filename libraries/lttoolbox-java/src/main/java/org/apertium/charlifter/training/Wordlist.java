@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.DataInputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -31,22 +32,21 @@ import java.util.ArrayList;
  */
 public class Wordlist {
   static String[] read(String filename) throws IOException {
-    ArrayList<String> a = new ArrayList<String>();
+    ArrayList<String> a = new ArrayList<>();
 
     BufferedReader br = null;
 
     try {
       FileInputStream fstream = new FileInputStream(filename);
       DataInputStream in = new DataInputStream(fstream);
-      br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-      String strLine = "";
+      br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+      String strLine;
 
       while ((strLine = br.readLine()) != null) {
-        if (strLine.equals("")) {
+        if (strLine.isEmpty()) {
           continue;
         }
         a.add(strLine);
-        strLine = "";
       }
     } catch (Exception e) {
       System.err.println("Error: " + e.getMessage());
@@ -56,6 +56,6 @@ public class Wordlist {
         br.close();
     }
 
-    return a.toArray(new String[a.size()]);
+    return a.toArray(new String[0]);
   }
 }

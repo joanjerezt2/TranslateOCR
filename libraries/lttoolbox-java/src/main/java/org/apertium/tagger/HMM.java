@@ -22,14 +22,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 
 import org.apertium.lttoolbox.Compression;
 
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import org.apertium.utils.IOUtils;
@@ -39,14 +37,12 @@ import org.apertium.utils.IOUtils;
  * @author jimregan
  */
 public class HMM {
-  private boolean DEBUG = false;
 
-  class IntVector {
-    ArrayList<Integer> nodes = new ArrayList<Integer>();
+    static class IntVector {
+    ArrayList<Integer> nodes = new ArrayList<>();
   }
 
-  private double ZERO = 1e-10;
-  private TaggerData td;
+    private final TaggerData td;
   private int eos;
   private boolean debug;
   private boolean show_sf;
@@ -97,13 +93,13 @@ public class HMM {
         break;
       }
 
-      Set<Integer> ambiguity_class = new LinkedHashSet<Integer>();
+      Set<Integer> ambiguity_class = new LinkedHashSet<>();
 
       for (; ntags != 0; ntags--) {
         ambiguity_class.add(Compression.multibyte_read(in));
       }
 
-      if (ambiguity_class.size() != 0) {
+      if (!ambiguity_class.isEmpty()) {
         td.getOutput().add(ambiguity_class);
       }
     }
@@ -150,18 +146,17 @@ public class HMM {
    * Initializes the transition (a) and emission (b) probabilities
    * from an untagged input text by means of Kupiec's method
    *
-   * @param is the input reader with the untagged corpus to process
    */
   void init_probabilities_kupiec(Reader in) throws IOException {
     int N = td.getN();
     int M = td.getM();
     int i, j, k, k1, k2, nw = 0;
-    /**
+    /*
      * M = Number of ambiguity classes
      */
     double[] classes_occurrences = new double[M];
     double[][] classes_pair_occurrences = new double[M][M];
-    /**
+    /*
      * N = Number of tags (states)
      */
     double[] tags_estimate = new double[N];
@@ -170,7 +165,7 @@ public class HMM {
     Collection output = td.getOutput();
 
     MorphoStream lexmorfo = new MorphoStream(in, true, td);
-    TaggerWord word = new TaggerWord();
+    TaggerWord word;
 
     for (k = 0; k < M; k++) {
       classes_occurrences[k] = 1;
@@ -179,7 +174,7 @@ public class HMM {
       }
     }
 
-    Set<Integer> tags = new LinkedHashSet<Integer>();
+    Set<Integer> tags = new LinkedHashSet<>();
     tags.add(eos);
     k1 = output.get(tags);
     classes_occurrences[k]++;
@@ -193,7 +188,7 @@ public class HMM {
 
       tags = word.get_tags();
 
-      if (tags.size() == 0) {
+      if (tags.isEmpty()) {
         tags = td.getOpenClass();
       } else if (output.has_not(tags)) {
         String errors;
@@ -235,8 +230,8 @@ public class HMM {
       for (k2 = 0; k2 < M; k2++) {
         tags2 = output.get(k2);
         double noccurrences = classes_pair_occurrences[k1][k2] / (double) (tags1.size() * tags2.size());
-        for (Integer itag1 : tags1.toArray(new Integer[tags1.size()])) {
-          for (Integer itag2 : tags2.toArray(new Integer[tags2.size()])) {
+        for (Integer itag1 : tags1.toArray(new Integer[0])) {
+          for (Integer itag2 : tags2.toArray(new Integer[0])) {
             tags_pair_estimate[itag1][itag2] += noccurrences;
           }
         }
@@ -292,17 +287,17 @@ public class HMM {
     int i, j, k, nw = 0;
     int N = td.getN();
     int M = td.getM();
-    double tags_pair[][] = new double[N][N];
-    double emission[][] = new double[N][M];
+    double[][] tags_pair = new double[N][N];
+    double[][] emission = new double[N][M];
 
     MorphoStream stream_tagged = new MorphoStream(ftagged, true, td);
     MorphoStream stream_untagged = new MorphoStream(funtagged, true, td);
 
-    TaggerWord word_tagged = new TaggerWord();
-    TaggerWord word_untagged = new TaggerWord();
+    TaggerWord word_tagged;
+    TaggerWord word_untagged;
     Collection output = td.getOutput();
 
-    Set<Integer> tags = new LinkedHashSet<Integer>();
+    Set<Integer> tags = new LinkedHashSet<>();
 
     for (i = 0; i < N; i++) {
       for (j = 0; j < N; j++) {
@@ -317,7 +312,7 @@ public class HMM {
       }
     }
 
-    Integer tag1, tag2;
+    int tag1, tag2;
     tag1 = eos;
 
     // FIXME check get_next_word()
@@ -344,11 +339,7 @@ public class HMM {
 
       tag2 = tag1;
 
-      if (word_untagged == null) {
-        throw new IOException("word_untagged==NULL");
-      }
-
-      if (word_tagged.get_tags().size() == 0) { // Unknown word
+      if (word_tagged.get_tags().isEmpty()) { // Unknown word
         tag1 = -1;
       } else if (word_tagged.get_tags().size() > 1) { // Ambiguous word
         System.err.println("Error in tagged text. An ambiguous word was found: " + word_tagged.get_superficial_form());
@@ -360,7 +351,7 @@ public class HMM {
         tags_pair[tag2][tag1]++;
       }
 
-      if (word_untagged.get_tags().size() == 0) {
+      if (word_untagged.get_tags().isEmpty()) {
         tags = td.getOpenClass();
       } else if (output.has_not(word_untagged.get_tags())) {
         String errors;
@@ -425,7 +416,8 @@ public class HMM {
     int i, j, j2;
     boolean found;
 
-    for (i = 0; i < forbid_rules.size(); i++) {
+      double ZERO = 1e-10;
+      for (i = 0; i < forbid_rules.size(); i++) {
       td.setAElement(forbid_rules.get(i).tagi, forbid_rules.get(i).tagj, ZERO);
     }
 
@@ -468,8 +460,8 @@ public class HMM {
    */
   void read_dictionary(Reader fdic) throws IOException {
     int i, k, nw = 0;
-    TaggerWord word = new TaggerWord();
-    Set<Integer> tags = new LinkedHashSet<Integer>();
+    TaggerWord word;
+    Set<Integer> tags;
     Collection output = td.getOutput();
 
     MorphoStream morpho_stream = new MorphoStream(fdic, true, td);
@@ -484,7 +476,7 @@ public class HMM {
 
       tags = word.get_tags();
 
-      if (tags.size() > 0) {
+      if (!tags.isEmpty()) {
         k = output.get(tags);
       }
 
@@ -502,7 +494,7 @@ public class HMM {
     // Create ambiguity class holding one single tag for each tag.
     // If not created yet
     for (i = 0; i != N; i++) {
-      Set<Integer> amb_class = new LinkedHashSet<Integer>();
+      Set<Integer> amb_class = new LinkedHashSet<>();
       amb_class.add(i);
       k = output.get(amb_class);
     }
@@ -516,12 +508,11 @@ public class HMM {
   /**
    * Filters ambiguity classes
    *
-   * @param input reader to filter
+   * @param in reader to filter
    * @param out Output
-   * @throws IOException
    */
   void filter_ambiguity_classes(Reader in, Appendable out) throws IOException {
-    Set<Set<Integer>> ambiguity_classes = new LinkedHashSet<Set<Integer>>();
+    Set<Set<Integer>> ambiguity_classes = new LinkedHashSet<>();
     MorphoStream morpho_stream = new MorphoStream(in, true, td);
 
     TaggerWord word = morpho_stream.get_next_word();
@@ -529,7 +520,7 @@ public class HMM {
     while (word != null) {
       Set<Integer> tags = word.get_tags();
 
-      if (tags.size() > 0) {
+      if (!tags.isEmpty()) {
         if (!ambiguity_classes.contains(tags)) {
           ambiguity_classes.add(tags);
           word.outputOriginal(out);
@@ -539,240 +530,21 @@ public class HMM {
     }
   }
 
-  void train(Reader ftxt) throws IOException, UnsupportedOperationException {
-    if (true) {
+  void train(Reader ftxt) throws UnsupportedOperationException {
       throw new UnsupportedOperationException("HMM training doesn't work, "
-          + "it hasn't been fully ported, yet!");
-    }
-    int k, t, len, nw = 0;
-    TaggerWord word = new TaggerWord();
-    Integer tag;
-    Set<Integer> tags = new LinkedHashSet<Integer>();
-    Set<Integer> pretags = new LinkedHashSet<Integer>();
-    Map<Integer, Double> gamma = new LinkedHashMap<Integer, Double>();
-    Map<Integer, Map<Integer, Double>> alpha = new LinkedHashMap<Integer, Map<Integer, Double>>();
-    Map<Integer, Map<Integer, Double>> beta = new LinkedHashMap<Integer, Map<Integer, Double>>();
-    Map<Integer, Map<Integer, Double>> xsi = new LinkedHashMap<Integer, Map<Integer, Double>>();
-    Map<Integer, Map<Integer, Double>> phi = new LinkedHashMap<Integer, Map<Integer, Double>>();
-    double prob, loli;
-    ArrayList<Set<Integer>> pending = new ArrayList<Set<Integer>>();
-    Collection output = td.getOutput();
-
-    int ndesconocidas = 0;
-    // alpha => forward probabilities
-    // beta => backward probabilities
-
-    MorphoStream morpho_stream = new MorphoStream(ftxt, true, td);
-
-    loli = 0;
-    tag = eos;
-    tags.add(tag);
-    pending.add(tags);
-
-    // alpha[0].clear();
-    // alpha[0][tag] = 1;
-    Map<Integer, Double> tempNewMap = new LinkedHashMap<Integer, Double>();
-    tempNewMap.put(tag, 1.0);
-    alpha.put(0, tempNewMap);
-    /* tempNewMap is just a temporary scratch variable used to store a reference
-     * to the new map so that value can be added to it, and then the new map
-     * stored in alpha. It will be used again below. Set it to null to prevent
-     * re-using it w/o setting it again. This should actually cause a null pointer
-     * exception if tempNewMap is re-used incorrectly, which is the desired behavior.
-     */
-    tempNewMap = null;
-
-    word = morpho_stream.get_next_word();
-
-    // XXX: word is never set in this cycle; this probably leads to an infinite loop
-    while (word != null) {
-      if (++nw % 10000 == 0) {
-        System.err.print(".");
-        System.err.flush();
-      }
-
-      pretags = pending.get(pending.size() - 1);
-
-      tags = word.get_tags();
-
-      if (tags.size() == 0) {
-        tags = td.getOpenClass();
-        ndesconocidas++;
-      }
-
-      if (output.has_not(tags)) {
-        String errors;
-        errors = "A new ambiguity class was found. I cannot continue.\n";
-        errors += "Word '" + word.get_superficial_form() + "' not found in the dictionary.\n";
-        errors += "New ambiguity class: " + word.get_string_tags() + "\n";
-        errors += "Take a look at the dictionary, then retrain.";
-        fatal_error(errors);
-      }
-
-      k = output.get(tags);
-      len = pending.size();
-      // alpha[len].clear()
-      alpha.put(len, new LinkedHashMap<Integer, Double>());
-
-      //Forward probabilities
-      for (Integer i : tags) {
-        for (Integer j : pretags) {
-          // FIXME
-          //alpha[len][i] += alpha[len-1][j]*(td->getA())[j][i]*(td->getB())[i][k];
-          Double ret = alpha.get(len).get(i) + alpha.get(len - 1).get(j) * (td.getA()[j][i]) * (td.getB()[i][k]);
-          alpha.get(len).put(i, ret);
-
-        }
-        if (alpha.get(len).get(i) == 0) {
-          // FIXME
-          //alpha[len][i]=DBL_MIN;
-          alpha.get(len).put(new Integer(i), new Double(DBL_MIN));
-        }
-
-      }
-
-      if (tags.size() > 1) {
-        pending.add(tags);
-      } else { //word is unambiguous
-        tag = tags.iterator().next();
-        tempNewMap = new LinkedHashMap<Integer, Double>();
-        tempNewMap.put(tag, 1.0);
-        beta.put(0, tempNewMap);
-        //clear temp variable for next use
-        tempNewMap = null;
-
-        prob = alpha.get(len).get(tag);
-
-        loli -= Math.log(prob);
-
-        for (t = 0; t < len; t++) {
-          Integer pendingSize = pending.size();
-          pretags = pending.get(pendingSize - 1); //Get the last element
-          pending.remove(pendingSize - 1); //Remove the last element
-          k = output.get(tags);
-          //beta[1 - t % 2].clear()
-          beta.put(1 - t % 2, new LinkedHashMap<Integer, Double>());
-          for (Integer i : tags) {
-            Double tmpDbl;
-            for (Integer j : pretags) {
-              tmpDbl = beta.get(1 - t % 2).get(j) + td.getA()[j][i]
-                  * td.getB()[i][k] * beta.get(t % 2).get(i);
-              beta.get(1 - t % 2).put(j, tmpDbl);
-              if (xsi.get(j) == null) {
-                xsi.put(j, new LinkedHashMap<Integer, Double>());
-              }
-              tmpDbl = xsi.get(j).get(i) + alpha.get(len - t - 1).get(j)
-                  * td.getA()[j][i] * td.getB()[i][k]
-                  * beta.get(t % 2).get(i) / prob;
-              xsi.get(j).put(i, tmpDbl);
-            }
-            double previous_value = gamma.get(i);
-
-            tmpDbl = gamma.get(i) + alpha.get(len - t).get(i)
-                * beta.get(t % 2).get(i) / prob;
-            gamma.put(i, tmpDbl);
-            /* tmp is used here in place of multiple, repeated calls to
-             * gamma.get(i), since the value in tmp is the value that was
-             * just stored at i in gamma.
-             */
-            if (Double.isNaN(tmpDbl)) {
-              throw new IllegalStateException("NAN(3) gamma[" + i + "] = " + tmpDbl
-                  + " alpha[" + (len - t) + "][" + i + "]= "
-                  + alpha.get(len - t).get(i) + " beta[" + (t % 2) + "]["
-                  + i + "] = " + beta.get(t % 2).get(i) + " prob = "
-                  + prob + " previous gamma = " + previous_value);
-            }
-            if (Double.isInfinite(tmpDbl)) {
-              throw new IllegalStateException("INF(3) gamma[" + i + "] = " + tmpDbl
-                  + " alpha[" + (len - t) + "][" + i + "]= "
-                  + alpha.get(len - t).get(i) + " beta[" + (t % 2) + "]["
-                  + i + "] = " + beta.get(t % 2).get(i) + " prob = "
-                  + prob + " previous gamma = " + previous_value);
-            }
-            if (tmpDbl == 0) {
-              gamma.put(i, DBL_MIN);
-            }
-            if (phi.get(i) == null) {
-              phi.put(i, new LinkedHashMap<Integer, Double>());
-            }
-            Double tmpPhiDbl = phi.get(i).get(i) + alpha.get(len - t).get(i)
-                * beta.get(t % 2).get(i) / prob;
-            phi.get(i).put(k, tmpPhiDbl);
-          }
-          tags = pretags;
-        }
-        tags.clear();
-        tags.add(tag);
-        pending.add(tags); //Adds to the end of the list
-        tempNewMap = new LinkedHashMap<Integer, Double>();
-        tempNewMap.put(tag, 1.0);
-        alpha.put(0, tempNewMap);
-        tempNewMap = null;
-      }
-
-      word = morpho_stream.get_next_word();
-    }
-    if ((pending.size() > 1) || ((tag != eos) && (tag != td.getTagIndex().get("TAG_kEOF")))) {
-      System.err.println("Warning: The last tag is not the end-of-sentence tag.");
-    }
-
-    int N = td.getN();
-    int M = td.getM();
-
-    //Clean previous values
-    double[][] tmpA = td.getA();
-    double[][] tmpB = td.getB();
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        tmpA[i][j] = ZERO;
-      }
-      for (k = 0; k < M; k++) {
-        tmpB[i][k] = ZERO;
-      }
-    }
-
-    //new parameters
-    for (Integer i : xsi.keySet()) {
-      for (Integer j : xsi.get(i).keySet()) {
-        if (xsi.get(i).get(j) > 0) {
-          if (gamma.get(i) == 0) {
-            System.err.println("Warning: gamma[" + i + "]=0");
-            gamma.put(i, DBL_MIN);
-          }
-
-          //Reuse td.A reference grabbed before previous loop
-          tmpA[i][j] = xsi.get(i).get(j) / gamma.get(i);
-
-          if (Double.isNaN(tmpA[i][j])) {
-            throw new IllegalStateException("Error: BW - NAN(1) a[" + i + "][" + j
-                + "]=" + tmpA[i][j] + "\txsi[" + i + "][" + j + "]="
-                + xsi.get(i).get(j) + "\tgamma[" + i + "]=" + gamma.get(i));
-          }
-          if (Double.isInfinite(tmpA[i][j])) {
-            throw new IllegalStateException("Error: BW - INF(1) a[" + i + "][" + j
-                + "]=" + tmpA[i][j] + "\txsi[" + i + "][" + j + "]="
-                + xsi.get(i).get(j) + "\tgamma[" + i + "]=" + gamma.get(i));
-          }
-          if (tmpA[i][j] == 0) {
-            /* Do nothing for now, the code in the C++ version for this
-             * conditional is all commented out.
-             */
-          }
-        }
-      }
-    }
-    /* TODO This should be finished sometime if we decide we actually need the training
+              + "it hasn't been fully ported, yet!");
+      /* TODO This should be finished sometime if we decide we actually need the training
      * functionality for the HMM tagger.
      */
   }
 
   void tagger(Reader in, Appendable out, boolean show_all_good_first) throws IOException {
     int i, j, k;
-    TaggerWord word = null;// new TaggerWord();  // word =null;
+    TaggerWord word;// new TaggerWord();  // word =null;
     Integer tag;
 
-    Set<Integer> tags = new LinkedHashSet<Integer>();
-    Set<Integer> pretags = new LinkedHashSet<Integer>();
+    Set<Integer> tags = new LinkedHashSet<>();
+    Set<Integer> pretags;
 
     double prob, x;
 
@@ -785,7 +557,7 @@ public class HMM {
       }
     }
 
-    ArrayList<TaggerWord> wpend = new ArrayList<TaggerWord>();
+    ArrayList<TaggerWord> wpend = new ArrayList<>();
 
     MorphoStream morpho_stream = new MorphoStream(in, debug, td);
     morpho_stream.setNullFlush(null_flush);
@@ -801,6 +573,7 @@ public class HMM {
     word = morpho_stream.get_next_word();
     // the main loop reading words until EOF
     while (word != null) {
+      boolean DEBUG = false;
       if (DEBUG) {
         word.print();
       }
@@ -812,7 +585,7 @@ public class HMM {
 
       tags = word.get_tags();
 
-      if (tags.size() == 0) // This is an unknown word
+      if (tags.isEmpty()) // This is an unknown word
       {
         tags = td.getOpenClass();
       }
@@ -913,7 +686,7 @@ public class HMM {
 
     if (tags.size() > 1 && debug) {
       String errors;
-      errors = "The text to disambiguate has finished, but there are ambiguous words that have not been disambiguated.\n";
+      // errors = "The text to disambiguate has finished, but there are ambiguous words that have not been disambiguated.\n";
       errors = "This message should never appear. If you are reading this ..... this is very bad news.\n";
       System.err.print("\nError: " + errors);
     }
@@ -949,7 +722,7 @@ public class HMM {
    * Prints the ambiguity classes.
    */
   void print_ambiguity_classes() {
-    Set<Integer> ambiguity_class = new LinkedHashSet<Integer>();
+    Set<Integer> ambiguity_class;
     System.out.println("AMBIGUITY CLASSES");
     System.out.println("-------------------------------");
     for (int i = 0; i != td.getM(); i++) {
@@ -1018,15 +791,13 @@ public class HMM {
    *
    * @param a the array
    */
-  void clear_array_double(double a[]) {
-    for (int i = 0; i < a.length; i++) {
-      a[i] = 0.0;
-    }
+  void clear_array_double(double[] a) {
+      Arrays.fill(a, 0.0);
   }
 
-  void clear_array_vector(IntVector a[]) {
-    for (int i = 0; i < a.length; i++) {
-      a[i].nodes.clear();
-    }
+  void clear_array_vector(IntVector[] a) {
+      for (IntVector intVector : a) {
+          intVector.nodes.clear();
+      }
   }
 }

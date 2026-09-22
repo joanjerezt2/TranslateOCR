@@ -18,7 +18,7 @@ public class Timing {
   }
   public String name;
   public long timing = System.nanoTime();
-  public LinkedHashMap<String, Long> times = new LinkedHashMap<String, Long>();
+  public LinkedHashMap<String, Long> times = new LinkedHashMap<>();
 
   public void log(String task) {
     long now = System.currentTimeMillis();

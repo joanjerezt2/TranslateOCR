@@ -14,9 +14,9 @@ package org.apertium.lex;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.ByteBuffer;
-import org.apertium.CommandLineInterface;
+
 import org.apertium.lttoolbox.Getopt;
-import org.apertium.lttoolbox.process.FSTProcessor;
+
 import static org.apertium.utils.IOUtils.*;
 
 /**
@@ -28,8 +28,8 @@ public class LRXProc {
 
   public static void main(String[] argv) throws Exception {
     System.setProperty("file.encoding", "UTF-8");
-    Reader input = null;
-    Appendable output = null;
+    Reader input;
+    Writer output = null;
 
     final int argc = argv.length;
 
@@ -76,7 +76,8 @@ public class LRXProc {
     lrxp.process(input, output);
 
     input.close();
-    ((Writer) output).close();
+      assert output != null;
+      output.close();
 
   }
 }

@@ -4,39 +4,18 @@
  */
 package org.apertium.lttoolbox.compile;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import org.apertium.lttoolbox.Alphabet;
-import org.apertium.lttoolbox.Alphabet.IntegerPair;
-import org.apertium.lttoolbox.Compression;
-import org.apertium.lttoolbox.LTPrint;
-import org.apertium.lttoolbox.LTTrim;
+
 import org.apertium.lttoolbox.collections.AbundantIntSet;
 import org.apertium.lttoolbox.collections.IntSet;
 import org.apertium.lttoolbox.collections.SlowIntegerHashSet;
 import org.apertium.lttoolbox.collections.SlowIntegerTreeSet;
-import org.apertium.lttoolbox.collections.Transducer;
-import static org.apertium.lttoolbox.collections.Transducer.DEBUG;
-import org.apertium.lttoolbox.process.BasicFSTProcessor;
-import org.apertium.lttoolbox.process.FSTProcessor;
-import org.apertium.lttoolbox.process.State;
 
 /**
  * Transducer extended with methods handy for compilation of transducer
@@ -91,7 +70,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
      */
     Map<Integer, IntSet> place;
     if (transitions.size() <= source) {
-      place = new HashMap<Integer, IntSet>();
+      place = new HashMap<>();
       transitions.add(place);
     } else {
       place = transitions.get(source);
@@ -112,7 +91,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
 
   /**
    * Insertion of a transducer in a given source state, unifying their
-   * final states using a optionally given epsilon tag
+   * final states using an optionally given epsilon tag
    *
    * @param source the source state
    * @param t the transducer being inserted
@@ -204,16 +183,16 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
    * Determinize the transducer
    */
   private void determinize() {
-    List<Set<Integer>> R = new ArrayList<Set<Integer>>(2);
+    List<Set<Integer>> R = new ArrayList<>(2);
     // MUST be TreeSet to retain binary compatibility:
     R.add(new TreeSet<Integer>()); // new SlowIntegerTreeSet() giver problemer. Hvorfor???
     R.add(new TreeSet<Integer>()); // new SlowIntegerTreeSet() giver problemer. Hvorfor???
 
-    Map<Integer, Set<Integer>> Q_prima = new HashMap<Integer, Set<Integer>>();
-    Map<Set<Integer>, Integer> Q_prima_inv = new HashMap<Set<Integer>, Integer>(); // setComparator
+    Map<Integer, Set<Integer>> Q_prima = new HashMap<>();
+    Map<Set<Integer>, Integer> Q_prima_inv = new HashMap<>(); // setComparator
 
     // MUST be ordered to retain binary compatibility:
-    ArrayList<Map<Integer, IntSet>> transitions_prima = new ArrayList<Map<Integer, IntSet>>();
+    ArrayList<Map<Integer, IntSet>> transitions_prima = new ArrayList<>();
 
     int talla_Q_prima = 0;
 
@@ -240,7 +219,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
           finals_prima.add(it);
         }
 
-        Map<Integer, Set<Integer>> mymap = new TreeMap<Integer, Set<Integer>>();
+        Map<Integer, Set<Integer>> mymap = new TreeMap<>();
 
         for (Integer it2 : Q_prima.get(it)) {
           if (it2 < transitions.size()) {
@@ -294,7 +273,6 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
   /**
    * Join all finals in one using epsilon transductions
    *
-   * @return the only final state
    */
   void joinFinals() {
     if (finals.size() > 1) {
@@ -314,9 +292,9 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
       //return state;
     } else if (finals.size() == 0) {
       throw new RuntimeException("Error: empty set of final states");
-    } else {
-      //return finals.iterator().next();
-    }
+    } /* else {
+      return finals.iterator().next();
+    } */
   }
 
   /**
@@ -330,7 +308,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
     initial = state;
 
     state = newState();
-    linkStates((Integer) finals.firstInt(), state, epsilon_tag);
+    linkStates(finals.firstInt(), state, epsilon_tag);
     finals.clear();
     finals.add(state);
     linkStates(state, initial, epsilon_tag);
@@ -347,7 +325,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
     initial = state;
 
     state = newState();
-    linkStates((Integer) finals.firstInt(), state, epsilon_tag);
+    linkStates(finals.firstInt(), state, epsilon_tag);
     finals.clear();
     finals.add(state);
     linkStates(initial, state, epsilon_tag);
@@ -359,13 +337,12 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
   private void reverse() {
     joinFinals();
 
-    ArrayList<Map<Integer, IntSet>> result = new ArrayList<Map<Integer, IntSet>>();
+    ArrayList<Map<Integer, IntSet>> result = new ArrayList<>();
 
 //        for (Map.Entry<Integer, Map<Integer, Set<Integer>>> it : transitions.entrySet()) {
 //            Integer dest = it.getKey();
-    for (int i = 0; i < transitions.size(); i++) {
-      Integer dest = i;
-      for (Map.Entry<Integer, IntSet> it2 : transitions.get(i).entrySet()) {
+    for (int dest = 0; dest < transitions.size(); dest++) {
+        for (Map.Entry<Integer, IntSet> it2 : transitions.get(dest).entrySet()) {
         Integer tag = it2.getKey();
         for (Integer origin : it2.getValue()) {
           boolean added = result.size() <= origin;
@@ -378,7 +355,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
             IntSet aux = new SlowIntegerTreeSet();
             aux.add(dest);
 
-            Map<Integer, IntSet> aux2 = new TreeMap<Integer, IntSet>();
+            Map<Integer, IntSet> aux2 = new TreeMap<>();
             aux2.put(tag, aux);
             result.set(origin, aux2);
           } else {
@@ -392,7 +369,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
         }
       }
     }
-    Integer newInitial = finals.firstInt();
+    int newInitial = finals.firstInt();
     finals.clear();
     finals.add(initial);
     initial = newInitial;
@@ -443,7 +420,7 @@ public class TransducerComp extends org.apertium.lttoolbox.collections.Transduce
   /**
    * Compare the tranducer with another one
    *
-   * @param t the transducer to DEBUG_compare to
+   * @param other the transducer to DEBUG_compare to
    * @return true if the two transducers are similar
    */
   public boolean DEBUG_compare(TransducerComp other) {

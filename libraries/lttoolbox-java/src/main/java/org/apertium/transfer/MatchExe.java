@@ -41,7 +41,7 @@ public class MatchExe {
   //private final short[] final_state_to_symbol;
   private int number_of_states;
   private final int decalage;
-  /** We putting in final state output values (rule number) into the high bits of the state array index (final_state_to_symbol) */
+  /** We're putting in final state output values (rule number) into the high bits of the state array index (final_state_to_symbol) */
   private static final int MAX_OUTPUT_SYMBOLS_POWS_OF_2 = 10; // Must be 9 (max 512 rules, max 8MB t1x.bin file) or 10 (max 1024 rules, max 4MB t1x.bin file)
   private static final int MAX_OUTPUT_SYMBOLS_SHIFT = 32 - MAX_OUTPUT_SYMBOLS_POWS_OF_2; // 32 bits in an int
   private static final int MAX_OUTPUT_SYMBOLS = (1 << MAX_OUTPUT_SYMBOLS_POWS_OF_2) - 1;  // 2047
@@ -98,7 +98,7 @@ public class MatchExe {
         byteBufferPositions = null;
       }
 
-    // cache check failed, so dont try load it
+    // cache check failed, so don't try load it
     cachedFile.delete();
 
 
@@ -163,9 +163,6 @@ public class MatchExe {
 
       //final_state_to_symbol[key]=(short) value;
       byteBufferPositions.putInt(key * 4, byteBufferPositions.getInt(key * 4) | value << MAX_OUTPUT_SYMBOLS_SHIFT);
-
-//      System.err.println("node_list["+key+"] = " + value);
-      //System.err.println("node_list["+key+"] = " + Arrays.toString(node_list[key]));
     }
   }
 

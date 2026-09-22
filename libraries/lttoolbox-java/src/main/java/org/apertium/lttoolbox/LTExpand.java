@@ -19,6 +19,7 @@ package org.apertium.lttoolbox;
 import org.apertium.CommandLineInterface;
 import org.xml.sax.SAXException;
 import java.io.*;
+import java.nio.file.Files;
 
 /**
  * main class for dictionary expansion
@@ -26,26 +27,22 @@ import java.io.*;
  * @author Raah
  */
 public class LTExpand {
-  private static void showHelp(String name) {
-    if (name != null) {
+  private static void showHelp() {
       System.out.println(" v" + CommandLineInterface.PACKAGE_VERSION + ": expand the contents of a dictionary file"
-          + "\nUSAGE: " + name + " dictionary_file [output_file]"
-          + "\nUSAGE: " + name + " - [output_file] reads dix file from stdin and expands it"
-			);
-    }
+              + "\nUSAGE: " + "lt-expand-j" + " dictionary_file [output_file]"
+              + "\nUSAGE: " + "lt-expand-j" + " - [output_file] reads dix file from stdin and expands it"
+      );
   }
 
   /**
    * Main method
    *
    * @param argv the command line arguments
-   * @throws java.io.IOException
-   * @throws org.xml.sax.SAXException
    */
   public static void main(String[] argv) throws IOException, SAXException {
 
     int argc = argv.length;
-    Writer output = new OutputStreamWriter(System.out);
+    Writer output;
 
     switch (argc) {
       case 1:
@@ -54,12 +51,9 @@ public class LTExpand {
 
       case 2:
         output = fwrite(argv[1]);
-        if (output == null) {
-          throw new RuntimeException("Error: Cannot open file '" + argv[1] + "'.");
-        }
         break;
       default:
-        showHelp("lt-expand-j");
+        showHelp();
         return;
     }
 
@@ -69,8 +63,8 @@ public class LTExpand {
 
   }
 
-  private static Writer fwrite(String s) throws FileNotFoundException {
+  private static Writer fwrite(String s) throws IOException {
     final File f = new File(s);
-    return new OutputStreamWriter(new FileOutputStream(f));
+    return new OutputStreamWriter(Files.newOutputStream(f.toPath()));
   }
 }

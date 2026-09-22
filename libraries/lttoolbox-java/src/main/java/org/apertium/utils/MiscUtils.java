@@ -24,6 +24,6 @@ package org.apertium.utils;
  */
 public class MiscUtils {
   public static String getLineSeparator() {
-    return System.getProperty("line.separator");
+    return System.lineSeparator();
   }
 }

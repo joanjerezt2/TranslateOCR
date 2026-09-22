@@ -32,28 +32,24 @@ public class LTComp {
    * Anormal termination function
    * prints the usage
    *
-   * @param name
    */
-  static void endProgram(String name) {
-    if (name != null) {
+  static void endProgram() {
       System.out.println(" v" + CommandLineInterface.PACKAGE_VERSION + ": build a letter transducer from a dictionary\n"
-          + "USAGE: " + name + " lr | rl dictionary_file output_file [acx_file]\n"
-          + "Modes:\n"
-          + "  lr:     left-to-right compilation\n"
-          + "  rl:     right-to-left compilation\n");
-    }
+              + "USAGE: " + "LTComp" + " lr | rl dictionary_file output_file [acx_file]\n"
+              + "Modes:\n"
+              + "  lr:     left-to-right compilation\n"
+              + "  rl:     right-to-left compilation\n");
   }
 
   /**
    * Compiles an XML dictionary into a binary file
    *
    * @param argv the command line arguments
-   * @throws java.io.IOException
    */
   public static void main(String[] argv) throws IOException {
     final int argc = argv.length;
     if (argc != 3 && argc != 4) {
-      endProgram("LTComp");
+      endProgram();
       return;
     }
     String opc = argv[0];
@@ -67,7 +63,7 @@ public class LTComp {
     } else if (opc.equals("rl")) {
       c.parse(argv[1], Compile.COMPILER_RESTRICTION_RL_VAL);
     } else {
-      endProgram("LTComp");
+      endProgram();
       return;
     }
     c.write(argv[2]);

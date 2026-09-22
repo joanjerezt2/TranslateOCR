@@ -13,7 +13,7 @@ public class TransferToken {
     tt_eof,
     tt_word,
     tt_blank
-  };
+  }
 
   //The way this is used in the existing code, these should be public.
   public TransferTokenType type;

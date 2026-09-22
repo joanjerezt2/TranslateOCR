@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+
 import org.apertium.lttoolbox.Alphabet;
 import org.apertium.lttoolbox.Compression;
-import org.apertium.lttoolbox.process.Node;
 import org.apertium.lttoolbox.process.SetOfCharacters;
 import org.apertium.lttoolbox.process.State;
 import org.apertium.lttoolbox.process.TransducerExe;
@@ -26,19 +25,19 @@ import static org.apertium.utils.IOUtils.*;
 class LRXProcessor {
   Alphabet alphabet;
   TransducerExe transducer;
-  HashMap<String, TransducerExe> recognisers = new HashMap<String, TransducerExe>();
-  HashSet<TransducerExe> anfinals = new HashSet<TransducerExe>();
+  HashMap<String, TransducerExe> recognisers = new HashMap<>();
+  HashSet<TransducerExe> anfinals = new HashSet<>();
   /**
    * Initial state of every token
    */
-  private State initial_state = new State();
+  private final State initial_state = new State();
   /**
    * Set of characters to escape with a backslash
    */
-  private SetOfCharacters escaped_chars = new SetOfCharacters();
+  private final SetOfCharacters escaped_chars = new SetOfCharacters();
   private boolean debugMode;
   private boolean outOfWord;
-  private boolean DEBUG = true;
+  private final boolean DEBUG = true;
   private int ANY_TAG;
   private int ANY_CHAR;
 
@@ -62,14 +61,14 @@ class LRXProcessor {
     int len = Compression.multibyte_read(in); // numer of letters (52)
     while (len > 0) {
       int len2 = Compression.multibyte_read(in);
-      String name = "";
+      StringBuilder name = new StringBuilder();
       while (len2 > 0) {
-        name += (char) Compression.multibyte_read(in);
+        name.append((char) Compression.multibyte_read(in));
         len2--;
       }
       TransducerExe tx = new TransducerExe();
       tx.read(in, alphabet);
-      recognisers.put(name, tx);
+      recognisers.put(name.toString(), tx);
       D(name + " -> " + tx.getFinals());
       len--;
     }
@@ -78,9 +77,9 @@ class LRXProcessor {
     D("recognisers: " + recognisers.size());
 
     int len2 = Compression.multibyte_read(in);
-    String name = "";
+    StringBuilder name = new StringBuilder();
     while (len2 > 0) {
-      name += (char) Compression.multibyte_read(in);
+      name.append((char) Compression.multibyte_read(in));
       len2--;
     }
     transducer = new TransducerExe();
@@ -141,10 +140,10 @@ class LRXProcessor {
     return val;
   }
 
-  private String readFullBlock(Reader input, char delim2) throws IOException {
+  private String readFullBlock(Reader input) throws IOException {
     StringBuilder result = new StringBuilder();
     char ch = 0;
-    while (ch != delim2) {
+    while (ch != '$') {
       ch = eofRead(input);
       result.append(ch);
       if (ch == '\\') {
@@ -184,27 +183,23 @@ class LRXProcessor {
     //lrxp.load(openFileAsByteBuffer("/home/j/esperanto/apertium/nursery/apertium-no-en/no-en.lrx.bin"));
     lrxp.load(openFileAsByteBuffer("/home/j/esperanto/apertium/nursery/apertium-no-en/rules.bin"));
     lrxp.init();
-
-    try {
-      lrxp.process(input, output);
-    } catch (EOFException e) {
-    }
-
+    lrxp.process(input, output);
   }
 
-  void process(Reader input, Appendable output) throws IOException {
+  void process(Reader input, Appendable output) {
     /*
      * ^liten<adj><posi><mf><sg><ind>/small<adj><sint><posi><mf><sg><ind>/little<adj><sint><posi><mf><sg><ind>$
      * ^liten<adj><posi><mf><sg><ind>/little<adj><sint><posi><mf><sg><ind>$
      */
-    ArrayList<State> alive_states = new ArrayList<State>();
+    ArrayList<State> alive_states = new ArrayList<>();
     alive_states.add(initial_state.copy());
 
-
-    while (true) {
+    boolean error = false;
+    while (!error) {
+      try{
       skipUntil(input, output, '^');
       // We are at the start of a LU. Read it fully
-      String lu = readFullBlock(input, '$');
+      String lu = readFullBlock(input);
       String[] luelems = lu.split("/");
 
       // We've finished reading a lexical form
@@ -228,7 +223,7 @@ class LRXProcessor {
           //LOG("step "+ch + " "+val);
         }
 
-        ArrayList<State> new_state = new ArrayList<State>();
+        ArrayList<State> new_state = new ArrayList<>();
 
         for (State s : alive_states) {
           if (val < 0) {
@@ -248,15 +243,15 @@ class LRXProcessor {
         LOG("new_state " + new_state.size());
 
         alive_states = new_state;
-        if (alive_states.size() == 1) {
-          State s = alive_states.get(0);
-        }
         alive_states.add(initial_state.copy());
 
 
         LOG("alive_states " + alive_states.size());
       }
-
+      }
+      catch(Exception e){
+        error = true;
+      }
     }
   }
 }

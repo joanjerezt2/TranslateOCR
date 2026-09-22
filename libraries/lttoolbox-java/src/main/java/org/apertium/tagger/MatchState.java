@@ -18,32 +18,32 @@
  */
 package org.apertium.tagger;
 
-/**
+/*
  * Copy from transfer (old version before july 2012)
  * A list of nodes currently matched.
  *
  * @author Jacob Nordfalk
  */
-import java.util.Arrays;
+import java.util.Collections;
 
 class MatchState {
   /**
    * An array/buffer that keeps track of all the state transitions of this MatchState,
    * up to BUF_LIMIT, then it wraps around and starts over.
    */
-  private int[] state;
+  private final int[] state;
   /**
    * Index of the first element in the "state" buffer, may be greater or less than
    * "last", as the buffer can wrap around.
    */
-  private int first = 0;
+  private int first;
   /**
    * Index of the last element in the "state" buffer, may be greater or less than
    * "first", as the buffer can wrap around. This indicates the index of the next
    * entry in the buffer to be (over)written.
    */
-  private int last = 0;
-  private static int BUF_LIMIT = 1024;
+  private int last;
+  private static final int BUF_LIMIT = 1024;
   /** Copy of node list from MatchExe.
    *
    * @see MatchExe
@@ -79,7 +79,7 @@ class MatchState {
 
     /* Search through the list of transitions from pnode to the input symbol.
      * The step is 2 because of the format of the node list, see the
-     * javadoc for MatchExe.node_list for that specification.
+     * Javadoc for MatchExe.node_list for that specification.
      */
     for (int i = 0; i < node.length - 1; i += 2) { // TODO binary seach - No: only ca. 1%  cpu is used here anyway
       if (node[i] == symbol) { //If the input symbol was found
@@ -91,7 +91,7 @@ class MatchState {
       }
     }
   }
-  private boolean DEBUG = false;
+  private final boolean DEBUG = false;
 
   public void step(int input) {
     if (DEBUG)
@@ -128,7 +128,7 @@ class MatchState {
   /**
    * Gets the output symbol if there is a final
    *
-   * @return the output symbol (In transfer this is a rule number). Returns -1 if there isnt a final state.
+   * @return the output symbol (In transfer this is a rule number). Returns -1 if there isn't a final state.
    */
   public int classifyFinals() {
     int result = Integer.MAX_VALUE;
@@ -158,6 +158,6 @@ class MatchState {
   @Override
   public String toString() {
     //Not JDK 1.5 compliant: return "ms["+first +";"+last+"]=" + Arrays.toString(Arrays.copyOfRange(state, first, last));
-    return "ms[" + first + ";" + last + "]=" + Arrays.asList(state).subList(first, last);
+    return "ms[" + first + ";" + last + "]=" + Collections.singletonList(state).subList(first, last);
   }
 }

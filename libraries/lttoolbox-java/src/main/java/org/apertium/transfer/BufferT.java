@@ -149,7 +149,7 @@ public class BufferT<E> {
   }
 
   /**
-   * Return the range size between the buffer current position and a
+   * Return the range size between the buffer current position and an
    * outside stored given position that is previous to the current.
    *
    * @param prevpos the given position.
@@ -164,7 +164,7 @@ public class BufferT<E> {
   }
 
   /**
-   * Return the range size between the buffer current position and a
+   * Return the range size between the buffer current position and an
    * outside stored given position that is following to the current
    *
    * @param postpos the given position.
@@ -207,11 +207,11 @@ public class BufferT<E> {
    */
   @Override
   public String toString() {
-    String res = new String("content : ");
-    for (int i = 0; i < buf.length; i++) {
-      res += buf[i];
-    }
-    res += ", lastpos : " + lastpos + ", currentpos : " + currentpos;
-    return res;
+    StringBuilder res = new StringBuilder("content : ");
+      for (E e : buf) {
+          res.append(e);
+      }
+    res.append(", lastpos : ").append(lastpos).append(", currentpos : ").append(currentpos);
+    return res.toString();
   }
 }

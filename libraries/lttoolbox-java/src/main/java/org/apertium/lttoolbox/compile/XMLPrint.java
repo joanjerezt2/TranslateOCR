@@ -32,7 +32,6 @@ public class XMLPrint {
    *
    * @param reader the XML stream reader
    * @param n the number of events to be printed
-   * @throws javax.xml.stream.XMLStreamException
    */
   public static void printNEvent(XMLStreamReader reader, int n) throws XMLStreamException {
     for (int i = 0; i < n; i++) {
@@ -50,6 +49,8 @@ public class XMLPrint {
    */
   public static void printEvent(XMLStreamReader reader) {
 
+    int start;
+    int length;
     switch (reader.getEventType()) {
 
       case XMLStreamConstants.START_ELEMENT:
@@ -69,8 +70,8 @@ public class XMLPrint {
       case XMLStreamConstants.SPACE:
 
       case XMLStreamConstants.CHARACTERS:
-        int start = reader.getTextStart();
-        int length = reader.getTextLength();
+        start = reader.getTextStart();
+        length = reader.getTextLength();
         System.out.print(new String(reader.getTextCharacters(),
             start,
             length));
@@ -131,7 +132,7 @@ public class XMLPrint {
    * @param eventType the evnt type to be converted
    * @return the string corresponding to the event type
    */
-  public static final String getEventTypeString(int eventType) {
+  public static String getEventTypeString(int eventType) {
 
     switch (eventType) {
 
@@ -193,14 +194,11 @@ public class XMLPrint {
    * Print the string corresponding to the name of the node
    * described by the parameters
    *
-   * @param prefix
-   * @param uri
-   * @param localName
    */
   private static void printName(String prefix,
       String uri,
       String localName) {
-    if (uri != null && !("".equals(uri))) {
+    if (uri != null && !(uri.isEmpty())) {
       System.out.print("['" + uri + "']:");
     }
     if (localName != null) {

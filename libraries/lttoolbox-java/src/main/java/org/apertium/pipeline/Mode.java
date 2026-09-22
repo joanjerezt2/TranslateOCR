@@ -32,7 +32,7 @@ import org.apertium.Translator;
  */
 public class Mode {
   //Each mode has a pipeline, which is a list of programs to run.
-  ArrayList<Program> _pipeline = new ArrayList<Program>();
+  ArrayList<Program> _pipeline = new ArrayList<>();
   //Mode name
   String _filename;
 

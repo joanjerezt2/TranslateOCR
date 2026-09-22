@@ -15,7 +15,7 @@ import java.util.Iterator;
  * @author Jacob Nordfalk
  */
 public class AbundantIntSet implements IntSet { //extends TreeSet<Integer> {
-  private BitSet bs;
+  private final BitSet bs;
   private int size;
 
   public AbundantIntSet() {
@@ -64,7 +64,7 @@ public class AbundantIntSet implements IntSet { //extends TreeSet<Integer> {
     return bs.nextSetBit(i);
   }
 
-  /** Iterators work thru Integer objects, therefore its not recommended to use them */
+  /** Iterators work through Integer objects, therefore it's not recommended to use them */
   @SuppressWarnings("unchecked")
   @Deprecated
   @Override
@@ -93,19 +93,17 @@ public class AbundantIntSet implements IntSet { //extends TreeSet<Integer> {
 
   @Override
   public boolean addAll(Collection<? extends Integer> c) {
-    Iterator<? extends Integer> e = c.iterator();
-    while (e.hasNext()) {
-      add(e.next());
-    }
+      for (Integer integer : c) {
+          add(integer);
+      }
     return true;
   }
 
   @Override
   public boolean addAll(IntSet c) {
-    Iterator<? extends Integer> e = c.iterator();
-    while (e.hasNext()) {
-      add(e.next());
-    }
+      for (Integer integer : c) {
+          add(integer);
+      }
     return true;
   }
 

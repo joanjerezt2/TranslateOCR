@@ -55,12 +55,9 @@ public class PreTransfer {
    * until the specified character has been encountered. If it hits EOF before
    * the specified character is encountered, it prints an error message and exits.
    *
-   * @param input
-   * @param output
    * @param charCode -- The integer character code of the character to stop reading
    * and writing when found. This character is read from the input stream, but not
    * written to the output stream.
-   * @throws IOException
    */
   private static void readAndWriteUntil(Reader input, Appendable output,
       final int charCode) throws IOException {
@@ -128,12 +125,12 @@ public class PreTransfer {
       }
 
       if (buffer_mode) {
-        if (myChar != '+' || (myChar == '+' && in_tag)) {
+        if (myChar != '+' || in_tag) {
           /* C++ code has 'in_tag == true', which is unnecessary
            * because you can just test boolean values directly.
            */
           buffer.append(Character.toChars(myChar));
-        } else if (!in_tag) { //Same here, no need for 'in_tag == false'
+        } else { //Same here, no need for 'in_tag == false'
           buffer.append("$ ^");
         }
       } else {
@@ -191,11 +188,7 @@ public class PreTransfer {
           output.append('$');
           break;
 
-        case '\0':
-          output.append((char) myChar);
-          break;
-
-        default:
+          default:
           output.append((char) myChar);
           break;
       }
@@ -208,9 +201,6 @@ public class PreTransfer {
     System.err.println("USAGE: PreTransfer [input_file [output_file]]");
   }
 
-  /**
-   * @param args
-   */
   public static void parseArgs(String[] args, CommandLineParams params,
       boolean pipelineMode) throws UnsupportedEncodingException {
 
@@ -249,7 +239,7 @@ public class PreTransfer {
      */
 
     // No need to run this same calculation over and over again.
-    /**
+    /*
      * Number of non-option arguments on the command-line.
      * Reminder: Does not include the executable's name, like in C++.
      */
@@ -300,7 +290,6 @@ public class PreTransfer {
          * could not be opened for reading/writing.
          */
         showHelp();
-        return;
       }
     }
   }
@@ -312,7 +301,7 @@ public class PreTransfer {
     parseArgs(args, params, false);
 
     /* The C++ version checks for EOF at this point, and dies if it finds it.
-     * However we can't check for EOF in the Java version w/o reading the file
+     * However, we can't check for EOF in the Java version w/o reading the file
      * and advancing the pointer, so don't bother trying to check for EOF at
      * this point.
      */

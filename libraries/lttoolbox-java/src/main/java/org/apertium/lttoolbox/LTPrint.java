@@ -11,7 +11,6 @@ import org.apertium.CommandLineInterface;
 import org.apertium.lttoolbox.compile.TransducerComp;
 import org.apertium.lttoolbox.compile.TransducerPrint;
 import org.apertium.lttoolbox.compile.TransducerPrintExpandish;
-import org.apertium.lttoolbox.process.BasicFSTProcessor;
 
 /**
  * @author Jacob Nordfalk

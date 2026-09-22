@@ -38,7 +38,7 @@ public class BasicFSTProcessor {
   /**
    * Transducers in FSTP
    */
-  protected Map<String, TransducerExe> transducers = new TreeMap<String, TransducerExe>();
+  protected Map<String, TransducerExe> transducers = new TreeMap<>();
 
   public BasicFSTProcessor() {
   }
@@ -61,8 +61,6 @@ public class BasicFSTProcessor {
    * Reads the binary representation of a .dix file - <b>keeping the whole file in memory at all times</b>.
    * <b>WARNING</b>This method should be avoided on Android and other memory constrained devices.
    *
-   * @param input
-   * @throws IOException
    */
   public void load(InputStream input) throws IOException {
     if (DEBUG) {
@@ -75,8 +73,6 @@ public class BasicFSTProcessor {
   /**
    * Reads the binary representation of a .dix file
    *
-   * @param filePath
-   * @throws IOException
    */
   public void load(String filePath) throws IOException {
     if (DEBUG) {
@@ -88,8 +84,6 @@ public class BasicFSTProcessor {
   /**
    * Reads the binary representation of a .dix file
    *
-   * @param input
-   * @throws IOException
    */
   public void load(ByteBuffer input) throws IOException {
     load(input, null);
@@ -98,7 +92,6 @@ public class BasicFSTProcessor {
   /**
    * Reads the binary representation of a .dix file
    *
-   * @param input
    * @param filename path to a unique directory where cached transducer indexes might be for faster processing
    */
   public void load(ByteBuffer input, String filename) throws IOException {

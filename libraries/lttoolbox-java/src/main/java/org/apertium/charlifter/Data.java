@@ -65,14 +65,14 @@ public class Data {
    */
   public HashMap<String, Double> contextref;
 
-  public void Data() {
-    CharRef = new HashMap<Character, Integer>();
-    charsref = new HashMap<Character, HashMap<Character, Integer>>();
-    tableref = new HashMap<String, HashMap<String, Integer>>();
-    WordRef = new HashMap<String, Integer>();
-    WordsRef = new HashMap<String, HashMap<String, Integer>>();
-    charprobsref = new HashMap<Character, Double>();
-    featuresref = new HashMap<String, Integer>();
-    contextref = new HashMap<String, Double>();
+  public Data() {
+    CharRef = new HashMap<>();
+    charsref = new HashMap<>();
+    tableref = new HashMap<>();
+    WordRef = new HashMap<>();
+    WordsRef = new HashMap<>();
+    charprobsref = new HashMap<>();
+    featuresref = new HashMap<>();
+    contextref = new HashMap<>();
   }
 }

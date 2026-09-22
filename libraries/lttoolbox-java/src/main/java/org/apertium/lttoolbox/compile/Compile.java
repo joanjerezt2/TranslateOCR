@@ -84,34 +84,34 @@ public class Compile {
   /**
    * Identifier of all the symbols during the compilation
    */
-  private CompileAlphabet alphabet;
+  private final CompileAlphabet alphabet;
   /** this lookup is needed very often and thus cached */
-  private Integer alphabet_cast00;
+  private final Integer alphabet_cast00;
   /**
    * List of named transducers-paradigms
    */
-  private Map<String, TransducerComp> paradigms = new HashMap<String, TransducerComp>();
+  private final Map<String, TransducerComp> paradigms = new HashMap<>();
   /**
    * List of named dictionary sections.
    * MUST be sorted when writing .bin file to retain compatibility with C++ code.
    */
-  public Map<String, TransducerComp> sections = new TreeMap<String, TransducerComp>();
+  public Map<String, TransducerComp> sections = new TreeMap<>();
   /**
    * List of named prefix copy of a paradigm
    */
-  private HashMap<String, HashMap<String, Integer>> prefix_paradigms = new HashMap<String, HashMap<String, Integer>>();
+  private final HashMap<String, HashMap<String, Integer>> prefix_paradigms = new HashMap<>();
   /**
    * List of named suffix copy of a paradigm
    */
-  private HashMap<String, HashMap<String, Integer>> suffix_paradigms = new HashMap<String, HashMap<String, Integer>>();
+  private final HashMap<String, HashMap<String, Integer>> suffix_paradigms = new HashMap<>();
   /**
    * List of named endings of a suffix copy of a paradgim
    */
-  private HashMap<String, HashMap<String, Integer>> postsuffix_paradigms = new HashMap<String, HashMap<String, Integer>>();
+  private final HashMap<String, HashMap<String, Integer>> postsuffix_paradigms = new HashMap<>();
   /**
    * Mapping of aliases of characters specified in ACX files
    */
-  private HashMap<Integer, HashSet<Integer>> acx_map = new HashMap<Integer, HashSet<Integer>>();
+  private final HashMap<Integer, HashSet<Integer>> acx_map = new HashMap<Integer, HashSet<Integer>>();
   /**
    * Original char being mapped
    */
@@ -178,7 +178,7 @@ public class Compile {
   /**
    * Read ACX file.
    *
-   * @see http://wiki.apertium.org/wiki/ACX format
+   * @see <a href="http://wiki.apertium.org/wiki/ACX_format">...</a>
    * @param file the address of the file to be read
    * @param dir the direction of the compilation, 'lr' (leftSide-to-right) or 'rl'
    * (right-to-leftSide)
@@ -207,8 +207,7 @@ public class Compile {
   /**
    * Write the result of compilation
    *
-   * @param output the stream where write the result
-   * @throws java.io.IOException
+   * @param file the stream where write the result
    */
   public void write(String file) throws IOException {
     TransducerCollection tc = new TransducerCollection();
@@ -222,7 +221,6 @@ public class Compile {
    * True if all the elements in the current node are blanks
    *
    * @return true if all are blanks
-   * @throws javax.xml.stream.XMLStreamException
    */
   private boolean allBlanks() throws XMLStreamException {
     boolean res = true;
@@ -245,7 +243,7 @@ public class Compile {
 
     if (DEBUG)
       System.err.println("insertEntryTokens( " + elements);
-    if (!current_paradigm.equals("")) {
+    if (!current_paradigm.isEmpty()) {
       // compilation of paradigms
       TransducerComp t = paradigms.get(current_paradigm);
       if (t == null) {
@@ -362,7 +360,7 @@ public class Compile {
       limizqda = pi.size();
       limdcha = pd.size();
 
-      if (pi.size() == 0 && pd.size() == 0) {
+      if (pi.isEmpty() && pd.isEmpty()) {
         if (DEBUG)
           System.err.println("e = " + t.toString());
         state = t.insertNewSingleTransduction(alphabet_cast00, state);
@@ -410,7 +408,7 @@ public class Compile {
       limizqda = pd.size();
       limdcha = pi.size();
 
-      if (pi.size() == 0 && pd.size() == 0) {
+      if (pi.isEmpty() && pd.isEmpty()) {
         state = t.insertNewSingleTransduction(alphabet_cast00, state);
       } else {
         HashSet<Integer> acx_map_ptr = null;
@@ -456,14 +454,13 @@ public class Compile {
    * Parse the <re> elements
    *
    * @return a list of tokens from the dictionary's entry
-   * @throws javax.xml.stream.XMLStreamException
    */
   EntryToken procRegexp() throws XMLStreamException {
 
     reader.next();
-    StringBuffer re = new StringBuffer();
-    int start = reader.getTextStart();
-    int length = reader.getTextLength();
+    StringBuilder re = new StringBuilder();
+    int start;
+    int length;
     while (reader.isCharacters()) {
       start = reader.getTextStart();
       length = reader.getTextLength();
@@ -583,8 +580,9 @@ public class Compile {
         insertEntryTokens(elements);
         reader.next();
         return;
-      } else if (reader.isWhiteSpace()) {
-      } else if (allBlanks()) {
+      }
+      // else if (reader.isWhiteSpace()) {}
+      else if (allBlanks()) {
         if (!reader.hasText()) {
         }
       } else {
@@ -623,7 +621,7 @@ public class Compile {
       procParDef();
     } else if (nombre.equals(COMPILER_DICTIONARY_ELEM)) {
       /* ignore */
-    } else if (eventType == XMLStreamConstants.END_ELEMENT && !nombre.equals(COMPILER_PARDEF_ELEM)) {
+    } else if (eventType == XMLStreamConstants.END_ELEMENT) {
       //do nothing
     } else if (nombre.equals(COMPILER_ALPHABET_ELEM)) {
       procAlphabet();
@@ -732,8 +730,6 @@ public class Compile {
 
   /**
    * Parse the <section> elements
-   *
-   * @throws javax.xml.stream.XMLStreamException
    */
   private void procSection() throws XMLStreamException {
     int type = reader.getEventType();
@@ -752,34 +748,30 @@ public class Compile {
    * Parse the <i> elements
    *
    * @return a list of tokens from the dictionary's entry
-   * @throws javax.xml.stream.XMLStreamException
    */
   EntryToken procIdentity() throws XMLStreamException {
     ArrayList<Integer> both_sides = new ArrayList<Integer>();
     if (!(reader.isStartElement() && reader.isEndElement())) {
       //not an emoty node
     }
-    String name = "";
+    String name;
     reader.next();
-    while (true) {
-      if (reader.isEndElement() && reader.getLocalName().equals(COMPILER_IDENTITY_ELEM)) {
-        break;
+      while (!reader.isEndElement() || !reader.getLocalName().equals(COMPILER_IDENTITY_ELEM)) {
+          if (reader.isStartElement()) {
+              name = reader.getLocalName();
+              readString(both_sides, name);
+              reader.next();
+          } else if (reader.isCharacters()) {
+              readString(both_sides, "");
+              reader.next();
+          } else if (reader.isEndElement()) {
+              reader.next();
+          } else {
+              throw new RuntimeException("Error (" + reader.getLocation().getLineNumber()
+                      + "," + reader.getLocation().getColumnNumber()
+                      + "): unexpected type of event.");
+          }
       }
-      if (reader.isStartElement()) {
-        name = reader.getLocalName();
-        readString(both_sides, name);
-        reader.next();
-      } else if (reader.isCharacters()) {
-        readString(both_sides, "");
-        reader.next();
-      } else if (reader.isEndElement()) {
-        reader.next();
-      } else {
-        throw new RuntimeException("Error (" + reader.getLocation().getLineNumber()
-            + "," + reader.getLocation().getColumnNumber()
-            + "): unexpected type of event.");
-      }
-    }
     /*
      * while (true) {
      * reader.next();
@@ -804,9 +796,9 @@ public class Compile {
    * @return a list of tokens from the dictionary's entry
    */
   EntryToken procFlag() throws XMLStreamException {
-    ArrayList<Integer> both_sides = new ArrayList<Integer>();
-    //String n = attrib(COMPILER_N_ATTR);
-    //String v = attrib(COMPILER_VALUE_ATTR);
+    ArrayList<Integer> both_sides = new ArrayList<>();
+    /* String n = attrib(COMPILER_N_ATTR);
+    String v = attrib(COMPILER_VALUE_ATTR); */
     String name = "";
     reader.next();
     while (true) {
@@ -858,53 +850,46 @@ public class Compile {
    * Parse the <p> elements
    *
    * @return a list of tokens from the dictionary's entry
-   * @throws javax.xml.stream.XMLStreamException
    */
   EntryToken procTransduction() throws XMLStreamException {
-    ArrayList<Integer> lhs = new ArrayList<Integer>();
-    ArrayList<Integer> rhs = new ArrayList<Integer>();
+    ArrayList<Integer> lhs = new ArrayList<>();
+    ArrayList<Integer> rhs = new ArrayList<>();
     skipUntil("", COMPILER_LEFT_ELEM);
     reader.next();
     String name = "";
-    while (true) {
-      if (reader.isEndElement() && reader.getLocalName().equals(COMPILER_LEFT_ELEM)) {
-        break;
+      while (!reader.isEndElement() || !reader.getLocalName().equals(COMPILER_LEFT_ELEM)) {
+          if (reader.isStartElement()) {
+              name = reader.getLocalName();
+              readString(lhs, name);
+              reader.next();
+          } else if (reader.isCharacters()) {
+              readString(lhs, "");
+              reader.next();
+          } else if (reader.isEndElement()) {
+              reader.next();
+          } else {
+              throw new RuntimeException("Error (" + reader.getLocation().getLineNumber()
+                      + "," + reader.getLocation().getColumnNumber()
+                      + "): unexpected type of event.");
+          }
       }
-      if (reader.isStartElement()) {
-        name = reader.getLocalName();
-        readString(lhs, name);
-        reader.next();
-      } else if (reader.isCharacters()) {
-        readString(lhs, "");
-        reader.next();
-      } else if (reader.isEndElement()) {
-        reader.next();
-      } else {
-        throw new RuntimeException("Error (" + reader.getLocation().getLineNumber()
-            + "," + reader.getLocation().getColumnNumber()
-            + "): unexpected type of event.");
-      }
-    }
     skipUntil(name, COMPILER_RIGHT_ELEM);
     reader.next();
-    while (true) {
-      if (reader.isEndElement() && reader.getLocalName().equals(COMPILER_RIGHT_ELEM)) {
-        break;
-      }
-      if (reader.isStartElement()) {
-        name = reader.getLocalName();
-        readString(rhs, name);
-        reader.next();
-      } else if (reader.isCharacters()) {
-        readString(rhs, "");
-        reader.next();
-      } else if (reader.isEndElement()) {
-        reader.next();
-      } else {
-        throw new RuntimeException("Error (" + reader.getLocation().getLineNumber()
-            + "," + reader.getLocation().getColumnNumber()
-            + "): unexpected type of event.");
-      }
+    while (!reader.isEndElement() || !reader.getLocalName().equals(COMPILER_RIGHT_ELEM)) {
+          if (reader.isStartElement()) {
+              name = reader.getLocalName();
+              readString(rhs, name);
+              reader.next();
+          } else if (reader.isCharacters()) {
+              readString(rhs, "");
+              reader.next();
+          } else if (reader.isEndElement()) {
+              reader.next();
+          } else {
+              throw new RuntimeException("Error (" + reader.getLocation().getLineNumber()
+                      + "," + reader.getLocation().getColumnNumber()
+                      + "): unexpected type of event.");
+          }
     }
 
     skipUntil(name, COMPILER_PAIR_ELEM);
@@ -917,7 +902,6 @@ public class Compile {
    * Parse the <par> elements
    *
    * @return a list of tokens from the dictionary's entry
-   * @throws javax.xml.stream.XMLStreamException
    */
   EntryToken procPar() throws XMLStreamException {
     String paradigm_name = attrib(COMPILER_N_ATTR);
@@ -935,7 +919,6 @@ public class Compile {
    *
    * @param result the list of integers that contains the read string
    * @param name the name of the current node
-   * @throws javax.xml.stream.XMLStreamException
    */
   private void readString(List<Integer> result, String name) throws XMLStreamException {
     if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
@@ -976,7 +959,8 @@ public class Compile {
       }
     } else if (reader.getEventType() == XMLStreamConstants.END_ELEMENT) {
       if (name.equals(COMPILER_BLANK_ELEM)) {
-      } else if (name.equals(COMPILER_JOIN_ELEM)) {
+      }
+      else if (name.equals(COMPILER_JOIN_ELEM)) {
       } else if (name.equals(COMPILER_POSTGENERATOR_ELEM)) {
       } else if (name.equals(COMPILER_GROUP_ELEM)) {
       } else {
@@ -1003,7 +987,7 @@ public class Compile {
    * @param name_elem the parent of the attribute
    */
   private void requireAttribute(String value, String name_attr, String name_elem) {
-    if (value.equals("")) {
+    if (value.isEmpty()) {
       throw new RuntimeException("Error (" + reader.getLocation().getLineNumber()
           + "): '" + name_elem + "' must be specified non-void '" + name_attr + "' attribute");
     }
@@ -1028,7 +1012,6 @@ public class Compile {
   /**
    * Skip all blank #text nodes before "name"
    *
-   * @throws javax.xml.stream.XMLStreamException
    */
   //to be changed
   private void skipBlanks() throws XMLStreamException {
@@ -1052,7 +1035,6 @@ public class Compile {
    *
    * @param name the name of the current node
    * @param elem the name of the node until which we want to skip
-   * @throws javax.xml.stream.XMLStreamException
    */
   private void skipUntil(String name, String elem) throws XMLStreamException {
     skipBlanks();

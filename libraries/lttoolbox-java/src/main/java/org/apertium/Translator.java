@@ -18,19 +18,15 @@
  */
 package org.apertium;
 
-import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apertium.pipeline.Dispatcher;
 import org.apertium.pipeline.Mode;
@@ -109,6 +105,7 @@ public class Translator {
     try {
       IOUtils.setJarAsResourceZip();
       modeFiles = IOUtils.listFilesWithExtension("mode");
+      assert modeFiles != null;
       mode = modeFiles.length == 1 ? new Mode(modeFiles[0]) : null;
       if (modeFiles.length != 1)
         modeId = null;
@@ -139,6 +136,7 @@ public class Translator {
       IOUtils.setResourceZip(filename);
       base = filename;
       modeFiles = IOUtils.listFilesWithExtension("mode");
+      assert modeFiles != null;
       if (modeFiles.length == 1)
         setMode(modeFiles[0]);
       else {
@@ -185,6 +183,7 @@ public class Translator {
 
     IOUtils.setBasePathAndClassLoader(path, classLoader);
     modeFiles = IOUtils.listFilesWithExtension("mode");
+    assert modeFiles != null;
     if (modeFiles.length == 1)
       setMode(modeFiles[0]);
     else {
@@ -223,7 +222,7 @@ public class Translator {
   }
 
   public static String[] getAvailableModes() {
-    String modes[] = new String[modeFiles.length];
+    String[] modes = new String[modeFiles.length];
     for (int i = 0; i < modeFiles.length; i++)
       modes[i] = modeFiles[i].substring(modeFiles[i].lastIndexOf('/') + 1, modeFiles[i].length() - 5);
     return modes;
@@ -235,37 +234,37 @@ public class Translator {
       id = id.substring(0, id.length() - 5);
     else if (id.endsWith(".jar") || id.endsWith(".zip"))
       id = id.substring(0, id.length() - 4);
-    ArrayList<String[]> unidirectionalPairs = new ArrayList<String[]>();
-    ArrayList<String[]> bidirectionalPairs = new ArrayList<String[]>();
-    String pairs[] = id.split(",");
-    for (int i = 0; i < pairs.length; i++) {
-      String pair[] = pairs[i].split("-");
-      if (pair.length < 2 || pairs.length > 1 && (pair.length > 2 || pair[0].contains("_") || pair[1].contains("_")))
-        continue;
-      for (int j = 0; j < pair.length; j++)
-        pair[j] = pair[j].trim();
-      boolean found = false;
-      for (int j = 0; j < unidirectionalPairs.size() && !found; j++) {
-        if (unidirectionalPairs.get(j)[0].equals(pair[0]) && unidirectionalPairs.get(j)[1].equals(pair[1]))
-          found = true;
-        else if (unidirectionalPairs.get(j)[0].equals(pair[1]) && unidirectionalPairs.get(j)[1].equals(pair[0])) {
-          bidirectionalPairs.add(unidirectionalPairs.remove(j));
-          found = true;
-        }
+    ArrayList<String[]> unidirectionalPairs = new ArrayList<>();
+    ArrayList<String[]> bidirectionalPairs = new ArrayList<>();
+    String[] pairs = id.split(",");
+    for (String s : pairs) {
+          String[] pair = s.split("-");
+          if (pair.length < 2 || pairs.length > 1 && (pair.length > 2 || pair[0].contains("_") || pair[1].contains("_")))
+              continue;
+          for (int j = 0; j < pair.length; j++)
+              pair[j] = pair[j].trim();
+          boolean found = false;
+          for (int j = 0; j < unidirectionalPairs.size() && !found; j++) {
+              if (unidirectionalPairs.get(j)[0].equals(pair[0]) && unidirectionalPairs.get(j)[1].equals(pair[1]))
+                  found = true;
+              else if (unidirectionalPairs.get(j)[0].equals(pair[1]) && unidirectionalPairs.get(j)[1].equals(pair[0])) {
+                  bidirectionalPairs.add(unidirectionalPairs.remove(j));
+                  found = true;
+              }
+          }
+          if (!found)
+              unidirectionalPairs.add(pair);
       }
-      if (!found)
-        unidirectionalPairs.add(pair);
-    }
     if (unidirectionalPairs.isEmpty() && bidirectionalPairs.isEmpty())
       return id;
     else {
       StringBuilder title = new StringBuilder();
-      for (String pair[] : bidirectionalPairs) {
+      for (String[] pair : bidirectionalPairs) {
         if (title.length() != 0)
           title.append(", ");
         title.append(getTitleForPair(pair, true));
       }
-      for (String pair[] : unidirectionalPairs) {
+      for (String[] pair : unidirectionalPairs) {
         if (title.length() != 0)
           title.append(", ");
         title.append(getTitleForPair(pair, false));
@@ -282,7 +281,7 @@ public class Translator {
 
     StringBuilder title = new StringBuilder();
 
-    String lang[] = pair[0].split("_");
+    String[] lang = pair[0].split("_");
     title.append(getTitleForCode(lang[0]));
     for (int i = 1; i < lang.length; i++)
       title.append("(").append(lang[i].toUpperCase()).append(")");
@@ -314,7 +313,7 @@ public class Translator {
   private static HashMap<String, String> codeToTitle;
 
   private static void initCodeToTitle() {
-    codeToTitle = new HashMap<String, String>();
+    codeToTitle = new HashMap<>();
 
     //Trunk
     codeToTitle.put("ast", "Asturian");
@@ -324,7 +323,6 @@ public class Translator {
     //Incubator
     codeToTitle.put("sco", "Scots");
     codeToTitle.put("eng", "English");
-    codeToTitle.put("kaz", "Kazakh");
     codeToTitle.put("tel", "Telugu");
     codeToTitle.put("eus", "Basque");
     codeToTitle.put("fin", "Finnish");
@@ -386,7 +384,7 @@ public class Translator {
   }
 
   public interface TranslationProgressListener {
-    public void onTranslationProgress(String subtask, int progress, int maxProgress);
+    void onTranslationProgress(String subtask, int progress, int maxProgress);
   }
 
   private static final TranslationProgressListener dummyTranslationProgressListener = new TranslationProgressListener() {

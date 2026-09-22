@@ -238,9 +238,9 @@ public class Transducer {
   /**
    * Add a transduction to the transducer
    *
-   * @param source the source state
-   * @param label the tag
-   * @param destination the target state
+   * @param current_state the source state
+   * @param symbol the tag
+   * @param state the target state
    */
   private void addTransition(int current_state, int symbol, int state) {
     Map<Integer, IntSet> place = getCreatePlace(current_state);
@@ -250,9 +250,9 @@ public class Transducer {
   /**
    * Add a transduction to the transducer
    *
-   * @param source the source state
-   * @param label the tag
-   * @param destination the target state
+   * @param place the source state
+   * @param symbol the tag
+   * @param state the target state
    */
   void addTransition(Map<Integer, IntSet> place, int symbol, int state) {
     // unneccesary according to test , but needed according to C++ code:
@@ -277,9 +277,7 @@ public class Transducer {
    * Read a transducer from an input stream
    *
    * @param input the stream to read from
-   * @param alphabet the alphabet to decode the symbols
    * @return the transducer read from the stream
-   * @throws java.io.IOException
    */
   public static Transducer createRead(InputStream input) throws IOException {
     return createRead(input, 0);

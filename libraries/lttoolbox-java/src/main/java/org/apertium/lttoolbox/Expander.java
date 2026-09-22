@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import org.apertium.lttoolbox.compile.XMLPrint;
 import org.apertium.lttoolbox.compile.Compile;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
@@ -42,7 +41,7 @@ public class Expander {
    */
   String current_paradigm;
 
-  /**
+  /*
    * The direction of the compilation, 'lr' (left-to-right) or 'rl'
    * (right-to-left)
    */
@@ -52,7 +51,7 @@ public class Expander {
    *
    * @author Raah
    */
-  public class SPair extends Pair<String, String> {
+  public static class SPair extends Pair<String, String> {
     public SPair(String obj1, String obj2) {
       super(obj1, obj2);
     }
@@ -81,12 +80,11 @@ public class Expander {
    *
    * @param file the dictionary
    * @param out the output
-   * @throws java.io.IOException
    */
   public void expand(String file, Writer out) throws IOException {
-    paradigm = new HashMap<String, EntList>();
-    paradigm_lr = new HashMap<String, EntList>();
-    paradigm_rl = new HashMap<String, EntList>();
+    paradigm = new HashMap<>();
+    paradigm_lr = new HashMap<>();
+    paradigm_rl = new HashMap<>();
     try {
       output = out;
       XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -112,9 +110,8 @@ public class Expander {
    * True if all the elements in the current node are blanks
    *
    * @return true if all are blanks
-   * @throws javax.xml.stream.XMLStreamException
    */
-  private boolean allBlanks() throws XMLStreamException {
+  private boolean allBlanks() {
     boolean res = true;
     if (!reader.hasText()) {
       return true;
@@ -138,7 +135,7 @@ public class Expander {
     for (int i = 0; i < result.size(); i++) {
       for (int j = 0; j < endings.size(); j++) {
         temp.add(new SPair(result.get(i).first + endings.get(j).first,
-            result.get(i).second + endings.get(j).second));
+                result.get(i).second + endings.get(j).second));
       }
     }
     result = temp;
@@ -207,8 +204,6 @@ public class Expander {
   /**
    * Parse the <e> elements
    *
-   * @throws javax.xml.stream.XMLStreamException
-   * @throws java.io.IOException
    */
   private void procEntry() throws XMLStreamException, IOException {
     String attribute = attrib(Compile.COMPILER_RESTRICTION_ATTR);
@@ -326,7 +321,7 @@ public class Expander {
           }
         }
       } else if (name.equals(Compile.COMPILER_ENTRY_ELEM) && type == XMLStreamConstants.END_ELEMENT) {
-        if (current_paradigm.equals("")) {
+        if (current_paradigm.isEmpty()) {
           for (SPair it : items) {
             output.write(it.first);
             output.write(':');
@@ -379,10 +374,9 @@ public class Expander {
    * Parse the <i> element
    *
    * @return a string from the dictionary's entry
-   * @throws javax.xml.stream.XMLStreamException
    */
   private String procIdentity() throws XMLStreamException {
-    StringBuilder both_sides = new StringBuilder("");
+    StringBuilder both_sides = new StringBuilder();
     String name = "";
     while (true) {
       reader.next();
@@ -400,8 +394,6 @@ public class Expander {
   /**
    * Method to parse an XML Node
    *
-   * @throws javax.xml.stream.XMLStreamException
-   * @throws java.io.IOException
    */
   private void procNode() throws XMLStreamException, IOException {
 
@@ -409,9 +401,9 @@ public class Expander {
     if (reader.hasName()) {
       nombre = reader.getLocalName();
     }
-    // HACER: optimizar el orden de ejecuci�n de esta ristra de "ifs"
+    // HACER: optimizar el orden de ejecución de esta ristra de "ifs"
 
-    if (nombre.equals("")) {
+    if (nombre.isEmpty()) {
       /* ignorar */
     } else if (nombre.equals(Compile.COMPILER_DICTIONARY_ELEM)) {
       /* ignorar */
@@ -466,16 +458,16 @@ public class Expander {
    */
   private String procRegexp() throws XMLStreamException {
     reader.next();
-    String re = "";
-    int start = reader.getTextStart();
-    int length = reader.getTextLength();
+    StringBuilder re = new StringBuilder();
+    int start;
+    int length;
     while (reader.isCharacters()) {
       start = reader.getTextStart();
       length = reader.getTextLength();
-      re += new String(reader.getTextCharacters(), start, length);
+      re.append(new String(reader.getTextCharacters(), start, length));
       reader.next();
     }
-    return re;
+    return re.toString();
   }
 
   /**

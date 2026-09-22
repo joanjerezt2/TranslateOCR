@@ -163,7 +163,7 @@ public class OmegatFormatter extends GenericFormatter {
   protected void reFormat(Reader inRead, Appendable outWrite) {
     try {
       int currentChar = inRead.read();
-      int previousChar = -1;
+      int previousChar;
       /* This variable is used as a flag for if we're dealing with an extra
        * period inserted by the deformatter or not. When a period is encountered,
        * this flag is set and the period is skipped. If the next character is not
@@ -188,8 +188,8 @@ public class OmegatFormatter extends GenericFormatter {
 
           /* All backslashes in the incoming text are treated as escaping
            * the characters that follow them and are removed, regardless of
-           * if the following character is an Apertium stream character or not
-           * with the exception of a backslash that occurs at the very end
+           * if the following character is an Apertium stream character or not.
+           * Except for a backslash that occurs at the very end
            * of the stream, which couldn't be escaping anything, so it is just
            * output normally. Note that this case of the single backslash at
            * the end of the input stream should never happen, but there is code
@@ -209,12 +209,11 @@ public class OmegatFormatter extends GenericFormatter {
             outWrite.append((char) currentChar);
           }
         } else if (currentChar == '[') { //Start of a superblank
-          previousChar = currentChar;
           currentChar = inRead.read();
           /* This writes the contents of the superblank to a separate
            * string buffer so that we can deal with it as a whole after the
            * entire thing has been read, as the logic dealing with the
-           * empty superblanks (".[]"), which mark periods added by the
+           * empty superblanks ("\.[]"), which mark periods added by the
            * deformatter, requires us to have read the superblank
            * to decide if we should output the period or not.
            */
@@ -223,7 +222,6 @@ public class OmegatFormatter extends GenericFormatter {
             if (currentChar == '\\') //We skip the escape character
               currentChar = inRead.read();
             spaceWrite.append((char) currentChar);
-            previousChar = currentChar;
             currentChar = inRead.read();
           }
           /* spaceWrite should have all the characters inside the superblank
@@ -232,7 +230,7 @@ public class OmegatFormatter extends GenericFormatter {
            * If it's 0, then it was an empty superblank marking an added period
            * and neither the period, nor the empty string should be output.
            */
-          if (spaceWrite.toString().length() > 0) {
+          if (!spaceWrite.toString().isEmpty()) {
             if (foundPeriod) {
               outWrite.append('.');
               //Set foundPeriod to false, since we just output it.
@@ -256,7 +254,6 @@ public class OmegatFormatter extends GenericFormatter {
           }
           outWrite.append((char) currentChar);
         }
-        previousChar = currentChar;
       } while ((currentChar = inRead.read()) != -1);
       /* Have to flush it, or you'll never get any output!
        * This is needed both with and without the BufferedWriter wrapped
@@ -277,9 +274,6 @@ public class OmegatFormatter extends GenericFormatter {
     this("OmegatFormatter");
   }
 
-  /**
-   * @param args
-   */
   public static void main(String[] args) throws IOException {
     OmegatFormatter formatter = new OmegatFormatter();
     formatter.doMain(args);

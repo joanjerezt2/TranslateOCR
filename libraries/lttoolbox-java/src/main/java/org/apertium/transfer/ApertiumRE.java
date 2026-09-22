@@ -28,11 +28,7 @@ public class ApertiumRE {
   public String match(String source) {
     Matcher m = re.matcher(source);
     if (!m.find())
-      return ""; // Note: This string is used for checking for object equality in transfer
-
-    //System.err.println("m = " + m);
-    //System.err.println("m = " + m.groupCount());
-
+      return "";
     return m.group();
   }
 

@@ -177,11 +177,7 @@ public class ApertiumMain {
     }
   }
 
-  /**
-   * @param args
-   * @throws Exception
-   */
-  public static int main(String[] args) throws Exception {
+  public static int parse(String[] args) throws Exception {
     //Ensure we are using UTF-8 encoding by default
     System.setProperty("file.encoding", "UTF-8");
 
@@ -208,7 +204,7 @@ public class ApertiumMain {
 
     if (clp.direction != null)
       Translator.setMode(clp.direction);
-    else if (clp.direction == null && Translator.getAvailableModes().length > 1) {
+    else if (Translator.getAvailableModes().length > 1) {
       System.out.println("Several mode files found. Run again specifying one of them:");
       for (String mode : Translator.getAvailableModes())
         System.out.println("\t" + mode);

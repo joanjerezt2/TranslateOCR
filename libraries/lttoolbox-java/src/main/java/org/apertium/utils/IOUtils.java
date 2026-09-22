@@ -25,6 +25,7 @@ import java.nio.channels.FileChannel;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.zip.*;
 
 /**
@@ -42,7 +43,7 @@ public class IOUtils {
   static {
     try {
       cacheDir = new File(System.getProperty("java.io.tmpdir"), "apertium-index-cache");
-    } catch (Throwable t) {
+    } catch (Throwable ignored) {
     } // ignore
   }
   /** Set this to a new Timing object to collect stats about how long stuff is taking */
@@ -84,45 +85,50 @@ public class IOUtils {
   public static String[] listFilesWithExtension(String extension) {
     final String ext = extension.startsWith(".") ? extension : "." + extension;
     if (zip != null) {
-      ArrayList<String> list = new ArrayList();
-      Enumeration entries = zip.entries();
+      ArrayList<String> list = new ArrayList<>();
+      Enumeration<? extends ZipEntry> entries = zip.entries();
       while (entries.hasMoreElements()) {
-        ZipEntry entry = (ZipEntry) entries.nextElement();
+        ZipEntry entry = entries.nextElement();
         if (entry.getName().endsWith(ext))
           list.add(entry.getName());
       }
-      return list.toArray(new String[list.size()]);
+      return list.toArray(new String[0]);
     } else if (parent != null) {
-      FilenameFilter filter = new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-          return name.endsWith(ext);
-        }
-      };
-      // We will look for files in some expected directories relative to parent
-      ArrayList<String> list = new ArrayList();
-      File dir = parent;
-      if (dir.exists() && dir.isDirectory())
-        for (File f : dir.listFiles(filter))
-          list.add(f.getPath());
-      dir = new File(parent, "modes");
-      if (dir.exists() && dir.isDirectory())
-        for (File f : dir.listFiles(filter))
-          list.add(f.getPath());
-      dir = new File(new File(parent, "data"), "modes");
-      if (dir.exists() && dir.isDirectory())
-        for (File f : dir.listFiles(filter))
-          list.add(f.getPath());
-      return list.toArray(new String[list.size()]);
+      ArrayList<String> list = getStringByExt(ext);
+      return list.toArray(new String[0]);
     } else
       return null;
   }
 
-  public static byte[] loadByteArray(String filename) throws FileNotFoundException, IOException {
-    byte byteArray[];
+  private static ArrayList<String> getStringByExt(final String ext) {
+    FilenameFilter filter = new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith(ext);
+      }
+    };
+    // We will look for files in some expected directories relative to parent
+    ArrayList<String> list = new ArrayList<>();
+    File dir = parent;
+    if (dir.exists() && dir.isDirectory())
+      for (File f : Objects.requireNonNull(dir.listFiles(filter)))
+        list.add(f.getPath());
+    dir = new File(parent, "modes");
+    if (dir.exists() && dir.isDirectory())
+      for (File f : Objects.requireNonNull(dir.listFiles(filter)))
+        list.add(f.getPath());
+    dir = new File(new File(parent, "data"), "modes");
+    if (dir.exists() && dir.isDirectory())
+      for (File f : Objects.requireNonNull(dir.listFiles(filter)))
+        list.add(f.getPath());
+    return list;
+  }
+
+  public static byte[] loadByteArray(String filename) throws IOException {
+    byte[] byteArray;
     if (zip != null || (loader != null && parent == null)) {
       InputStream is = openInFileStream(filename);
-      byte buffer[] = new byte[1024];
+      byte[] buffer = new byte[1024];
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       int b;
       while ((b = is.read(buffer, 0, 1024)) != -1)
@@ -147,7 +153,7 @@ public class IOUtils {
   }
 
   /**
-   * This method checks to see if there is a a trailing slash on the string
+   * This method checks to see if there is a trailing slash on the string
    * path given and if not, adds it. Checks for both forward and backslashes,
    * but only adds a forward slash.
    *
@@ -187,8 +193,7 @@ public class IOUtils {
     /* If we don't do it this way, by explicitly setting UTF-8 encoding
      * when reading in a file, we get mojibake (scrambled character encodings).
      */
-    String fileContents = new String(byteArray, encoding);
-    return fileContents;
+      return new String(byteArray, encoding);
   }
 
   public static void writeFile(String path, String data) throws IOException {
@@ -205,7 +210,6 @@ public class IOUtils {
   /**
    *
    * @return A reader for System.in with the default encoding of UTF-8.
-   * @throws UnsupportedEncodingException
    */
   public static Reader getStdinReader() throws UnsupportedEncodingException {
     return getStdinReader("UTF-8");
@@ -217,8 +221,7 @@ public class IOUtils {
 
   /**
    *
-   * @return A writer for System.out with the default encoding of UTF-8.
-   * @throws UnsupportedEncodingException
+   * @return A writer for "System.out" with the default encoding of UTF-8.
    */
   public static Writer getStdoutWriter() throws UnsupportedEncodingException {
     return getStdoutWriter("UTF-8");
@@ -243,8 +246,7 @@ public class IOUtils {
       bas.write(buf, 0, n);
     input.close();
     buf = bas.toByteArray();
-    ByteBuffer byteBuffer = ByteBuffer.wrap(buf);
-    return byteBuffer;
+      return ByteBuffer.wrap(buf);
   }
 
   /**
@@ -253,7 +255,6 @@ public class IOUtils {
    *
    * @param filename - A string with the filename to open
    * @return An InputStream for reading from the file specified.
-   * @throws FileNotFoundException
    */
   public static InputStream openInFileStream(String filename)
       throws FileNotFoundException {
@@ -264,12 +265,12 @@ public class IOUtils {
         if (filename.startsWith("/"))
           filename = filename.substring(1);
         ZipEntry entry = zip.getEntry(filename);
-        //I we don't find the file at the given path, we will look for it somewhere else
+        // We don't find the file at the given path, we will look for it somewhere else
         if (entry == null) {
           filename = filename.substring(filename.lastIndexOf('/') + 1);
-          Enumeration entries = zip.entries();
+          Enumeration<? extends ZipEntry> entries = zip.entries();
           while (entries.hasMoreElements()) {
-            ZipEntry entryAux = (ZipEntry) entries.nextElement();
+            ZipEntry entryAux = entries.nextElement();
             if (entryAux.getName().endsWith("/" + filename) || entryAux.getName().equals(filename)) {
               entry = entryAux;
               break;
@@ -319,8 +320,7 @@ public class IOUtils {
       // FAIL, revert to memory intensive processing :-(
       return inputStreamToByteBuffer(openInFileStream(filename));
     } else {
-      MappedByteBuffer bb = memmap(filename);
-      return bb;
+        return memmap(filename);
     }
   }
 
@@ -328,8 +328,6 @@ public class IOUtils {
    *
    * @param filename -- The file to open for reading.
    * @return A reader for the file with the default UTF-8 encoding.
-   * @throws UnsupportedEncodingException
-   * @throws FileNotFoundException
    */
   public static Reader openInFileReader(String filename)
       throws UnsupportedEncodingException, FileNotFoundException {
@@ -347,11 +345,10 @@ public class IOUtils {
    *
    * @param filename - A string with the filename to open
    * @return An OutputStream for writing to the file specified.
-   * @throws FileNotFoundException
    */
   public static OutputStream openOutFileStream(String filename) throws FileNotFoundException {
     File file = null;
-    BufferedOutputStream bos = null;
+    BufferedOutputStream bos;
 
     try {
       file = openFile(filename);
@@ -379,15 +376,14 @@ public class IOUtils {
   }
 
   public static FilenameFilter getExtensionFilter(final String extension) {
-    FilenameFilter filter = new FilenameFilter() {
-      private String _extension = extension;
+      return new FilenameFilter() {
+        private final String _extension = extension;
 
-      @Override
-      public boolean accept(File dir, String name) {
-        return name.endsWith(_extension);
-      }
-    };
-    return filter;
+        @Override
+        public boolean accept(File dir, String name) {
+          return name.endsWith(_extension);
+        }
+      };
   }
 
   public static String[] listFilesInDir(String path) {
@@ -444,7 +440,7 @@ public class IOUtils {
            */
         }
       }
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     return file;
   }
@@ -465,7 +461,7 @@ public class IOUtils {
       extProcess.waitFor();
       if (extProcess.exitValue() != 0) {
         /* Assume process follows convention of 0 == Success.
-         * Thus if the exit value is != 0, it failed
+         * Thus, if the exit value is != 0, it failed
          */
         return null;
       }
@@ -496,15 +492,15 @@ public class IOUtils {
     return !(zip != null || (loader != null && parent == null));
   }
 
-  public static MappedByteBuffer memmap(String filename) throws IOException, FileNotFoundException {
+  public static MappedByteBuffer memmap(String filename) throws IOException {
     // YES, we have a file we can map!
     RandomAccessFile raf = new RandomAccessFile(openFile(filename), "r");
     MappedByteBuffer bb = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, raf.length());
     return bb;
   }
 
-  public static ByteBuffer mapByteBuffer(File cachedFile, int cacheFileSize) throws IOException {
-    ByteBuffer byteBufferPositions = null;
+  public static ByteBuffer mapByteBuffer(File cachedFile, int cacheFileSize) {
+    ByteBuffer byteBufferPositions;
 
     if (cacheFileSize > 1024) // don't cache tiny files
       try {
@@ -523,7 +519,7 @@ public class IOUtils {
           byteBufferPositions = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, cacheFileSize);
           return byteBufferPositions;
         }
-      } catch (Exception e) {
+      } catch (Exception ignored) {
       }
 
     byteBufferPositions = ByteBuffer.allocate(cacheFileSize); //int[number_of_statesl];

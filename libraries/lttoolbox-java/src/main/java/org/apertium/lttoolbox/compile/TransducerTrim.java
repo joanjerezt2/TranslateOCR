@@ -4,17 +4,11 @@
  */
 package org.apertium.lttoolbox.compile;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apertium.lttoolbox.Alphabet;
-import org.apertium.lttoolbox.LTPrint;
-import org.apertium.lttoolbox.LTTrim;
 import org.apertium.lttoolbox.collections.IntSet;
-import static org.apertium.lttoolbox.collections.Transducer.DEBUG;
 import org.apertium.lttoolbox.process.BasicFSTProcessor;
 import org.apertium.lttoolbox.process.State;
 

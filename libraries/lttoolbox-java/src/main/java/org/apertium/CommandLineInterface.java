@@ -7,7 +7,7 @@ package org.apertium;
 import org.apertium.pipeline.ApertiumMain;
 import java.io.File;
 import org.apertium.lttoolbox.*;
-import java.util.Arrays;
+
 import javax.swing.UIManager;
 import org.apertium.formatter.TextFormatter;
 import org.apertium.interchunk.ApertiumInterchunk;
@@ -77,13 +77,13 @@ public class CommandLineInterface {
     if (task.startsWith("lt-proc"))
       LTProc.main(restOfArgs);
     else if (task.equals("apertium") || task.equals("apertium-j"))
-      ApertiumMain.main(restOfArgs);
+      ApertiumMain.parse(restOfArgs);
     else if (task.startsWith("apertium-transfer"))
       ApertiumTransfer.main(restOfArgs);
     else if (task.startsWith("apertium-interchunk"))
       ApertiumInterchunk.main(restOfArgs);
     else if (task.startsWith("apertium-postchunk"))
-      ApertiumPostchunk.main(restOfArgs);
+      ApertiumPostchunk.parse(restOfArgs);
     else if (task.startsWith("apertium-tagger"))
       Tagger.main(restOfArgs);
     else if (task.startsWith("apertium-pretransfer"))
@@ -117,9 +117,7 @@ public class CommandLineInterface {
     else if (task.equals("-h"))
       showHelp(task);
     else {
-      ApertiumMain.main(argv);
-      //System.err.println("Command not recognized: "+task); // Arrays.toString(argv).replaceAll(", ", " ")
-      //showHelp(null);
+      ApertiumMain.parse(argv);
     }
   }
 
@@ -127,7 +125,7 @@ public class CommandLineInterface {
     ApertiumGUI.prepare();
     try {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     ApertiumGUI gui = new ApertiumGUI();
     gui.setVisible(true);

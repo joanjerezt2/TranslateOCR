@@ -5,7 +5,6 @@
 package org.apertium.transfer.generation;
 
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.w3c.dom.Element;
@@ -64,7 +63,7 @@ public class DOMTools {
     for (Element e : listElements(e0.getChildNodes()))
       if (e.getTagName().equals(tagName))
         return listElements(e.getChildNodes());
-    return new ArrayList<Element>(0);
+    return new ArrayList<>(0);
   }
 
   public static Element getChildrenElement(Element e0, String tagName) {

@@ -46,7 +46,7 @@ class MyGetOpt extends Getopt {
  * @author Raah
  */
 public class ApertiumTransfer {
-  private static HashMap<String, Transfer> cache = new HashMap<String, Transfer>();
+  private static final HashMap<String, Transfer> cache = new HashMap<>();
   private static boolean cacheEnabled = false;
 
   public static void setCacheEnabled(boolean enabled) {
@@ -78,8 +78,7 @@ public class ApertiumTransfer {
         + "  -c            case-sensitiveness while accessing bilingual dictionary\n"
         + "  -t            trace (show rule numbers and patterns matched)\n"
         + "  -z            null-flushing output on '\n"
-        + "  -h            shows this message\n"
-        + "");
+        + "  -h            shows this message\n");
   }
 
   public static void main(String[] argv) throws Exception {
@@ -88,7 +87,6 @@ public class ApertiumTransfer {
     doMain(argv, null, null);
   }
 
-  @SuppressWarnings("unchecked")
   public static void doMain(String[] argv, Reader input, Appendable output) throws Exception {
 
     boolean useBD = true;
@@ -98,7 +96,6 @@ public class ApertiumTransfer {
       return;
     }
 
-    boolean caseSensitiveMode = false;
     boolean trace = false;
     boolean nullFlush = false;
     boolean preBilingual = false;
@@ -117,8 +114,7 @@ public class ApertiumTransfer {
         optind++;
         switch (c) {
           case 'c':
-            caseSensitiveMode = true;
-            break;
+              break;
 
           case 't':
             trace = true;
@@ -186,7 +182,7 @@ public class ApertiumTransfer {
      * expected is: apertium-transfer-j eo-en.t1x.class eo-en.t1x.bin eo-en.autobil.bin
      * see also http://wiki.apertium.org/wiki/Bytecode_for_transfer
      */
-    Transfer t = null;
+    Transfer t;
     String tRulesOrClassString = argv[optind + 1];
     System.out.println("\nPath XML: " + tRulesOrClassString);
     String preProc = argv[optind + 2];
@@ -249,7 +245,7 @@ public class ApertiumTransfer {
       System.out.flush();
       try {
         Thread.sleep(10);
-      } catch (InterruptedException e1) {
+      } catch (InterruptedException ignored) {
       }
       e.printStackTrace();
       if (t.getNullFlush()) {

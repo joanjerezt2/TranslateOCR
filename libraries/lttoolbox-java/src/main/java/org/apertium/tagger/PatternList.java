@@ -68,7 +68,7 @@ class PatternList {
     alphabet.includeSymbol(ANY_CHAR);
     alphabet.includeSymbol(QUEUE);
 
-    final_type = new LinkedHashMap<Integer, Integer>();
+    final_type = new LinkedHashMap<>();
   }
 
   /**
@@ -87,8 +87,8 @@ class PatternList {
    */
   private void _copy(PatternList p) {
     sequence = p.sequence;
-    sequence_data = new ArrayList<ArrayList<Integer>>(p.sequence_data);
-    patterns = new LinkedHashMap<Integer, ArrayList<ArrayList<Integer>>>(p.patterns);
+    sequence_data = new ArrayList<>(p.sequence_data);
+    patterns = new LinkedHashMap<>(p.patterns);
     alphabet = new Alphabet(p.alphabet);
     transducer = new Transducer(p.transducer);
   }
@@ -102,7 +102,7 @@ class PatternList {
   private void _addPattern(Integer seqId, ArrayList<Integer> seqData) {
     ArrayList<ArrayList<Integer>> patternEntry = patterns.get(seqId);
     if (patternEntry == null) { //Nothing stored under that key yet.
-      patternEntry = new ArrayList<ArrayList<Integer>>();
+      patternEntry = new ArrayList<>();
       patterns.put(seqId, patternEntry);
     }
     patternEntry.add(seqData);
@@ -130,7 +130,7 @@ class PatternList {
 
   void insertOutOfSequence(String lemma, String tags,
       ArrayList<Integer> result) {
-    if (lemma.equals("")) {
+    if (lemma.isEmpty()) {
       result.add(alphabet.cast(ANY_CHAR));
     } else {
       for (int i = 0, limit = lemma.length(); i < limit; i++) {
@@ -141,7 +141,7 @@ class PatternList {
         }
       }
     }
-    if (tags.equals("")) {
+    if (tags.isEmpty()) {
       result.add(alphabet.cast(ANY_TAG));
     } else {
       for (int i = 0, limit = tagCount(tags); i < limit; i++) {
@@ -161,8 +161,8 @@ class PatternList {
       String tags) {
     sequence_id = id;
 
-    if (sequence_data.size() == 0) {
-      ArrayList<Integer> new_vector = new ArrayList<Integer>();
+    if (sequence_data.isEmpty()) {
+      ArrayList<Integer> new_vector = new ArrayList<>();
       insertOutOfSequence(lemma, tags, new_vector);
       sequence_data.add(new_vector);
     } else {
@@ -175,7 +175,7 @@ class PatternList {
 
   void insert(int id, String lemma, String tags) {
     if (!sequence) {
-      ArrayList<Integer> local = new ArrayList<Integer>();
+      ArrayList<Integer> local = new ArrayList<>();
       insertOutOfSequence(lemma, tags, local);
       local.add(alphabet.cast(QUEUE));
       _addPattern(id, local);
@@ -191,18 +191,16 @@ class PatternList {
 
     sequence_id = id;
 
-    if (sequence_data.size() == 0) {
+    if (sequence_data.isEmpty()) {
       final Collection<ArrayList<Integer>> p2 = patterns.get(otherid);
-      for (ArrayList<Integer> pSecond : p2) {
-        sequence_data.add(pSecond);
-      }
+        sequence_data.addAll(p2);
     } else {
       ArrayList<ArrayList<Integer>> new_sequence_data =
-          new ArrayList<ArrayList<Integer>>();
+              new ArrayList<>();
 
       for (ArrayList<Integer> it : sequence_data) {
         for (ArrayList<Integer> p : patterns.get(otherid)) {
-          ArrayList<Integer> temp = new ArrayList<Integer>(it);
+          ArrayList<Integer> temp = new ArrayList<>(it);
           temp.add((int) '+');
           temp.addAll(p);
           new_sequence_data.add(temp);

@@ -29,6 +29,6 @@ public class TEnforceAfterRule {
   ArrayList<Integer> tagsj;
 
   public TEnforceAfterRule() {
-    tagsj = new ArrayList<Integer>();
+    tagsj = new ArrayList<>();
   }
 }

@@ -33,7 +33,7 @@ public class ConstantManager {
   private LinkedHashMap<String, Integer> constants;
 
   public ConstantManager() {
-    this.constants = new LinkedHashMap<String, Integer>();
+    this.constants = new LinkedHashMap<>();
   }
 
   public ConstantManager(ConstantManager o) {
@@ -46,13 +46,13 @@ public class ConstantManager {
    * @param o - The ConstantManager object to copy.
    */
   private void copy(ConstantManager o) {
-    this.constants = new LinkedHashMap<String, Integer>(o.constants);
+    this.constants = new LinkedHashMap<>(o.constants);
   }
 
   public void setConstant(String constant, int value) {
     try {
       if (constants == null) {
-        constants = new LinkedHashMap<String, Integer>();
+        constants = new LinkedHashMap<>();
       }
       constants.put(constant, value);
     } catch (NullPointerException npe) {
@@ -77,7 +77,7 @@ public class ConstantManager {
 
   public void read(InputStream input) throws IOException {
     try {
-      if (constants != null && constants.size() != 0) {
+      if (constants != null && !constants.isEmpty()) {
         constants.clear();
       }
       int size = Compression.multibyte_read(input);

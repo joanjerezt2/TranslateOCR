@@ -21,6 +21,7 @@ package org.apertium.pipeline;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,11 +36,11 @@ public class Program {
   }
 
   //Each program has a "name" which is a command line.
-  private String _commandName;
-  private String _fullPath;
+  private final String _commandName;
+  private final String _fullPath;
   private final ProgEnum _program;
   //Each program also has a list of files, which are used, in order.
-  private String _parameters_deprecated;
+  private final String _parameters_deprecated;
   private final List<String> _parameterList;
 
   public Program(String commandLine) {
@@ -54,7 +55,7 @@ public class Program {
      * Running the executables w/o a path prefix will work in Windows with
      * cygwin, provided that the user has the cygwin bin dir in their path.
      */
-    String[] commandPathList = _fullPath.split("\\/");
+    String[] commandPathList = _fullPath.split("/");
     //Grab the last entry
     _commandName = commandPathList[commandPathList.length - 1];
 
@@ -150,10 +151,7 @@ public class Program {
     if (this._program != other._program) {
       return false;
     }
-    if ((this._parameters_deprecated == null) ? (other._parameters_deprecated != null) : !this._parameters_deprecated.equals(other._parameters_deprecated)) {
-      return false;
-    }
-    return true;
+      return Objects.equals(this._parameters_deprecated, other._parameters_deprecated);
   }
 
   /** Utility method to replace (or remove, if replacement is empty) an element in a parameter list.
@@ -162,20 +160,20 @@ public class Program {
     int n = parameterList.indexOf(searchString);
     if (n==-1) return parameterList;
     if (!(parameterList instanceof ArrayList)) { // create a modifiable list (copy)
-      parameterList = new ArrayList<String>(parameterList);
+      parameterList = new ArrayList<>(parameterList);
     }
     if (replacement==null || replacement.isEmpty()) parameterList.remove(n);
     else parameterList.set(n, replacement);
     return parameterList;
   }
 
-  private static Pattern commandLineParameterRegex = Pattern.compile("'([^']*)'|\"([^\"]*)\"|(\\S+)");
+  private static final Pattern commandLineParameterRegex = Pattern.compile("'([^']*)'|\"([^\"]*)\"|(\\S+)");
   /**
    * Utility method for splitting a (mode) command line into its parts, taking quoted spaces into account and removing quotes
-   * Source: https://stackoverflow.com/questions/3366281/tokenizing-a-string-but-ignoring-delimiters-within-quotes
+   * Source: <a href="https://stackoverflow.com/questions/3366281/tokenizing-a-string-but-ignoring-delimiters-within-quotes">...</a>
    */
   private static ArrayList<String> splitCommandLineString(String commandLine) {
-    ArrayList<String> list = new ArrayList<String>();
+    ArrayList<String> list = new ArrayList<>();
 
     Matcher m = commandLineParameterRegex.matcher(commandLine);
     while (m.find()) {

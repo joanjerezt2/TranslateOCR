@@ -31,7 +31,7 @@ public class Compression {
 // Global lttoolbox features
   public static final byte[] HEADER_LTTOOLBOX = {'L', 'T', 'T', 'B'};
 //  enum LT_FEATURES : uint64_t {
-//    LTF_UNKNOWN = (1ull << 0), // Features >= this are unknown, so throw an error; Inc this if more features are added
+//    LTF_UNKNOWN = (1ull << 0), // Features >= these are unknown, so throw an error; Inc this if more features are added
 //    LTF_RESERVED = (1ull << 63), // If we ever reach this many feature flags, we need a flag to know how to extend beyond 64 bits
 //  };
 
@@ -39,7 +39,7 @@ public class Compression {
   public static final byte[] HEADER_TRANSDUCER = {'L', 'T', 'T', 'D'};
 //  enum TD_FEATURES : uint64_t {
 //    TDF_WEIGHTS = (1ull << 0),
-//    TDF_UNKNOWN = HEADER_LTTOOLBOX(1ull << 1), // Features >= this are unknown, so throw an error; Inc this if more features are added
+//    TDF_UNKNOWN = HEADER_LTTOOLBOX(1ull << 1), // Features >= these are unknown, so throw an error; Inc this if more features are added
 //            TDF_RESERVED = (1ull << 63), // If we ever reach this many feature flags, we need a flag to know how to extend beyond 64 bits
 //  };
 
@@ -50,7 +50,6 @@ public class Compression {
    *
    * @param value integer to write.
    * @param output output stream.
-   * @throws java.io.IOException
    */
   public static void multibyte_write(long value, OutputStream output) throws IOException {
     if (value < 0x00000040) {
@@ -111,7 +110,6 @@ public class Compression {
    * @return the integer value readed.
    * If EOF is encountered as the first byte a -1 will be returned. If EOF is encountered in the middle of a multibyte read the result is undefined.
    * In these cases next calll to read will return a -1.
-   * @throws java.io.IOException
    */
   public static int multibyte_read(InputStream input) throws IOException {
     int up;
@@ -122,14 +120,14 @@ public class Compression {
       return up;
     } else if (up < 0x80) {
       up &= 0x3f;
-      int aux = (int) up;
+      int aux = up;
       aux = aux << 8;
       char low = (char) input.read();
       result = (int) low;
       result = result | aux;
     } else if (up < 0xc0) {
       up &= 0x3f;
-      int aux = (int) up;
+      int aux = up;
       aux = aux << 8;
       char middle = (char) input.read();
       result = (int) middle;
@@ -140,7 +138,7 @@ public class Compression {
       result = result | aux;
     } else {
       up &= 0x3f;
-      int aux = (int) up;
+      int aux = up;
       aux = aux << 8;
       char middleup = (char) input.read();
       result = (int) middleup;
@@ -166,14 +164,14 @@ public class Compression {
       return up;
     } else if (up < 0x80) {
       up &= 0x3f;
-      int aux = (int) up;
+      int aux = up;
       aux = aux << 8;
       char low = (char) (0xff & input.get());
       result = (int) low;
       result = result | aux;
     } else if (up < 0xc0) {
       up &= 0x3f;
-      int aux = (int) up;
+      int aux = up;
       aux = aux << 8;
       char middle = (char) (0xff & input.get());
       result = (int) middle;
@@ -184,7 +182,7 @@ public class Compression {
       result = result | aux;
     } else {
       up &= 0x3f;
-      int aux = (int) up;
+      int aux = up;
       aux = aux << 8;
       char middleup = (char) (0xff & input.get());
       result = (int) middleup;
@@ -204,7 +202,6 @@ public class Compression {
   public static void multibyte_skip(ByteBuffer input) {
     byte up = input.get();
     if ((up & (0x40 + 0x80)) == 0) { // most common
-      return;
     } else if ((up & 0x80) == 0) { // up < 0x80, infrequent
       input.position(input.position() + 1);
     } else if ((up & 0x40) == 0) { // up < 0xc0
@@ -232,9 +229,8 @@ public class Compression {
    * Skips a number of integers on the input stream and stores them in a byte array for later reading
    *
    * @param input input stream.
-   * @return array of bytes skipped
    */
-  public static void multibyte_skip(final ByteBuffer input, final int no_of_multibyte_reads) throws IOException {
+  public static void multibyte_skip(final ByteBuffer input, final int no_of_multibyte_reads) {
     for (int i = no_of_multibyte_reads; i > 0; i--) {
       multibyte_skip(input);
     }
@@ -246,7 +242,6 @@ public class Compression {
    *
    * @param str the string to write.
    * @param output the output stream.
-   * @throws java.io.IOException
    */
   public static void String_write(String str, OutputStream output) throws IOException {
     multibyte_write(str.length(), output);
@@ -260,22 +255,21 @@ public class Compression {
    *
    * @param input the input stream.
    * @return the wide string readed.
-   * @throws java.io.IOException
    */
   public static String String_read(InputStream input) throws IOException {
-    String retval = "";
+    StringBuilder retval = new StringBuilder();
     for (int i = 0, limit = multibyte_read(input); i != limit; i++) {
-      retval += (char) (multibyte_read(input));
+      retval.append((char) (multibyte_read(input)));
     }
-    return retval;
+    return retval.toString();
   }
 
   public static String String_read(ByteBuffer input) {
-    String retval = "";
+    StringBuilder retval = new StringBuilder();
     for (int i = 0, limit = multibyte_read(input); i != limit; i++) {
-      retval += (char) (multibyte_read(input));
+      retval.append((char) (multibyte_read(input)));
     }
-    return retval;
+    return retval.toString();
   }
 
   public static String wstring_read_toUtf8(InputStream in) throws IOException {

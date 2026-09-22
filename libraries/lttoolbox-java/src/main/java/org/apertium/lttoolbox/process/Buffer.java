@@ -25,11 +25,11 @@ class Buffer {
   /**
    * Buffer size.
    */
-  private int size;
+  private final int size;
   /**
    * Buffer array.
    */
-  private char[] buf;
+  private final char[] buf;
   /**
    * Buffer current position.
    */
@@ -116,7 +116,7 @@ class Buffer {
   }
 
   /**
-   * Return the range size between the buffer current position and a
+   * Return the range size between the buffer current position and an
    * outside stored given position that is previous to the current.
    *
    * @param prevpos the given position.
@@ -136,7 +136,7 @@ class Buffer {
    * @return true if the buffer is empty.
    */
   boolean isEmpty() {
-    return currentpos == lastpos;
+    return currentpos != lastpos;
   }
 
   /**

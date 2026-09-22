@@ -5,9 +5,10 @@
 package org.apertium.lttoolbox.compile;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import org.apertium.lttoolbox.Alphabet;
@@ -45,7 +46,7 @@ public class TransducerCompTest {
 
     //System.exit(-1);
     c.write("tmp/testTransducer2.bin");
-    InputStream input = new BufferedInputStream (new FileInputStream("tmp/testTransducer2.bin"));
+    InputStream input = new BufferedInputStream (Files.newInputStream(Paths.get("tmp/testTransducer2.bin")));
     //InputStream input = new BufferedInputStream(new FileInputStream("outc"));
     //c2 = c.DEBUG_read(input);
 
@@ -54,7 +55,7 @@ public class TransducerCompTest {
     String letters = Compression.String_read(input);
     Alphabet alphabet = Alphabet.read(input);
 
-    Map<String, TransducerComp> sections = new HashMap<String, TransducerComp>();
+    Map<String, TransducerComp> sections = new HashMap<>();
 
     int len = Compression.multibyte_read(input);
 
