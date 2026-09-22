@@ -8,12 +8,12 @@ android {
     namespace = "es.tobeit.jjerez.translateocr"
     flavorDimensions += listOf("parallelization")
 
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "es.tobeit.jjerez.translateocr"
         minSdk = 28 // iconv_ functions for bergamot translator
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 

@@ -8,7 +8,10 @@ GPL 3
 GPL 3
 
 Portions of code:
-(c) 2014 - 2016 Mikel Artetxe
+(c) 2025 - 2026 David Ventura 
+GPL 3
+
+(c) 2014 - 2016 Mikel Artetxe 
 GPL 3
 
 Application icon:
@@ -20,6 +23,7 @@ This project includes third party libraries; please see libraries/ for copyright
 ## Language pairs (Apertium)
 
 Main page: https://wiki.apertium.org/wiki/Main_Page
+
 List of language pairs: https://wiki.apertium.org/wiki/List_of_language_pairs
 
 ### English
@@ -57,6 +61,7 @@ List of language pairs: https://wiki.apertium.org/wiki/List_of_language_pairs
 ## Language support (Firefox Translation)
 
 Main page: https://mozilla.github.io/translations/
+
 List of models trained: https://mozilla.github.io/translations/model-registry/
 
 ### English 
@@ -157,7 +162,7 @@ Latest SDK
 
 ### Phase 2: Dictionaries compatible with lttoolbox-java
 
-Compile last version of Appium dictionaries compatible with lttoolbox-java.
+Compile Appium dictionaries using last commit or version compatible with lttoolbox-java.
 
 ### Phase 3: Add eSpeak library
 

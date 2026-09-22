@@ -1,6 +1,6 @@
 apply plugin: 'java'
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+// sourceCompatibility = JavaVersion.VERSION_1_7
+// targetCompatibility = JavaVersion.VERSION_1_7
 dependencies {
     implementation 'org.apache.bcel:bcel:6.7.0'
 }
