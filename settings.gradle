@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "TranslateOCR"
 include ':app', 'libraries:lttoolbox-java', 'libraries:tesseract4android'
+include ':libraries:bergamot'

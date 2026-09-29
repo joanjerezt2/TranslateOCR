@@ -5,6 +5,7 @@ plugins {
 
 android {
 	namespace 'cz.adaptech.tesseract4android'
+	compileSdk 37
 
 	defaultConfig {
 
