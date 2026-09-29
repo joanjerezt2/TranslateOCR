@@ -6,7 +6,7 @@ plugins {
 }
 
 configure<LibraryExtension> {
-    namespace = "mt.browser.bergamot"
+    namespace = "mt.browser.bergamot2"
     compileSdk {
         version = release(37)
     }

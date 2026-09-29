@@ -6,7 +6,7 @@ set(CMAKE_BUILD_TYPE "Release")
 
 project (ssplit CXX)
 
-option(SSPLIT_USE_INTERNAL_PCRE2 "Use internal PCRE2 instead of system's." OFF)
+option(SSPLIT_USE_INTERNAL_PCRE2 "Use internal PCRE2 instead of system's." ON)
 option(SSPLIT_COMPILE_LIBRARY_ONLY "Compile library only." OFF)
 option(SSPLIT_PREFER_STATIC_COMPILE "Prefer static over dynamic linking." ON)
 
