@@ -1,0 +1,10 @@
+toy
+valid
+trans
+sqlite
+sqlite_seed
+batch_fit
+*.temp
+vocab.*.yml
+gzip
+relative

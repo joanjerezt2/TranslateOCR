@@ -1,0 +1,15 @@
+final_batch
+final_match
+final_epoch
+template_translation
+template_bleu
+train.bpe.*
+vocab.*.yml
+empty_*
+valid
+trans
+trans_empty_lines
+trans_maxlen
+compare-trans
+compare-trans.bleu
+*.temp
