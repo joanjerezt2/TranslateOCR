@@ -28,6 +28,9 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
         bergamot.cpp)
 
+# Adds the CMakeLists.txt file located in the specified directory as a build dependency.
+add_subdirectory(bergamot-translator)
+
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.

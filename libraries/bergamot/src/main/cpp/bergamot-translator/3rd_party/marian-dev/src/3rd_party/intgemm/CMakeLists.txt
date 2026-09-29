@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(intgemm)
 string(ASCII 27 Esc)
 set(Orange "${Esc}[33m")

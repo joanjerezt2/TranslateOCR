@@ -577,7 +577,7 @@ OR compile the CPU-only version of Marian with
 endif(CUDA_FOUND)
 
 else(COMPILE_CUDA)
-  message(WARNING "COMPILE_CUDA=off : Building only CPU version")
+  message(NOTICE "COMPILE_CUDA=off : Building only CPU version")
 endif(COMPILE_CUDA)
 
 # TODO: make compatible with older CUDA versions

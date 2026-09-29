@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.10)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if (POLICY CMP0074)
@@ -21,7 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Note that with CMake MSVC build, the option CMAKE_BUILD_TYPE is automatically derived from the key
 # 'configurationType' in CMakeSettings.json configurations
 if(NOT CMAKE_BUILD_TYPE)
-  message(WARNING "CMAKE_BUILD_TYPE not set; setting to Release")
+  message(NOTICE "CMAKE_BUILD_TYPE not set; setting to Release")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
