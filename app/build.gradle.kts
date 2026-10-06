@@ -10,7 +10,7 @@ plugins {
 kotlin {
     // Extension level
     compilerOptions {
-        jvmTarget = JvmTarget.fromTarget("1.8")
+        jvmTarget = JvmTarget.fromTarget("11")
     }
 }
 
@@ -45,8 +45,8 @@ configure<ApplicationExtension> {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        // sourceCompatibility = JavaVersion.VERSION_1_8
+        // targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     buildFeatures {

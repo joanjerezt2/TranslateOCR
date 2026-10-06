@@ -189,8 +189,9 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // https://stackoverflow.com/questions/56387603/how-we-can-specify-input-language-for-specific-edittextnot-for-whole-app-any-h
         // https://stackoverflow.com/questions/5715072/change-android-keyboard-language
         // https://developer.android.com/reference/android/widget/TextView#setImeHintLocales(android.os.LocaleList)
-        val locale = Language().getLocale(origLanguage.selectedItem.toString())
-        origText.imeHintLocales = LocaleList(Locale(locale[0], locale[1]))
+        val localeString = Language().getLocale(origLanguage.selectedItem.toString())
+        val locale = Locale.Builder().setLanguage(localeString[0]).setRegion(localeString[1]).build()
+        origText.imeHintLocales = LocaleList(locale)
         val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.restartInput(origText)
 
@@ -411,8 +412,9 @@ class HomeFragment : Fragment(), AdapterView.OnItemSelectedListener {
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val item = parent?.getItemAtPosition(position)
         println("Origin Language: $item")
-        val locale = Language().getLocale(origLanguage.selectedItem.toString())
-        origText.imeHintLocales = LocaleList(Locale(locale[0], locale[1]))
+        val localeString = Language().getLocale(origLanguage.selectedItem.toString())
+        val locale = Locale.Builder().setLanguage(localeString[0]).setRegion(localeString[1]).build()
+        origText.imeHintLocales = LocaleList(locale)
         val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.restartInput(origText)
         if(buttonE == 0){

@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.LibraryExtension
+import kotlin.collections.plusAssign
 
 plugins {
     id("com.android.library")
@@ -14,7 +15,13 @@ configure<LibraryExtension> {
     defaultConfig {
         minSdk = 28
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters += listOf("x86_64")
+        }
     }
+
+
 
     externalNativeBuild {
         cmake {
