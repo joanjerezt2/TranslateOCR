@@ -5,7 +5,9 @@ import org.apertium.transfer.ApertiumRE;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -110,9 +112,9 @@ public class Chunk {
     }
 
     /* OK */
-    private List<String> getTags(List<String> parentTags) {
+    public List<String> getTags(List<String> parentTags) {
         int last;
-        List<String> ret = new ArrayList<>();
+        Deque<String> ret = new ArrayDeque<>();
         for (int i = 0, limit = target.length(); i < limit; i++) {
             if (target.charAt(i) == '<') {
                 last = i;
@@ -140,7 +142,7 @@ public class Chunk {
                 i++;
             }
         }
-        return ret;
+        return new ArrayList<>(ret);
     }
 
     /* OK */
@@ -243,7 +245,7 @@ public class Chunk {
             }
             else if(target.charAt(lemq_loc) == '#')
             {
-                        break;
+                break;
             }
         }
         target = new StringBuilder(target).insert(lemq_loc,"+" + other.target).toString();
@@ -289,33 +291,33 @@ public class Chunk {
                 boolean doCoref = (rl > 0 || rt > 0);
                 if (doCoref && rl < 17) rl = 17;
                 if (doCoref && rt < 16) rt = 16;
-                writeString("Tree" + " ".repeat(tr - 3), out);
-                writeString("Source Lemma" + " ".repeat(sl - 11), out);
-                writeString("Source Tags" + " ".repeat(st - 10), out);
-                writeString("Target Lemma" + " ".repeat(tl - 11), out);
-                writeString("Target Tags" + " ".repeat(tt - 10), out);
+                writeString("Tree" + " ".repeat(Math.max(0, tr - 3)), out);
+                writeString("Source Lemma" + " ".repeat(Math.max(0, sl - 11)), out);
+                writeString("Source Tags" + " ".repeat(Math.max(0, st - 10)), out);
+                writeString("Target Lemma" + " ".repeat(Math.max(0, tl - 11)), out);
+                writeString("Target Tags" + " ".repeat(Math.max(0, tt - 10)), out);
                 if (doCoref) {
-                    writeString("Coreference Lemma" + " ".repeat(rl - 16), out);
+                    writeString("Coreference Lemma" + " ".repeat(Math.max(0, rl - 16)), out);
                     writeString("Coreference Tags", out);
-                    if (rt > 16) writeString(" ".repeat(rt - 16), out);
+                    if (rt > 16) writeString(" ".repeat(Math.max(0, rt - 16)), out);
                 }
                 writeString("\n", out);
                 writeString("─".repeat(tr) + " ", out);
-                writeString("─".repeat(sl) + " ", out);
-                writeString("─".repeat(st) + " ", out);
-                writeString("─".repeat(tl) + " ", out);
-                writeString("─".repeat(tt) + " ", out);
+                writeString("─".repeat(Math.max(0, sl)) + " ", out);
+                writeString("─".repeat(Math.max(0, st)) + " ", out);
+                writeString("─".repeat(Math.max(0, tl)) + " ", out);
+                writeString("─".repeat(Math.max(0, tt)) + " ", out);
                 if (doCoref) writeString(" " + "─".repeat(rl), out);
                 if (doCoref) writeString(" " + "─".repeat(rt), out);
                 writeString("\n", out);
                 for (List<StringBuilder> stringBuilders : tree) {
-                    writeString(" ".repeat(tr - stringBuilders.getFirst().length()) + stringBuilders.getFirst() + " ", out);
-                    writeString(stringBuilders.get(1) + " ".repeat(sl - stringBuilders.get(1).length() + 1), out);
-                    writeString(stringBuilders.get(2) + " ".repeat(st - stringBuilders.get(2).length() + 1), out);
-                    writeString(stringBuilders.get(3) + " ".repeat(tl - stringBuilders.get(3).length() + 1), out);
-                    writeString(stringBuilders.get(4) + " ".repeat(tt - stringBuilders.get(4).length()), out);
+                    writeString(" ".repeat(Math.max(0, tr - stringBuilders.getFirst().length())) + stringBuilders.getFirst() + " ", out);
+                    writeString(stringBuilders.get(1) + " ".repeat(Math.max(0, sl - stringBuilders.get(1).length() + 1)), out);
+                    writeString(stringBuilders.get(2) + " ".repeat(Math.max(0, st - stringBuilders.get(2).length() + 1)), out);
+                    writeString(stringBuilders.get(3) + " ".repeat(Math.max(0, tl - stringBuilders.get(3).length() + 1)), out);
+                    writeString(stringBuilders.get(4) + " ".repeat(Math.max(0, tt - stringBuilders.get(4).length())), out);
                     if (doCoref) {
-                        writeString(" " + stringBuilders.get(5) + " ".repeat(rl - stringBuilders.get(5).length()), out);
+                        writeString(" " + stringBuilders.get(5) + " ".repeat(Math.max(0, rl - stringBuilders.get(5).length())), out);
                         writeString(" " + stringBuilders.get(6), out);
                     }
                     writeString("\n", out);
@@ -480,7 +482,7 @@ public class Chunk {
             list.add(ret);
             return list;
         } else {
-            List<Pair<Integer, Integer>> bounds = new ArrayList<>();
+            Deque<Pair<Integer, Integer>> bounds = new ArrayDeque<>();
             List<List<StringBuilder>> tree = new ArrayList<>();
             for (Chunk content : contents) {
                 if (!content.isBlank) {

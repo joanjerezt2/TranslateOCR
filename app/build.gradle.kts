@@ -10,7 +10,7 @@ plugins {
 kotlin {
     // Extension level
     compilerOptions {
-        jvmTarget = JvmTarget.fromTarget("11")
+        jvmTarget = JvmTarget.fromTarget("21")
     }
 }
 

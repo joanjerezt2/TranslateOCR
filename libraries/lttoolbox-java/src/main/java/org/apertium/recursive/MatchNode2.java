@@ -6,6 +6,12 @@ package org.apertium.recursive;
  */
 
 public class MatchNode2 {
+
+    private static class Transition{
+        int tag;
+        int dest;
+    }
+
     Transition[] trans;
     private int size = 0;
     public int rule_begin = -1;
