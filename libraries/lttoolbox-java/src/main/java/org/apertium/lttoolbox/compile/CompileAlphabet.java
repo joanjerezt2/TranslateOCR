@@ -12,7 +12,7 @@ import org.apertium.lttoolbox.Alphabet;
  *
  * @author j
  */
-class CompileAlphabet extends Alphabet {
+public class CompileAlphabet extends Alphabet {
   /**
    * pair object -> pair index mapping.
    * example {<0,0>=0, <w,w>=1, <o,o>=2, <u,u>=3, <n,n>=4, <d,d>=5, <0,-3>=6, <0,-4>=7, <s,-3>=8, <0,-5>=9, <o,i>=10, <u,n>=11, <n,d>=12, <d,-1>=13, <0,-2>=14}

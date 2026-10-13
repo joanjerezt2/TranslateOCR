@@ -28,35 +28,35 @@ List of language pairs: https://wiki.apertium.org/wiki/List_of_language_pairs
 
 ### English
 
-1. [ ] English <-\> Catalan
-2. [ ] English <-\> Spanish
-3. [ ] Welsh -> English
-4. [ ] Serbo-Croatian -> English
-5. [ ] Icelandic -> English
+1. [ ] English <-\> Catalan            `Version 22/02/2016`
+2. [ ] English <-\> Spanish            `Version 22/02/2016`
+3. [ ] Welsh -> English                  `Version`
+4. [ ] Serbo-Croatian -> English  `Version`
+5. [ ] Icelandic -> English             `Version`
 
 ### Romanic
 
-1. [ ] Spanish <-\> Catalan
-2. [ ] French <-\> Catalan
-3. [ ] Spanish <-\> Portuguese
-4. [ ] Catalan <-\> Italian
-5. [x] French <-\> Spanish
-6. [ ] Romanian <-\> Catalan
-7. [ ] Portuguese <-\> Catalan
+1. [ ] Spanish <-\> Catalan             `Version 22/02/2016`
+2. [ ] French <-\> Catalan               `Version 08/12/2012`
+3. [ ] Spanish <-\> Portuguese      `Version 22/02/2016`
+4. [ ] Catalan <-\> Italian                `Version 08/12/2012`
+5. [x] French <-\> Spanish             `Version 08/12/2012`
+6. [ ] Romanian <-\> Catalan        `Version`
+7. [ ] Portuguese <-\> Catalan      `Version 22/12/2012`
 
 ### Nordic
 
-1. [ ] Swedish <-\> Danish
-2. [ ] Icelandic <-\> Swedish
-3. [ ] Danish <-\> Norwegian
-4. [ ] Swedish <-\> Norwegian
+1. [ ] Swedish <-\> Danish             `Version 08/12/2012`
+2. [ ] Icelandic <-\> Swedish          `Version`
+3. [ ] Danish <-\> Norwegian        `Version`
+4. [ ] Swedish <-\> Norwegian      `Version`
 
 ### Slavic
 
-1. [ ] Serbocroatian <-\> Slovenian
-2. [ ] Macedonian <-\> Bulgarian
-3. [ ] Belarusian <-\> Russian
-4. [ ] Russian <-\> Ukrainian
+1. [ ] Serbocroatian <-\> Slovenian              `Version`
+2. [ ] Macedonian <-\> Bulgarian                 `Version`
+3. [ ] Belarusian <-\> Russian                        `Version`
+4. [ ] Russian <-\> Ukrainian                          `Version`
 
 ## Language support (Firefox Translation)
 
@@ -131,24 +131,24 @@ In TranslateOCR, we will support only English [eng].
 
 `$ espeak-ng --voices`
 
-1. [x] Belarusian
-2. [x] Bulgarian
-3. [x] Catalan
-4. [x] Danish
-5. [x] English
-6. [x] French
-7. [x] Icelandic
-8. [x] Italian
-9. [x] Macedonian
-10. [x] Norwegian
-11. [x] Portuguese
-12. [x] Romanian
-13. [x] Russian
-14. [x] Serbo-Croatian
-15. [x] Slovenian
-16. [x] Spanish
-17. [x] Ukrainian
-18. [x] Welsh
+1. [ ] Belarusian
+2. [ ] Bulgarian
+3. [ ] Catalan
+4. [ ] Danish
+5. [ ] English
+6. [ ] French
+7. [ ] Icelandic
+8. [ ] Italian
+9. [ ] Macedonian
+10. [ ] Norwegian
+11. [ ] Portuguese
+12. [ ] Romanian
+13. [ ] Russian
+14. [ ] Serbo-Croatian
+15. [ ] Slovenian
+16. [ ] Spanish
+17. [ ] Ukrainian
+18. [ ] Welsh
 
 ## Language support (MMS)
 

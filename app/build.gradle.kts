@@ -10,7 +10,7 @@ plugins {
 kotlin {
     // Extension level
     compilerOptions {
-        jvmTarget = JvmTarget.fromTarget("11")
+        jvmTarget = JvmTarget.fromTarget("21")
     }
 }
 
@@ -45,8 +45,8 @@ configure<ApplicationExtension> {
         }
     }
     compileOptions {
-        // sourceCompatibility = JavaVersion.VERSION_1_8
-        // targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
@@ -66,17 +66,6 @@ androidComponents {
         }
     }
 }
-
-/* android.applicationVariants.all {
-    val variant = this
-    variant.outputs
-        .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
-        .forEach { output ->
-            val outputFileName = "TranslateOCR - ${variant.baseName} - ${variant.versionName}.${variant.versionCode}.apk"
-            println("Output File Name: $outputFileName")
-            output.outputFileName = outputFileName
-        }
-} */
 
 dependencies {
     implementation("androidx.core:core-ktx:1.19.1")

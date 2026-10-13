@@ -73,7 +73,7 @@ public class Translator {
     org.apertium.lttoolbox.process.TransducerExe.DELAYED_NODE_LOADING = enabled;
   }
 
-  /** @deprecated */
+  @Deprecated
   public static void setMemmappingEnabled(boolean enabled) {
     System.err.println("setMemmappingEnabled not supported");
   }

@@ -62,9 +62,8 @@ public abstract class AbstractTransfer {
 	public void setTrace(boolean trace) {
 		this.trace = trace;
 	}
-  /**
-   * @deprecated
-   */
+
+  @Deprecated
   public void readData(ByteBuffer in) throws IOException {
     readData(in, null);
   }
