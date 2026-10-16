@@ -17,11 +17,10 @@ package org.apertium.lttoolbox.process;
  * 02111-1307, USA.
  */
 import org.apertium.lttoolbox.Alphabet;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
+
+import java.util.*;
+
+import org.apertium.lttoolbox.Pair;
 import org.apertium.lttoolbox.process.Node.Transition;
 
 /**
@@ -192,7 +191,7 @@ public class State {
   /**
    * Reference to last discarded list of nodestates
    */
-  private ArrayList<TNodeState> reusable_state = REUSE_OBJECTS ? new ArrayList<TNodeState>(50) : null;
+  private ArrayList<TNodeState> reusable_state = REUSE_OBJECTS ? new ArrayList<>(50) : null;
 
   /**
    * Make a transition, version for lowercase letters and symbols
@@ -647,19 +646,18 @@ public class State {
    */
   String filterFinalsTM(Alphabet alphabet, SetOfCharacters escaped_chars, LinkedList<String> blankqueue, ArrayList<String> numbers) {
     StringBuilder result = new StringBuilder();
-    for (int i = 0, limit = state.size(); i < limit; i++) {
-      TNodeState state_i = state.get(i);
-      //if (finals.contains(state_i.where)) {
-      if (state_i.isFinal()) {
-        result.append('/');
-        for (int j = 0, limit2 = state_i.sequence.size(); j < limit2; j++) {
-          if (escaped_chars.contains((char) state_i.sequence.get(j).intValue())) {
-            result.append('\\');
+      for (TNodeState state_i : state) {
+          //if (finals.contains(state_i.where)) {
+          if (state_i.isFinal()) {
+              result.append('/');
+              for (int j = 0, limit2 = state_i.sequence.size(); j < limit2; j++) {
+                  if (escaped_chars.contains((char) state_i.sequence.get(j).intValue())) {
+                      result.append('\\');
+                  }
+                  result.append(alphabet.getSymbol(state_i.sequence.get(j)));
+              }
           }
-          result.append(alphabet.getSymbol(state_i.sequence.get(j)));
-        }
       }
-    }
     String result2 = "";
     ArrayList<String> fragments = new ArrayList<>();
     fragments.add("");
@@ -667,7 +665,7 @@ public class State {
       if (result.charAt(i) == ')') {
         fragments.add("");
       } else {
-        fragments.set(fragments.size() - 1, fragments.get(fragments.size() - 1) + result.charAt(i));
+        fragments.set(fragments.size() - 1, fragments.getLast() + result.charAt(i));
       }
     }
 
@@ -715,9 +713,9 @@ public class State {
       }
     }
     result = new StringBuilder();
-    for (int i = 0, limit = fragments.size(); i < limit; i++) {
-      result.append(fragments.get(i));
-    }
+      for (String fragment : fragments) {
+          result.append(fragment);
+      }
     return result.toString();
   }
 
@@ -729,5 +727,317 @@ public class State {
    */
   private boolean iswdigit(char c) {
       return (((int) c >= 48 && (int) c <= 57) || (int) c == 178 || (int) c == 179 || (int) c == 185);
+  }
+
+  /*
+   * @author Joan Jerez, ToBeIT
+   */
+
+  List<List<Pair<Integer, Double>>> sequence_pool = new ArrayList<>();
+  ArrayList<State.TNodeState2> state2 = new ArrayList<>(50);
+
+  static class TNodeState2{
+    Node where;
+    List<Pair<Integer, Double>> sequence;
+    // a state is "dirty" if it was introduced at runtime (case variants, etc.)
+    boolean dirty;
+
+    public TNodeState2(Node transducer, List<Pair<Integer, Double>> sequence, boolean caseWasChanged) {
+      this.where = transducer;
+      this.sequence = sequence;
+      this.dirty = caseWasChanged;
+    }
+  }
+
+  public void init(Node initial)
+  {
+    state2.clear();
+    state2.addLast(new TNodeState2(initial, new_sequence(), false));
+    state2.getFirst().sequence.clear();
+    epsilonClosure();
+  }
+
+  List<Pair<Integer, Double>> new_sequence() {
+    if (sequence_pool.isEmpty()) {
+      sequence_pool.addLast(new ArrayList<>());
+    }
+    List<Pair<Integer, Double>> ret = sequence_pool.getLast();
+    sequence_pool.removeLast();
+    return ret;
+  }
+
+  public void step(int val, int val2, int caseSensitive) {
+    if (!Character.isUpperCase(val) || caseSensitive!= 0) { // TODO: revisar
+      step(val, val2);
+    } else if(val != Character.toLowerCase(val)) {
+      step(val, Character.toLowerCase(val), val2);
+    } else {
+      step(val, val2);
+    }
+  }
+
+  /**
+   * Returns true if at least one record of the state references a
+   * final node of the set
+   * @param allFinals set of final nodes
+   * @return true if the state is final
+   */
+  public boolean isFinal2(Map<Node, Double> allFinals) {
+    for(int i = 0, limit = state2.size(); i != limit; i++)
+    {
+      if(allFinals.containsKey(state2.get(i).where))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public void step_override(int cast, int anyTag, int cast1) {
+    apply_override(cast, anyTag, cast1);
+    epsilonClosure();
+  }
+
+  public void step_override(int input, int alt, int old_sym, int new_sym)
+  {
+    apply_override(input, alt, old_sym, new_sym);
+    epsilonClosure();
+  }
+
+  void apply_override(int input, int old_sym, int new_sym){
+    if(input == 0 || old_sym == 0)
+    {
+      state2.clear();
+      sequence_pool.clear();
+      return;
+    }
+    ArrayList<TNodeState2> new_state = new ArrayList<>();
+    for(int i = 0, limit = state2.size(); i != limit; i++)
+    {
+      apply_into_override(new_state, input, old_sym, new_sym, i, false);
+      apply_into_override(new_state, old_sym, old_sym, new_sym, i, true);
+      free_sequence(state2.get(i).sequence);
+    }
+    state2 = new_state;
+  }
+
+  private void free_sequence(List<Pair<Integer, Double>> sequence) {
+    sequence_pool.addLast(sequence);
+  }
+
+  public void merge(State other) {
+    for (int i=0; i<other.state2.size(); i++) {
+      List<Pair<Integer, Double>> tmp;
+      tmp = other.state2.get(i).sequence;
+      TNodeState2 ns = new TNodeState2(other.state2.get(i).where, tmp, other.state2.get(i).dirty);
+      this.state2.addLast(ns);
+    }
+  }
+
+  /**
+   * Print all outputs of current parsing, preceded by a bar '/',
+   * from the final nodes of the state
+   * @param finals the set of final nodes
+   * @param alphabet the alphabet to decode strings
+   * @param escaped_chars the set of chars to be preceded with one backslash
+   * @param uppercase true if the word is uppercase
+   * @param firstupper true if the first letter of a word is uppercase
+   * @param firstchar first character of the word
+   * @return the result of the transduction
+   */
+  public String filterFinals(Map<Node, Double> finals,
+                             Alphabet alphabet,
+                             Set<Integer> escaped_chars,
+                             boolean display_weights, int max_analyses, int max_weight_classes,
+                             boolean uppercase, boolean firstupper, int firstchar)
+  {
+    List<String> result = new ArrayList<>();
+    result = filterFinalsArray(result, finals, alphabet, escaped_chars, display_weights,
+            max_analyses, max_weight_classes, uppercase, firstupper,
+            firstchar);
+
+    StringBuilder ret = new StringBuilder();
+    for (String it : result) {
+      ret.append('/');
+      ret.append(it);
+    }
+    return ret.toString();
+  }
+
+  public String filterFinals(Map<Node, Double> finals,
+                             Alphabet alphabet,
+                             Set<Integer> escaped_chars,
+                             boolean display_weights, int max_analyses, int max_weight_classes,
+                             boolean uppercase, boolean firstupper){
+    return filterFinals(finals, alphabet, escaped_chars, display_weights, max_analyses, max_weight_classes, uppercase,
+            firstupper, 0);
+  }
+
+  /**
+   * filterFinals(), but write the results into `result`
+   */
+  public List<String> filterFinalsArray(
+          List<String> result,
+          Map<Node, Double> finals,
+          Alphabet alphabet,
+          Set<Integer> escapedChars, // UChar32 mapea a Integer en colecciones de Java
+          boolean displayWeights,
+          int maxAnalyses, int maxWeightClasses,
+          boolean uppercase, boolean firstupper, int firstchar
+    ) {
+      List<Pair<String, Double>> response = new ArrayList<>();
+
+      // --- 1. PRIMERA PARTE: Construcción de secuencias y costes ---
+      for (TNodeState2 it : state2) {
+        if (!finals.containsKey(it.where)) {
+          continue;
+        }
+
+        StringBuilder temp = new StringBuilder();
+        double cost = finals.get(it.where);
+
+        for (Pair<Integer, Double> step : it.sequence) {
+          if (escapedChars.contains(step.first)) {
+            temp.append('\\');
+          }
+
+          /* Nota: Asegúrate de que la función getSymbol de tu clase Alphabet en Java
+          acepte un StringBuilder para concatenar el símbolo internamente. */
+          temp.append(alphabet.getSymbol(step.first, it.dirty && uppercase));
+          cost += step.second;
+        }
+
+        if (it.dirty && firstupper) {
+          int loc = firstchar;
+          if (loc < temp.length() && temp.charAt(loc) == '~') {
+            loc++;
+          }
+          if (loc < temp.length()) {
+            char upperChar = Character.toUpperCase(temp.charAt(loc));
+            temp.setCharAt(loc, upperChar);
+          }
+        }
+
+        response.add(new Pair<>(temp.toString(), cost));
+      }
+
+      // --- 2. SEGUNDA PARTE: Filtrado NFinals ---
+      // Asumiendo que tienes una función equivalente a NFinals implementada en Java
+      response = NFinals(response, maxAnalyses, maxWeightClasses);
+
+      // --- 3. TERCERA PARTE: Deduplicación y formateo final ---
+      result.clear();
+
+      // En C++ usan sorted_vector para evitar duplicados.
+      // En Java un HashSet ofrece búsquedas e inserciones O(1) idóneas para esto.
+      Set<String> seen = new HashSet<>();
+
+      for (Pair<String, Double> it : response) {
+        // La función .add() devuelve false si el elemento ya existía (equivale a !seen.insert(...).second)
+        if (!seen.add(it.first)) {
+          continue;
+        }
+        String finalString = it.first;
+        if (displayWeights) {
+          // Equivalente a u_sprintf(w, "<W:%f>", it.second);
+          // Usamos Locale.US para asegurar que el separador decimal sea un punto '.' y no una coma ','
+          String weightStr = String.format(Locale.US, "<W:%f>", it.second);
+          finalString += weightStr;
+        }
+        result.add(finalString);
+      }
+      return result;
+  }
+
+  List<Pair< String, Double>> NFinals(List<Pair<String, Double>> lf, int maxAnalyses, int maxWeightClasses)
+  {
+    List<Pair<String, Double>> result = new ArrayList<>();
+    // sort(lf.begin(), lf.end(), sort_weights<UString, double>());
+    for(Pair<String, Double> it : lf)
+    {
+      double last_weight = 0.0000;
+      if(maxAnalyses > 0 && maxWeightClasses > 0)
+      {
+        result.addLast(new Pair<>(it.first, it.second));
+        maxAnalyses--;
+        if(last_weight!=it.second)
+        {
+          maxWeightClasses--;
+        }
+      }
+      else break;
+    }
+    return result;
+  }
+
+  /**
+   * Helper functions for the various apply()s to reduce code duplication
+   * @return whether any transitions were made
+   */
+  private boolean apply_into_override(ArrayList<TNodeState2> newState, int input, int oldSym, int newSym, int index, boolean dirty) {
+    // En C++: std::map<int, Dest>::const_iterator it = state[index].where->transitions.find(input);
+    // En Java usamos un Map estándar y comprobamos si la clave existe.
+    var currentTransitions = state2.get(index).where.transitions2;
+
+    if (currentTransitions.containsKey(input)) {
+      Node.Dest destObj = currentTransitions.get(input); // Este es nuestro "it->second"
+
+      for (int j = 0; j != destObj.size; j++) {
+        // Obtener una lista limpia del pool
+        List<Pair<Integer, Double>> newV = new_sequence();
+
+        // En C++: *newV = *(state[index].sequence); (Copia profunda del contenido de la lista)
+        newV.clear(); // Por seguridad si el pool tuviera basura
+        newV.addAll(state2.get(index).sequence);
+
+        // En C++: if(it->first != 0) -> it->first es la clave del mapa, que es 'input'
+        if (input != 0) {
+          if (destObj.out_tag[j] == oldSym) {
+            // push_back({new_sym, ...}) instanciando nuestro objeto par
+            newV.add(new Pair<>(newSym, destObj.out_weight[j]));
+          } else {
+            newV.add(new Pair<>(destObj.out_tag[j], destObj.out_weight[j]));
+          }
+        }
+
+        // En C++: new_state->push_back(TNodeState(...))
+        newState.addLast(new TNodeState2(destObj.dest[j], newV, state2.get(index).dirty || dirty));
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Make a transition, but overriding the output symbol
+   * @param input symbol read from infile
+   * @param old_sym symbol from the FST
+   * @param new_sym symbol we want to appear in outfile
+   */
+  void apply_override(int input, int alt, int old_sym, int new_sym) {
+
+    if(input == alt)
+    {
+      apply_override(input, old_sym, new_sym);
+      return;
+    }
+
+    if(input == 0 || old_sym == 0)
+    {
+      state2.clear();
+      sequence_pool.clear();
+      return;
+    }
+
+    ArrayList<TNodeState2> new_state = new ArrayList<>();
+    for(int i = 0, limit = state.size(); i != limit; i++)
+    {
+      apply_into_override(new_state, input, old_sym, new_sym, i, false);
+      apply_into_override(new_state, alt, old_sym, new_sym, i, true);
+      apply_into_override(new_state, old_sym, old_sym, new_sym, i, true);
+      free_sequence(state2.get(i).sequence);
+    }
+
+    state2 = new_state;
   }
 }

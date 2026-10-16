@@ -124,4 +124,55 @@ public class Node {
     }
   }
 
+  /**
+   * @author Joan Jerez, ToBeIT
+   */
+
+  public static class Dest {
+    int size = 0;
+    int[] out_tag;
+    Node[] dest;
+    double[] out_weight;
+  }
+
+  public Map<Integer, Dest> transitions2;
+
+  /**
+   * Making a link between this node and another
+   * @param i input symbol
+   * @param o output symbol
+   * @param d destination
+   * @param wt weight value
+   */
+
+  public void addTransition(int i, int o, Node d, double wt)
+  {
+    Dest aux = transitions2.get(i);
+    aux.size++;
+    int[] out_tag = new int[aux.size];
+    Node[] dest = new Node[aux.size];
+    double[] out_weight = new double[aux.size];
+
+    for(i = 0; i<aux.size-1; i++)
+    {
+      out_tag[i] = aux.out_tag[i];
+      dest[i] = aux.dest[i];
+      out_weight[i] = aux.out_weight[i];
+    }
+
+    if(aux.size > 1)
+    {
+      aux.out_tag = null;
+      aux.dest = null;
+      aux.out_weight = null;
+    }
+
+    out_tag[aux.size-1] = o;
+    dest[aux.size-1] = d;
+    out_weight[aux.size-1] = wt;
+    aux.out_tag = out_tag;
+    aux.dest = dest;
+    aux.out_weight = out_weight;
+  }
+
 }

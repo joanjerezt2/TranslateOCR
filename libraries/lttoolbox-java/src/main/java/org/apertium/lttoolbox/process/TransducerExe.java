@@ -20,10 +20,8 @@ import java.io.File;
 import org.apertium.lttoolbox.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
+
 import org.apertium.lttoolbox.Alphabet.IntegerPair;
 import org.apertium.utils.IOUtils;
 
@@ -59,7 +57,6 @@ public class TransducerExe {
   /**
    * Node list
    */
-  //private Node[] node_list;
   private HashMap<Integer, Node> node_list2;
   /**
    * Node positions in the byteBuffer
@@ -244,4 +241,19 @@ public class TransducerExe {
     byteBufferPositions.putInt(input.position()); // Remember end position
 
   }
+
+  /*
+   * @author Joan Jerez, ToBeIT
+   */
+
+  Map<Node, Double> finals = new HashMap<>();
+
+  public Map<Node, Double> getFinals2()
+  {return finals;}
+
+  public Node getInitial() {
+    return node_list2.get(initial_id);
+  }
+
+
 }
