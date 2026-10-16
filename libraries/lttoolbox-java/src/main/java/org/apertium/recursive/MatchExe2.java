@@ -178,23 +178,23 @@ public class MatchExe2 {
                 case '<':
                     for(int j = i+1; j < ch.length(); j++)
                     {
-                        if(ch.charAt(j) == '>')
+                    if(ch.charAt(j) == '>')
+                    {
+                        int symbol = alpha.cast(ch.substring(i, j - i + 1));
+                        // https://stackoverflow.com/questions/4276207/is-bool-guaranteed-to-be-0-or-1-when-converted-to-int
+                        if(symbol != 0)
                         {
-                            int symbol = alpha.cast(ch.substring(i, j - i + 1));
-                            // https://stackoverflow.com/questions/4276207/is-bool-guaranteed-to-be-0-or-1-when-converted-to-int
-                            if(symbol != 0)
-                            {
-                                step(state, range, symbol, any_tag);
-                            }
-                            else
-                            {
-                                step(state, range, any_tag);
-                            }
-                            i = j;
-                            break;
+                            step(state, range, symbol, any_tag);
                         }
+                        else
+                        {
+                            step(state, range, any_tag);
+                        }
+                        i = j;
+                        break;
                     }
-                    break;
+                }
+                break;
                 default:
                     step(state, range, Character.toLowerCase(ch.charAt(i)), any_char);
                     break;
@@ -215,16 +215,16 @@ public class MatchExe2 {
                     break;
                 case '<':
                     for(int j = i+1; j < chunk.length(); j++)
-                    {
-                        if(chunk.charAt(j) == '>')
                         {
-                            int symbol = alpha.cast(chunk.substring(i, j-i+1));
-                            prematchAlt[prematchIdx] = any_tag;
-                            prematch[prematchIdx++] = (symbol!=0 ? symbol : any_tag);
-                            i = j;
-                            break;
+                            if(chunk.charAt(j) == '>')
+                            {
+                                int symbol = alpha.cast(chunk.substring(i, j-i+1));
+                                prematchAlt[prematchIdx] = any_tag;
+                                prematch[prematchIdx++] = (symbol!=0 ? symbol : any_tag);
+                                i = j;
+                                break;
+                            }
                         }
-                    }
                     break;
                 default:
                     prematchAlt[prematchIdx] = any_char;
@@ -273,53 +273,53 @@ public class MatchExe2 {
     }
 
     Pair<Integer, Double> getRule(int[] state, int first, int last){
-        int rule = -1;
-        double weight = 0.0;
-        int len = 0;
-        for(int i = first; i != last; i = (i+1)%RTXStateSize)
-        {
-            MatchNode2 node = nodes.get(state[i]);
-            if(node.rule_begin == -1) continue;
-            for(int rl = node.rule_begin; rl <= node.rule_end; rl++)
+            int rule = -1;
+            double weight = 0.0;
+            int len = 0;
+            for(int i = first; i != last; i = (i+1)%RTXStateSize)
             {
-                boolean rej = false;
-                for(int rj = 0; rj < rejectedCount; rj++)
+                MatchNode2 node = nodes.get(state[i]);
+                if(node.rule_begin == -1) continue;
+                for(int rl = node.rule_begin; rl <= node.rule_end; rl++)
                 {
-                    if(rejected[rj] == rule_numbers[rl])
+                    boolean rej = false;
+                    for(int rj = 0; rj < rejectedCount; rj++)
                     {
-                        rej = true;
-                        break;
+                        if(rejected[rj] == rule_numbers[rl])
+                        {
+                            rej = true;
+                            break;
+                        }
                     }
-                }
-                if(rej) continue;
-                if(rule_lengths[rl] > len)
-                {
+                    if(rej) continue;
+                    if(rule_lengths[rl] > len)
+                    {
+                        rule = rule_numbers[rl];
+                        weight = rule_weights[rl];
+                        len = rule_lengths[rl];
+                        continue;
+                    }
+                    if(rule != -1 && rule_lengths[rl] < len) continue;
+                    if(rule != -1 && rule_weights[rl] < weight) continue;
+                    if(rule != -1 && rule_numbers[rl] > rule) continue;
+
                     rule = rule_numbers[rl];
                     weight = rule_weights[rl];
-                    len = rule_lengths[rl];
-                    continue;
                 }
-                if(rule != -1 && rule_lengths[rl] < len) continue;
-                if(rule != -1 && rule_weights[rl] < weight) continue;
-                if(rule != -1 && rule_numbers[rl] > rule) continue;
-
-                rule = rule_numbers[rl];
-                weight = rule_weights[rl];
             }
-        }
-        return new Pair<>(rule, weight);
+            return new Pair<>(rule, weight);
     }
 
     int getRuleUnweighted(int[] state, int first, int last)
-    {
-        for(int i = first; i != last; i = (i+1)%RTXStateSize)
         {
-            if(nodes.get(state[i]).rule_begin != -1)
+            for(int i = first; i != last; i = (i+1)%RTXStateSize)
             {
-                return rule_numbers[nodes.get(state[i]).rule_begin];
+                if(nodes.get(state[i]).rule_begin != -1)
+                {
+                    return rule_numbers[nodes.get(state[i]).rule_begin];
+                }
             }
-        }
-        return -1;
+            return -1;
     }
 
     public void resetRejected() {

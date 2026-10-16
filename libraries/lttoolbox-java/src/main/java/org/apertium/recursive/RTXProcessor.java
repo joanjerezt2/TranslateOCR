@@ -504,23 +504,23 @@ public class RTXProcessor {
                     break;
                 case SWAP:
                     if (printingSteps) { System.err.println("swap"); }
-                {
-                    stackCopy(stackIdx, stackIdx + 1);
-                    stackCopy(stackIdx - 1, stackIdx);
-                    stackCopy(stackIdx + 1, stackIdx - 1);
-                }
-                break;
+                    {
+                        stackCopy(stackIdx, stackIdx + 1);
+                        stackCopy(stackIdx - 1, stackIdx);
+                        stackCopy(stackIdx + 1, stackIdx - 1);
+                    }
+                    break;
                 case STRING:
-                {
-                    if (printingSteps) { System.err.println("string"); }
-                    int ct = rule_data[++i];
-                    stackIdx++;
-                    theStack[stackIdx].mode = 2;
-                    theStack[stackIdx].s = rule;
-                    i += ct;
-                    if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
-                }
-                break;
+                    {
+                        if (printingSteps) { System.err.println("string"); }
+                        int ct = rule_data[++i];
+                        stackIdx++;
+                        theStack[stackIdx].mode = 2;
+                        theStack[stackIdx].s = rule;
+                        i += ct;
+                        if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
+                    }
+                    break;
                 case INT:
                     if (printingSteps) { System.err.println("int " + (int) rule.charAt(i + 1)); }
                     pushStack(rule_data[++i]);
@@ -566,20 +566,20 @@ public class RTXProcessor {
                     break;
                 case AND:
                     if (printingSteps) { System.err.println("and"); }
-                {
-                    a = popBool();
-                    b = popBool();
-                    pushStack(a && b);
-                }
-                break;
+                    {
+                        a = popBool();
+                        b = popBool();
+                        pushStack(a && b);
+                    }
+                    break;
                 case OR:
                     if (printingSteps) { System.err.println("or"); }
-                {
-                    a = popBool();
-                    b = popBool();
-                    pushStack(a || b);
-                }
-                break;
+                    {
+                        a = popBool();
+                        b = popBool();
+                        pushStack(a || b);
+                    }
+                    break;
                 case NOT:
                     if (printingSteps) { System.err.println("not"); }
                     theStack[stackIdx].b = !theStack[stackIdx].b;
@@ -587,45 +587,45 @@ public class RTXProcessor {
                 case EQUAL:
                 case EQUALCL:
                     if (printingSteps) { System.err.println("equal"); }
-                {
-                    String a2 = "";
-                    popString(a2);
-                    String b2 = "";
-                    popString(b2);
-                    if (rule_data[i] == EQUALCL) {
-                        a2 = a2.toLowerCase();
-                        b2 = b2.toLowerCase();
+                    {
+                        String a2 = "";
+                        popString(a2);
+                        String b2 = "";
+                        popString(b2);
+                        if (rule_data[i] == EQUALCL) {
+                            a2 = a2.toLowerCase();
+                            b2 = b2.toLowerCase();
+                        }
+                        pushStack(a2.equals(b2));
+                        if (printingSteps) { System.err.println(" -> " + (a2.equals(b2))); }
                     }
-                    pushStack(a2.equals(b2));
-                    if (printingSteps) { System.err.println(" -> " + (a2.equals(b2))); }
-                }
-                break;
+                    break;
                 case ISPREFIX:
                 case ISPREFIXCL:
                     if (printingSteps) { System.err.println("isprefix"); }
-                {
-                    substr = popString();
-                    str = popString();
-                    if (rule.charAt(i) == ISPREFIXCL) {
-                        pushStack(beginsWith(str.toLowerCase(), substr.toLowerCase()));
-                    } else {
-                        pushStack(beginsWith(str, substr));
+                    {
+                        substr = popString();
+                        str = popString();
+                        if (rule.charAt(i) == ISPREFIXCL) {
+                            pushStack(beginsWith(str.toLowerCase(), substr.toLowerCase()));
+                        } else {
+                            pushStack(beginsWith(str, substr));
+                        }
                     }
-                }
-                break;
+                    break;
                 case ISSUFFIX:
                 case ISSUFFIXCL:
                     if (printingSteps) { System.err.println("issuffix"); }
-                {
-                    substr = popString();
-                    str = popString();
-                    if (rule.charAt(i) == ISSUFFIXCL) {
-                        pushStack(endsWith(str.toLowerCase(), substr.toLowerCase()));
-                    } else {
-                        pushStack(endsWith(str, substr));
+                    {
+                        substr = popString();
+                        str = popString();
+                        if (rule.charAt(i) == ISSUFFIXCL) {
+                            pushStack(endsWith(str.toLowerCase(), substr.toLowerCase()));
+                        } else {
+                            pushStack(endsWith(str, substr));
+                        }
                     }
-                }
-                break;
+                    break;
                 case HASPREFIX:
                 case HASPREFIXCL:
                     /*
@@ -639,211 +639,211 @@ public class RTXProcessor {
                     it++	     it.next()
                      */
                     if (printingSteps) { System.err.println("hasprefix"); }
-                {
-                    list = popString();
-                    needle = popString();
+                    {
+                        list = popString();
+                        needle = popString();
 
-                    if (rule.charAt(i) == HASPREFIX) {
-                        it = lists.get(list).iterator();
-                    } else {
-                        needle = needle.toLowerCase();
-                        it = listslow.get(list).iterator();
-                    }
-
-                    found = false;
-                    while (it.hasNext()) {
-                        if (beginsWith(needle, it.next())) {
-                            found = true;
-                            break;
+                        if (rule.charAt(i) == HASPREFIX) {
+                            it = lists.get(list).iterator();
+                        } else {
+                            needle = needle.toLowerCase();
+                            it = listslow.get(list).iterator();
                         }
+
+                        found = false;
+                        while (it.hasNext()) {
+                            if (beginsWith(needle, it.next())) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        pushStack(found);
                     }
-                    pushStack(found);
-                }
-                break;
+                    break;
                 case HASSUFFIX:
                 case HASSUFFIXCL:
                     if (printingSteps) { System.err.println("hassuffix"); }
-                {
-                    list = popString();
-                    needle = popString();
+                    {
+                        list = popString();
+                        needle = popString();
 
-                    if (rule.charAt(i) == HASSUFFIX) {
-                        it = lists.get(list).iterator();
-                    } else {
-                        needle = needle.toLowerCase();
-                        it = listslow.get(list).iterator();
-                    }
-
-                    found = false;
-                    while (it.hasNext()) {
-                        if (endsWith(needle, it.next())) {
-                            found = true;
-                            break;
+                        if (rule.charAt(i) == HASSUFFIX) {
+                            it = lists.get(list).iterator();
+                        } else {
+                            needle = needle.toLowerCase();
+                            it = listslow.get(list).iterator();
                         }
+
+                        found = false;
+                        while (it.hasNext()) {
+                            if (endsWith(needle, it.next())) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        pushStack(found);
                     }
-                    pushStack(found);
-                }
-                break;
+                    break;
                 case ISSUBSTRING:
                 case ISSUBSTRINGCL:
                     if (printingSteps) { System.err.println("issubstring"); }
-                {
-                    needle = popString();
-                    String haystack = popString();
-                    if (rule.charAt(i) == ISSUBSTRINGCL) {
-                        needle = needle.toLowerCase();
-                        haystack = haystack.toLowerCase();
+                    {
+                        needle = popString();
+                        String haystack = popString();
+                        if (rule.charAt(i) == ISSUBSTRINGCL) {
+                            needle = needle.toLowerCase();
+                            haystack = haystack.toLowerCase();
+                        }
+                        pushStack(haystack.contains(needle)); // C++ haystack.find(needle) != wstring::npos
                     }
-                    pushStack(haystack.contains(needle)); // C++ haystack.find(needle) != wstring::npos
-                }
-                break;
+                    break;
                 case IN:
                 case INCL:
                     if (printingSteps) { System.err.println("in"); }
-                {
-                    list = popString();
-                    str = popString();
-                    if (rule.charAt(i) == INCL) {
-                        str = str.toLowerCase();
-                        Set<String> myset = listslow.get(list);
-                        pushStack(myset.contains(str));
-                    } else {
-                        Set<String> myset = lists.get(list);
-                        pushStack(myset.contains(str));
+                    {
+                        list = popString();
+                        str = popString();
+                        if (rule.charAt(i) == INCL) {
+                            str = str.toLowerCase();
+                            Set<String> myset = listslow.get(list);
+                            pushStack(myset.contains(str));
+                        } else {
+                            Set<String> myset = lists.get(list);
+                            pushStack(myset.contains(str));
+                        }
                     }
-                }
-                break;
+                    break;
                 case SETVAR:
                     if (printingSteps) {System.err.println("setvar");}
-                {
-                    String var = popString();
-                    val = popString();
-                    currentBranch.stringVars.put(var, val);
-                    currentBranch.wblankVars.put(val, theWblankStack[stackIdx + 1]);
-                    theWblankStack[stackIdx + 1] = EMPTY;
-                    if (printingSteps) {
-                        System.err.print(" -> " + var + " = '" + val + "'");
+                    {
+                        String var = popString();
+                        val = popString();
+                        currentBranch.stringVars.put(var, val);
+                        currentBranch.wblankVars.put(val, theWblankStack[stackIdx + 1]);
+                        theWblankStack[stackIdx + 1] = EMPTY;
+                        if (printingSteps) {
+                            System.err.print(" -> " + var + " = '" + val + "'");
+                        }
                     }
-                }
-                break;
+                    break;
                 case OUTPUT:
                     if (printingSteps) { System.err.println("output");
                     }
-                {
-                    ch = popChunk();
-                    if (ch == null) break; // FETCHCHUNK
-                    if (isLinear && ch.contents.isEmpty()) {
-                        boolean word = true;
-                        int last = 0;
-                        byte[] targ = ch.target.getBytes();
-                        boolean chunk = false;
-                        for (int c = 0, limit = ch.target.length(); c < limit; c++) {
-                            if (targ[c] == '\\') c++;
-                            else if ((targ[c] == '{' || targ[c] == '$') && word) {
-                                if (targ[c] == '{') chunk = true;
-                                Chunk temp = chunkPool.next();
-                                temp.isBlank = false;
-                                temp.target = ch.target.substring(last, c - last);
-                                temp.wblank = out_wblank;
-                                out_wblank = EMPTY;
-                                if (chunk) {
-                                    currentOutput.getLast().contents.addLast(temp); // C++ currentOutput.back()->contents.push_back(temp);
-                                } else {
-                                    currentOutput.addLast(temp);
-                                }
-                                last = c + 1;
-                                word = false;
-                            } else if ((targ[c] == '^' || targ[c] == '}') && !word) {
-                                if (c > last) {
+                    {
+                        ch = popChunk();
+                        if (ch == null) break; // FETCHCHUNK
+                        if (isLinear && ch.contents.isEmpty()) {
+                            boolean word = true;
+                            int last = 0;
+                            byte[] targ = ch.target.getBytes();
+                            boolean chunk = false;
+                            for (int c = 0, limit = ch.target.length(); c < limit; c++) {
+                                if (targ[c] == '\\') c++;
+                                else if ((targ[c] == '{' || targ[c] == '$') && word) {
+                                    if (targ[c] == '{') chunk = true;
                                     Chunk temp = chunkPool.next();
-                                    temp.isBlank = true;
+                                    temp.isBlank = false;
                                     temp.target = ch.target.substring(last, c - last);
+                                    temp.wblank = out_wblank;
+                                    out_wblank = EMPTY;
                                     if (chunk) {
-                                        currentOutput.getLast().contents.addLast(temp);
+                                        currentOutput.getLast().contents.addLast(temp); // C++ currentOutput.back()->contents.push_back(temp);
                                     } else {
                                         currentOutput.addLast(temp);
                                     }
+                                    last = c + 1;
+                                    word = false;
+                                } else if ((targ[c] == '^' || targ[c] == '}') && !word) {
+                                    if (c > last) {
+                                        Chunk temp = chunkPool.next();
+                                        temp.isBlank = true;
+                                        temp.target = ch.target.substring(last, c - last);
+                                        if (chunk) {
+                                            currentOutput.getLast().contents.addLast(temp);
+                                        } else {
+                                            currentOutput.addLast(temp);
+                                        }
+                                    }
+                                    if (targ[c] == '}') chunk = false;
+                                    last = c + 1;
+                                    word = true;
                                 }
-                                if (targ[c] == '}') chunk = false;
-                                last = c + 1;
-                                word = true;
                             }
-                        }
-                        if (last == 0 && !ch.target.isEmpty()) {
+                            if (last == 0 && !ch.target.isEmpty()) {
+                                currentOutput.addLast(ch);
+                            } else if (last < ch.target.length()) {
+                                Chunk temp = chunkPool.next();
+                                temp.isBlank = true;
+                                temp.target = ch.target.substring(last);
+                                currentOutput.addLast(temp);
+                            }
+                        } else {
+                            ch.wblank = out_wblank;
                             currentOutput.addLast(ch);
-                        } else if (last < ch.target.length()) {
-                            Chunk temp = chunkPool.next();
-                            temp.isBlank = true;
-                            temp.target = ch.target.substring(last);
-                            currentOutput.addLast(temp);
+                            out_wblank = EMPTY;
                         }
-                    } else {
-                        ch.wblank = out_wblank;
-                        currentOutput.addLast(ch);
-                        out_wblank = EMPTY;
                     }
-                }
-                break;
+                    break;
                 case OUTPUTALL:
                     if (printingSteps) { System.err.println("outputall"); }
                     currentOutput = currentInput;
                     return true;
                 case PUSHINPUT:
                     if (printingSteps) { System.err.println("pushinput"); }
-                {
-                    int loc = popInt();
-                    pos = 2 * (loc - 1);
-                    ch = getChunk(pos, loc);
-                    pushStack(ch);
-                }
-                break;
+                    {
+                        int loc = popInt();
+                        pos = 2 * (loc - 1);
+                        ch = getChunk(pos, loc);
+                        pushStack(ch);
+                    }
+                    break;
                 case SOURCECLIP:
                     if (printingSteps) { System.err.println("sourceclip"); }
-                {
-                    String part = "";
-                    popString(part);
-                    ch = popChunk();
-                    if (ch == null) pushStack("");
-                    else {
-                        if (gettingLemmaFromWord(part)) {
-                            pushStack(ch.chunkPart(attr_items.get(part), SourceClip), ch.wblank);
-                        } else {
-                            pushStack(ch.chunkPart(attr_items.get(part), SourceClip));
+                    {
+                        String part = "";
+                        popString(part);
+                        ch = popChunk();
+                        if (ch == null) pushStack("");
+                        else {
+                            if (gettingLemmaFromWord(part)) {
+                                pushStack(ch.chunkPart(attr_items.get(part), SourceClip), ch.wblank);
+                            } else {
+                                pushStack(ch.chunkPart(attr_items.get(part), SourceClip));
+                            }
                         }
+                        if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
                     }
-                    if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
-                }
-                break;
+                    break;
                 case TARGETCLIP:
                     if (printingSteps) { System.err.println("targetclip"); }
-                {
-                    String part = "";
-                    popString(part);
-                    ch = popChunk();
-                    if (ch == null) pushStack("");
-                    else {
-                        if (gettingLemmaFromWord(part)) {
-                            pushStack(ch.chunkPart(attr_items.get(part), TargetClip), ch.wblank);
-                        } else {
-                            pushStack(ch.chunkPart(attr_items.get(part), TargetClip));
+                    {
+                        String part = "";
+                        popString(part);
+                        ch = popChunk();
+                        if (ch == null) pushStack("");
+                        else {
+                            if (gettingLemmaFromWord(part)) {
+                                pushStack(ch.chunkPart(attr_items.get(part), TargetClip), ch.wblank);
+                            } else {
+                                pushStack(ch.chunkPart(attr_items.get(part), TargetClip));
+                            }
+                        }
+                        if (printingSteps) {
+                            System.err.println(" -> " + theStack[stackIdx].s);
                         }
                     }
-                    if (printingSteps) {
-                        System.err.println(" -> " + theStack[stackIdx].s);
-                    }
-                }
-                break;
+                    break;
                 case REFERENCECLIP:
                     if (printingSteps) { System.err.println("referenceclip"); }
-                {
-                    String part = "";
-                    popString(part);
-                    ch = popChunk();
-                    if (ch == null) pushStack("");
-                    else pushStack(ch.chunkPart(attr_items.get(part), ReferenceClip));
-                    if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
-                }
-                break;
+                    {
+                        String part = "";
+                        popString(part);
+                        ch = popChunk();
+                        if (ch == null) pushStack("");
+                        else pushStack(ch.chunkPart(attr_items.get(part), ReferenceClip));
+                        if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
+                    }
+                    break;
                 case SETCLIP:
                     if (printingSteps) { System.err.println("setclip"); }
                     pos = 2 * (popInt() - 1);
@@ -861,25 +861,25 @@ public class RTXProcessor {
                     break;
                 case FETCHVAR:
                     if (printingSteps) { System.err.print("fetchvar"); }
-                {
-                    String name = popString();
-                    val = currentBranch.stringVars.get(name);
-                    String wblank_val = currentBranch.wblankVars.get(name);
-                    pushStack(val, wblank_val);
-                    if (printingSteps) { System.err.println(" -> " + name + " = " + val); }
-                }
-                break;
+                    {
+                        String name = popString();
+                        val = currentBranch.stringVars.get(name);
+                        String wblank_val = currentBranch.wblankVars.get(name);
+                        pushStack(val, wblank_val);
+                        if (printingSteps) { System.err.println(" -> " + name + " = " + val); }
+                    }
+                    break;
                 case FETCHCHUNK:
                     if (printingSteps) { System.err.println("fetchchunk"); }
                     pushStack(currentBranch.chunkVars.get(popInt()));
                     break;
                 case SETCHUNK:
                     if (printingSteps) { System.err.println("setchunk"); }
-                {
-                    pos = popInt();
-                    currentBranch.chunkVars.set(pos, popChunk());
-                }
-                break;
+                    {
+                        pos = popInt();
+                        currentBranch.chunkVars.set(pos, popChunk());
+                    }
+                    break;
                 case GETCASE:
                     if (printingSteps) { System.err.println("getcase"); }
                     pushStack(caseOf(popString()));
@@ -889,215 +889,215 @@ public class RTXProcessor {
                     if (printingSteps) {
                         System.err.println("setcase");
                     }
-                {
-                    String src = popString();
-                    String dest = popString();
-                    pushStack(copycase(src, dest));
+                    {
+                        String src = popString();
+                        String dest = popString();
+                        pushStack(copycase(src, dest));
 
-                    if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
-                }
-                break;
+                        if (printingSteps) { System.err.println(" -> " + theStack[stackIdx].s); }
+                    }
+                    break;
                 case CONCAT:
                     if (printingSteps) { System.err.println("concat"); }
-                {
-                    if (theStack[stackIdx].mode != 2 || theStack[stackIdx - 1].mode != 2) {
-                        System.err.println("Cannot CONCAT non-strings.");
-                        System.exit(EXIT_FAILURE);
+                    {
+                        if (theStack[stackIdx].mode != 2 || theStack[stackIdx - 1].mode != 2) {
+                            System.err.println("Cannot CONCAT non-strings.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        stackIdx--;
+                        theStack[stackIdx].s = theStack[stackIdx].s + theStack[stackIdx + 1].s;
                     }
-                    stackIdx--;
-                    theStack[stackIdx].s = theStack[stackIdx].s + theStack[stackIdx + 1].s;
-                }
-                break;
+                    break;
                 case CHUNK:
                     if (printingSteps) { System.err.println("chunk"); }
-                {
-                    ch = chunkPool.next();
-                    ch.isBlank = false;
-                    pushStack(ch);
-                }
-                break;
-                case APPENDCHILD:
-                    if (printingSteps) { System.err.println("appendchild"); }
-                {
-                    Chunk kid = popChunk();
-                    if (isLinear && kid.target.charAt(0) == '^') {
-                        int j;
-                        for (j = 0; j < kid.target.length(); j++) {
-                            if (kid.target.charAt(j) == '$') break;
-                        }
+                    {
                         ch = chunkPool.next();
                         ch.isBlank = false;
-                        ch.target = kid.target.substring(1, j - 1);
-                        ch.wblank = out_wblank;
-                        out_wblank = EMPTY;
-                        theStack[stackIdx].c.contents.addLast(ch);
-                        ch = chunkPool.next();
-                        ch.isBlank = true;
-                        ch.target = kid.target.substring(j + 1);
-                        theStack[stackIdx].c.contents.addLast(ch);
-                    } else {
-                        kid.wblank = out_wblank;
-                        out_wblank = EMPTY;
-                        theStack[stackIdx].c.contents.addLast(kid);
+                        pushStack(ch);
                     }
-                    if (printingSteps) {
-                        System.err.println(" -> child with surface '" + kid.target + "' appended");
+                    break;
+                case APPENDCHILD:
+                    if (printingSteps) { System.err.println("appendchild"); }
+                    {
+                        Chunk kid = popChunk();
+                        if (isLinear && kid.target.charAt(0) == '^') {
+                            int j;
+                            for (j = 0; j < kid.target.length(); j++) {
+                                if (kid.target.charAt(j) == '$') break;
+                            }
+                            ch = chunkPool.next();
+                            ch.isBlank = false;
+                            ch.target = kid.target.substring(1, j - 1);
+                            ch.wblank = out_wblank;
+                            out_wblank = EMPTY;
+                            theStack[stackIdx].c.contents.addLast(ch);
+                            ch = chunkPool.next();
+                            ch.isBlank = true;
+                            ch.target = kid.target.substring(j + 1);
+                            theStack[stackIdx].c.contents.addLast(ch);
+                        } else {
+                            kid.wblank = out_wblank;
+                            out_wblank = EMPTY;
+                            theStack[stackIdx].c.contents.addLast(kid);
+                        }
+                        if (printingSteps) {
+                            System.err.println(" -> child with surface '" + kid.target + "' appended");
+                        }
                     }
-                }
-                break;
+                    break;
                 case APPENDSURFACE:
                     if (printingSteps) { System.err.println("appendsurface"); }
-                {
-                    if (theStack[stackIdx].mode != 2 && theStack[stackIdx].mode != 3) {
-                        System.err.println("Cannot append non-string to chunk surface.");
-                        System.exit(EXIT_FAILURE);
+                    {
+                        if (theStack[stackIdx].mode != 2 && theStack[stackIdx].mode != 3) {
+                            System.err.println("Cannot append non-string to chunk surface.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        stackIdx--;
+                        if (theStack[stackIdx].mode != 3) {
+                            System.err.println("Cannot APPENDSURFACE to non-chunk.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        if (theStack[stackIdx + 1].mode == 2) {
+                            theStack[stackIdx].c.target += theStack[stackIdx + 1].s;
+                            out_wblank = Chunk.combineWblanks(out_wblank, theWblankStack[stackIdx + 1]);
+                            theWblankStack[stackIdx + 1] = EMPTY;
+                        } else {
+                            theStack[stackIdx].c.target += theStack[stackIdx + 1].c.target;
+                            theStack[stackIdx].c.wblank += theStack[stackIdx + 1].c.wblank;
+                        }
+                        if (printingSteps) {
+                            System.err.println(" -> " + theStack[stackIdx + 1].s);
+                        }
                     }
-                    stackIdx--;
-                    if (theStack[stackIdx].mode != 3) {
-                        System.err.println("Cannot APPENDSURFACE to non-chunk.");
-                        System.exit(EXIT_FAILURE);
-                    }
-                    if (theStack[stackIdx + 1].mode == 2) {
-                        theStack[stackIdx].c.target += theStack[stackIdx + 1].s;
-                        out_wblank = Chunk.combineWblanks(out_wblank, theWblankStack[stackIdx + 1]);
-                        theWblankStack[stackIdx + 1] = EMPTY;
-                    } else {
-                        theStack[stackIdx].c.target += theStack[stackIdx + 1].c.target;
-                        theStack[stackIdx].c.wblank += theStack[stackIdx + 1].c.wblank;
-                    }
-                    if (printingSteps) {
-                        System.err.println(" -> " + theStack[stackIdx + 1].s);
-                    }
-                }
-                break;
+                    break;
                 case APPENDSURFACESL:
                     if (printingSteps) { System.err.println("appendsurfacesl"); }
-                {
-                    if (theStack[stackIdx].mode != 2 && theStack[stackIdx].mode != 3) {
-                        System.err.println("Cannot append non-string to chunk surface.");
-                        System.exit(EXIT_FAILURE);
+                    {
+                        if (theStack[stackIdx].mode != 2 && theStack[stackIdx].mode != 3) {
+                            System.err.println("Cannot append non-string to chunk surface.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        stackIdx--;
+                        if (theStack[stackIdx].mode != 3) {
+                            System.err.println("Cannot APPENDSURFACESL to non-chunk.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        if (theStack[stackIdx + 1].mode == 2) {
+                            theStack[stackIdx].c.source += theStack[stackIdx + 1].s;
+                            out_wblank = Chunk.combineWblanks(out_wblank, theWblankStack[stackIdx + 1]);
+                            theWblankStack[stackIdx + 1] = EMPTY;
+                        } else {
+                            theStack[stackIdx].c.source += theStack[stackIdx + 1].c.source;
+                            theStack[stackIdx].c.wblank += theStack[stackIdx + 1].c.wblank;
+                        }
+                        if (printingSteps) {
+                            System.err.println(" -> " + theStack[stackIdx + 1].s);
+                        }
                     }
-                    stackIdx--;
-                    if (theStack[stackIdx].mode != 3) {
-                        System.err.println("Cannot APPENDSURFACESL to non-chunk.");
-                        System.exit(EXIT_FAILURE);
-                    }
-                    if (theStack[stackIdx + 1].mode == 2) {
-                        theStack[stackIdx].c.source += theStack[stackIdx + 1].s;
-                        out_wblank = Chunk.combineWblanks(out_wblank, theWblankStack[stackIdx + 1]);
-                        theWblankStack[stackIdx + 1] = EMPTY;
-                    } else {
-                        theStack[stackIdx].c.source += theStack[stackIdx + 1].c.source;
-                        theStack[stackIdx].c.wblank += theStack[stackIdx + 1].c.wblank;
-                    }
-                    if (printingSteps) {
-                        System.err.println(" -> " + theStack[stackIdx + 1].s);
-                    }
-                }
-                break;
+                    break;
                 case APPENDSURFACEREF:
                     if (printingSteps) { System.err.println("appendsurfaceref"); }
-                {
-                    if (theStack[stackIdx].mode != 2 && theStack[stackIdx].mode != 3) {
-                        System.err.println("Cannot append non-string to chunk surface.");
-                        System.exit(EXIT_FAILURE);
+                    {
+                        if (theStack[stackIdx].mode != 2 && theStack[stackIdx].mode != 3) {
+                            System.err.println("Cannot append non-string to chunk surface.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        stackIdx--;
+                        if (theStack[stackIdx].mode != 3) {
+                            System.err.println("Cannot APPENDSURFACEREF to non-chunk.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        if (theStack[stackIdx + 1].mode == 2) {
+                            theStack[stackIdx].c.coref += theStack[stackIdx + 1].s;
+                        } else {
+                            theStack[stackIdx].c.coref += theStack[stackIdx + 1].c.coref;
+                        }
+                        if (printingSteps) { System.err.println(" -> " + theStack[stackIdx + 1].s); }
                     }
-                    stackIdx--;
-                    if (theStack[stackIdx].mode != 3) {
-                        System.err.println("Cannot APPENDSURFACEREF to non-chunk.");
-                        System.exit(EXIT_FAILURE);
-                    }
-                    if (theStack[stackIdx + 1].mode == 2) {
-                        theStack[stackIdx].c.coref += theStack[stackIdx + 1].s;
-                    } else {
-                        theStack[stackIdx].c.coref += theStack[stackIdx + 1].c.coref;
-                    }
-                    if (printingSteps) { System.err.println(" -> " + theStack[stackIdx + 1].s); }
-                }
-                break;
+                    break;
                 case APPENDALLCHILDREN:
                     if (printingSteps) { System.err.println("appendallchildren"); }
-                {
-                    ch = popChunk();
-                    for (int k = 0; k < ch.contents.size(); k++) {
-                        theStack[stackIdx].c.contents.addLast(ch.contents.get(k));
+                    {
+                        ch = popChunk();
+                        for (int k = 0; k < ch.contents.size(); k++) {
+                            theStack[stackIdx].c.contents.addLast(ch.contents.get(k));
+                        }
                     }
-                }
-                break;
+                    break;
                 case APPENDALLINPUT:
                     if (printingSteps) {
                         System.err.println("appendallinput");
                     }
-                {
-                    // 1. Obtenemos la referencia a la lista (equivalente a vector<Chunk*>& vec)
-                    List<Chunk> vec = theStack[stackIdx].c.contents;
-                    // 2. Insertamos todos los elementos al final (equivalente a vec.insert(vec.end(), ...))
-                    vec.addAll(currentInput);
-                }
-                break;
+                    {
+                        // 1. Obtenemos la referencia a la lista (equivalente a vector<Chunk*>& vec)
+                        List<Chunk> vec = theStack[stackIdx].c.contents;
+                        // 2. Insertamos todos los elementos al final (equivalente a vec.insert(vec.end(), ...))
+                        vec.addAll(currentInput);
+                    }
+                    break;
                 case BLANK:
                     if (printingSteps) {
                         System.err.println("blank");
                     }
-                {
-                    int loc = 2 * (popInt() - 1) + 1;
-                    if (loc == -1) {
-                        ch = chunkPool.next();
-                        ch.target = " ";
-                        ch.isBlank = true;
-                        pushStack(ch);
-                    } else {
-                        pushStack(currentInput.get(loc));
+                    {
+                        int loc = 2 * (popInt() - 1) + 1;
+                        if (loc == -1) {
+                            ch = chunkPool.next();
+                            ch.target = " ";
+                            ch.isBlank = true;
+                            pushStack(ch);
+                        } else {
+                            pushStack(currentInput.get(loc));
+                        }
                     }
-                }
-                break;
+                    break;
                 case CONJOIN:
                     if (printingSteps) {
                         System.err.println("conjoin");
                     }
-                {
-                    Chunk join = chunkPool.next();
-                    join.isBlank = true;
-                    join.isJoiner = true;
-                    join.target = "+";
-                    pushStack(join);
-                }
-                break;
+                    {
+                        Chunk join = chunkPool.next();
+                        join.isBlank = true;
+                        join.isJoiner = true;
+                        join.target = "+";
+                        pushStack(join);
+                    }
+                    break;
                 case REJECTRULE:
                     if (printingSteps) { System.err.println("rejectrule");}
                     return false;
                 case DISTAG:
                     if (printingSteps) { System.err.println("distag");}
-                {
-                    if (theStack[stackIdx].mode != 2) {
-                        System.err.println("Cannot DISTAG non-string.");
-                        System.exit(EXIT_FAILURE);
+                    {
+                        if (theStack[stackIdx].mode != 2) {
+                            System.err.println("Cannot DISTAG non-string.");
+                            System.exit(EXIT_FAILURE);
+                        }
+                        String s = theStack[stackIdx].s;
+                        if (!s.isEmpty() && s.charAt(0) == '<' && s.charAt(s.length() - 1) == '>') {
+                            s = s.replace("><", ".");
+                        }
                     }
-                    String s = theStack[stackIdx].s;
-                    if (!s.isEmpty() && s.charAt(0) == '<' && s.charAt(s.length() - 1) == '>') {
-                        s = s.replace("><", ".");
-                    }
-                }
-                break;
+                    break;
                 case GETRULE:
                     if (printingSteps) { System.err.println("getrule"); }
-                {
-                    pos = 2 * (popInt() - 1);
-                    pushStack(currentInput.get(pos).rule);
-                }
-                break;
+                    {
+                        pos = 2 * (popInt() - 1);
+                        pushStack(currentInput.get(pos).rule);
+                    }
+                    break;
                 case SETRULE:
                     if (printingSteps) { System.err.println("setrule"); }
-                {
-                    pos = 2 * (popInt() - 1);
-                    int rl = popInt();
-                    if (pos == -2) {
-                        theStack[stackIdx].c.rule = rl;
-                    } else {
-                        currentInput.get(pos).rule = rl;
+                    {
+                        pos = 2 * (popInt() - 1);
+                        int rl = popInt();
+                        if (pos == -2) {
+                            theStack[stackIdx].c.rule = rl;
+                        } else {
+                            currentInput.get(pos).rule = rl;
+                        }
                     }
-                }
-                break;
+                    break;
                 case LUCOUNT:
                     if (printingSteps) { System.err.println("lucount");}
                     pushStack(String.valueOf((currentInput.size() + 1) / 2));
@@ -1595,7 +1595,7 @@ public class RTXProcessor {
             for(int i = 0; i < N; i++)
             {
                 if(parseGraph.get(i).isDone() ||
-                        (!parseGraph.get(i).chunk.isBlank && !lookahead(parseGraph.get(i))))
+                    (!parseGraph.get(i).chunk.isBlank && !lookahead(parseGraph.get(i))))
                 {
                     state[i] = 0;
                     count--;

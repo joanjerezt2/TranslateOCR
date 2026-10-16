@@ -1,6 +1,5 @@
 package org.apertium.recursive;
 
-import org.apertium.CommandLineInterface;
 import org.apertium.lttoolbox.Getopt;
 
 import java.io.*;
@@ -18,10 +17,11 @@ public class RTXProc {
 
     private static final int EXIT_FAILURE = 1;
     private static final int EXIT_SUCCESS = 0;
+    private static final String PACKAGE_VERSION = "v1.2.1";
 
     private static void showHelp() {
-        System.out.print("RTXProc " + CommandLineInterface.PACKAGE_VERSION + ": perform structural transfer\n"
-                + "USAGE: " + "RTXProc" + " [-abefFrstTzh] [-m MODE] bytecode_file [input_file [output_file]]\n"
+        System.out.print("RTXProc " + PACKAGE_VERSION + ": perform structural transfer\n"
+                + "USAGE: " + "rtx-proc" + " [-abefFrstTzh] [-m MODE] bytecode_file [input_file [output_file]]\n"
                 + "Options:\n"
                 + "  -a:   expect coreference LUs from apertium-anaphora\n"
                 + "  -b:   print text (use with -T)\n"
@@ -123,7 +123,7 @@ public class RTXProc {
             p.read(argv[optind]);
             try(
                     Reader input = openInFileReader(argv[optind + 1]);
-                    Writer output = openOutFileWriter(argv[optind + 2])
+                    Writer output = openOutFileWriter(argv[optind + 2]);
             ){
                 p.process(input, output);
             }

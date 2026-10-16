@@ -22,7 +22,7 @@ configure<ApplicationExtension> {
 
     defaultConfig {
         applicationId = "es.tobeit.jjerez.translateocr"
-        minSdk = 28 // iconv_ functions for bergamot translator
+        minSdk = 35 // minSdk = 28 iconv_ functions for bergamot translator
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
