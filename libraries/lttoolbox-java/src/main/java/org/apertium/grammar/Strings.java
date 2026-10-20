@@ -1,0 +1,104 @@
+package org.apertium.grammar;
+
+/**
+ * @author Joan Jerez Torres, ToBeIT
+ * @serial GPL 3.0
+ * Port to Java language
+ */
+
+public interface Strings {
+    String STR_TARGET = "TARGET" ;
+    String STR_AND = "AND" ;
+    String STR_IF = "IF" ;
+    String STR_OR = "OR" ;
+    String STR_TEXTNOT = "NOT" ;
+    String STR_TEXTNEGATE = "NEGATE" ;
+    String STR_ALL = "ALL" ;
+    String STR_NONE = "NONE" ;
+    String STR_LINK = "LINK" ;
+    String STR_TO = "TO" ;
+    String STR_FROM = "FROM" ;
+    String STR_AFTER = "AFTER" ;
+    String STR_BEFORE = "BEFORE" ;
+    String STR_WITH = "WITH" ;
+    String STR_ONCE = "ONCE" ;
+    String STR_ALWAYS = "ALWAYS" ;
+    String STR_EXCEPT = "EXCEPT" ;
+    String STR_STATIC = "STATIC" ;
+    String STR_ASTERIK = "*" ;
+    String STR_BARRIER = "BARRIER" ;
+    String STR_CBARRIER = "CBARRIER" ;
+    String STR_CMD_FLUSH = "<STREAMCMD:FLUSH>" ;
+    String STR_CMD_EXIT = "<STREAMCMD:EXIT>" ;
+    String STR_CMD_IGNORE = "<STREAMCMD:IGNORE>" ;
+    String STR_CMD_RESUME = "<STREAMCMD:RESUME>" ;
+    String STR_CMD_SETVAR = "<STREAMCMD:SETVAR:" ;
+    String STR_CMD_REMVAR = "<STREAMCMD:REMVAR:" ;
+    String STR_DELIMITSET = "_S_DELIMITERS_" ;
+    String STR_SOFTDELIMITSET = "_S_SOFT_DELIMITERS_" ;
+    String STR_TEXTDELIMITSET = "_S_TEXT_DELIMITERS_" ;
+    String STR_TEXTDELIM_DEFAULT = "/(^|\\n)</s/r" ;
+    String STR_BEGINTAG = ">>>" ;
+    String STR_ENDTAG = "<<<" ;
+    String STR_UU_LEFT = "_LEFT_" ;
+    String STR_UU_RIGHT = "_RIGHT_" ;
+    String STR_UU_PAREN = "_PAREN_" ;
+    String STR_UU_TARGET = "_TARGET_" ;
+    String STR_UU_MARK = "_MARK_" ;
+    String STR_UU_ATTACHTO = "_ATTACHTO_" ;
+    String STR_UU_ENCL = "_ENCL_" ;
+    String STR_UU_SAME_BASIC = "_SAME_BASIC_" ;
+    String STR_UU_C1 = "_C1_" ;
+    String STR_UU_C2 = "_C2_" ;
+    String STR_UU_C3 = "_C3_" ;
+    String STR_UU_C4 = "_C4_" ;
+    String STR_UU_C5 = "_C5_" ;
+    String STR_UU_C6 = "_C6_" ;
+    String STR_UU_C7 = "_C7_" ;
+    String STR_UU_C8 = "_C8_" ;
+    String STR_UU_C9 = "_C9_" ;
+    String STR_RXTEXT_ANY = "<.*>" ;
+    String STR_RXBASE_ANY = "\".*\"" ;
+    String STR_RXWORD_ANY = "\"<.*>\"" ;
+    String STR_VS1_raw = "$1" ;
+    String STR_VS2_raw = "$2" ;
+    String STR_VS3_raw = "$3" ;
+    String STR_VS4_raw = "$4" ;
+    String STR_VS5_raw = "$5" ;
+    String STR_VS6_raw = "$6" ;
+    String STR_VS7_raw = "$7" ;
+    String STR_VS8_raw = "$8" ;
+    String STR_VS9_raw = "$9" ;
+    String STR_VS1 = "\u00011";
+    String STR_VS2 = "\u00012";
+    String STR_VS3 = "\u00013";
+    public static final String STR_VS4 = "\u00014";
+    public static final String STR_VS5 = "\u00015";
+    public static final String STR_VS6 = "\u00016";
+    public static final String STR_VS7 = "\u00017";
+    public static final String STR_VS8 = "\u00018";
+    public static final String STR_VS9 = "\u00019";
+    String STR_VSu_raw = "%u" ;
+    String STR_VSU_raw = "%U" ;
+    String STR_VSl_raw = "%l" ;
+    String STR_VSL_raw = "%L" ;
+    String STR_VSu = "\u0001u" ;
+    String STR_VSU = "\u0001U" ;
+    String STR_VSl = "\u0001l" ;
+    String STR_VSL = "\u0001L" ;
+    String STR_GPREFIX = "_G_" ;
+    String STR_POSITIVE = "POSITIVE" ;
+    String STR_NEGATIVE = "NEGATIVE" ;
+    String STR_NO_ISETS = "no-inline-sets" ;
+    String STR_NO_ITMPLS = "no-inline-templates" ;
+    String STR_STRICT_WFORMS = "strict-wordforms" ;
+    String STR_STRICT_BFORMS = "strict-baseforms" ;
+    String STR_STRICT_SECOND = "strict-secondary" ;
+    String STR_STRICT_REGEX = "strict-regex" ;
+    String STR_STRICT_ICASE = "strict-icase" ;
+    String STR_SELF_NO_BARRIER = "self-no-barrier" ;
+    String STR_ORDERED = "ordered" ;
+    String STR_ADDCOHORT_ATTACH = "addcohort-attach" ;
+    String STR_SAFE_SETPARENT = "safe-setparent" ;
+    String STR_DUMMY = "__CG3_DUMMY_STRINGBIT__";
+}
