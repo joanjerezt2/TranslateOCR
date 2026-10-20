@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apertium.lttoolbox.Alphabet;
 import org.apertium.lttoolbox.Compression;
-import org.apertium.lttoolbox.collections.Transducer;
+import org.apertium.lttoolbox.collections.TransducerOld;
 
 /**
  * Created by Nic Cottrell, Jan 27, 2009 5:00:21 PM
@@ -42,7 +42,7 @@ class PatternList {
   private Map<Integer, ArrayList<ArrayList<Integer>>> patterns;
   private boolean sequence;
   private ArrayList<ArrayList<Integer>> sequence_data;
-  private Transducer transducer;
+  private TransducerOld transducerOld;
   private Map<Integer, Integer> final_type;
   private int sequence_id;
   /**
@@ -90,7 +90,7 @@ class PatternList {
     sequence_data = new ArrayList<>(p.sequence_data);
     patterns = new LinkedHashMap<>(p.patterns);
     alphabet = new Alphabet(p.alphabet);
-    transducer = new Transducer(p.transducer);
+    transducerOld = new TransducerOld(p.transducerOld);
   }
 
   /**
@@ -264,17 +264,17 @@ class PatternList {
     for (int itFirst = 0; itFirst < sequence_data.size(); itFirst++) {
       ArrayList<Integer> itSecond = sequence_data.get(itFirst);
 
-      int state = transducer.getInitial();
+      int state = transducerOld.getInitial();
       int prevstate = -1;
       for (int i = 0, limit2 = itSecond.size(); i != limit2; i++) {
         int val = itSecond.get(i);
         if (alphabet.cast(ANY_CHAR) == val || alphabet.cast(ANY_TAG) == val) {
-          state = transducer.insertSingleTransduction(val, state);
+          state = transducerOld.insertSingleTransduction(val, state);
           if (prevstate != -1) {
-            transducer.linkStates(prevstate, state, val);
+            transducerOld.linkStates(prevstate, state, val);
             prevstate = -1;
           }
-          transducer.linkStates(state, state, val);
+          transducerOld.linkStates(state, state, val);
         } else if (alphabet.cast(QUEUE) == val) {
           if (prevstate != -1) {
             // ignore second (and next) possible consecutive queues
@@ -283,27 +283,27 @@ class PatternList {
 
           // optional queue
           prevstate = state;
-          state = transducer.insertSingleTransduction((int) ('_'), state);
-          transducer.linkStates(prevstate, state, (int) (' '));
-          transducer.linkStates(prevstate, state, (int) ('#'));
-          transducer.linkStates(state, state, alphabet.cast(ANY_CHAR));
+          state = transducerOld.insertSingleTransduction((int) ('_'), state);
+          transducerOld.linkStates(prevstate, state, (int) (' '));
+          transducerOld.linkStates(prevstate, state, (int) ('#'));
+          transducerOld.linkStates(state, state, alphabet.cast(ANY_CHAR));
         } else {
-          state = transducer.insertSingleTransduction(val, state);
+          state = transducerOld.insertSingleTransduction(val, state);
           if (prevstate != -1) {
-            transducer.linkStates(prevstate, state, val);
+            transducerOld.linkStates(prevstate, state, val);
             prevstate = -1;
           }
         }
       }
       if (prevstate != -1) {
-        if (!transducer.isFinal(prevstate)) {
-          transducer.setFinal(prevstate);
+        if (!transducerOld.isFinal(prevstate)) {
+          transducerOld.setFinal(prevstate);
           final_type.put(prevstate, itFirst);
         }
         prevstate = -1;
       }
-      if (!transducer.isFinal(state)) {
-        transducer.setFinal(state);
+      if (!transducerOld.isFinal(state)) {
+        transducerOld.setFinal(state);
         final_type.put(state, itFirst);
       }
     }
@@ -315,7 +315,7 @@ class PatternList {
 
     Compression.multibyte_write(1, output);
     Compression.String_write(tagger_name, output);
-    transducer.write(output, alphabet.size());
+    transducerOld.write(output, alphabet.size());
 
     Compression.multibyte_write(final_type.size(), output);
 
@@ -333,7 +333,7 @@ class PatternList {
     alphabet = Alphabet.read(input);
     if (Compression.multibyte_read(input) == 1) {
       String myStr = Compression.String_read(input);  // string (value "tagger") must be read/skipped
-      transducer = Transducer.createRead(input, alphabet.size());
+      transducerOld = TransducerOld.createRead(input, alphabet.size());
 
       int finalSize = Compression.multibyte_read(input);
       for (; finalSize != 0; finalSize--) {
@@ -348,7 +348,7 @@ class PatternList {
    */
   @SuppressWarnings("deprecation")
   MatchExe newMatchExe() {
-    return new MatchExe(transducer, final_type);
+    return new MatchExe(transducerOld, final_type);
   }
 
   Alphabet getAlphabet() {

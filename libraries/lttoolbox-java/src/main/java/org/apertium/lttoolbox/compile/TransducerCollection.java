@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apertium.lttoolbox.Alphabet;
 import org.apertium.lttoolbox.Compression;
-import org.apertium.lttoolbox.collections.Transducer;
+import org.apertium.lttoolbox.collections.TransducerOld;
 
 /**
  *
@@ -24,7 +24,7 @@ import org.apertium.lttoolbox.collections.Transducer;
 public class TransducerCollection {
   public String letters;
   public Alphabet alphabet;
-  public Map<String, TransducerComp> sections;
+  public Map<String, TransducerOldComp> sections;
 
   public void read(String file) throws IOException {
     InputStream input = new BufferedInputStream (Files.newInputStream(Paths.get(file)));
@@ -37,8 +37,8 @@ public class TransducerCollection {
       String name = Compression.String_read(input);
       //System.err.println("read "+name+ "  @" + file);
 
-      TransducerComp t = new TransducerComp();
-      Transducer.read(t, input, 0);
+      TransducerOldComp t = new TransducerOldComp();
+      TransducerOld.read(t, input, 0);
       sections.put(name, t);
       len--;
     }
@@ -57,7 +57,7 @@ public class TransducerCollection {
     Compression.multibyte_write(sections.size(), output);
 
     for (String first : sections.keySet()) {
-      final TransducerComp second = sections.get(first);
+      final TransducerOldComp second = sections.get(first);
       System.out.println(first + " " + second.size() + " " + second.numberOfTransitions());
       Compression.String_write(first, output);
       second.write(output, 0);

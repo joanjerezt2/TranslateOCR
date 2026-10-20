@@ -8,6 +8,7 @@ import org.apertium.lttoolbox.Compression;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -17,8 +18,8 @@ import java.util.regex.PatternSyntaxException;
  * @author Jacob Nordfalk
  */
 public class ApertiumRE {
-  private static final int EXIT_FAILURE = 1;
   Pattern re;
+  private static final int EXIT_FAILURE = 1;
 
   // Consider using http://jakarta.apache.org/regexp/apidocs/org/apache/regexp/RE.html
   public ApertiumRE(String regex) {

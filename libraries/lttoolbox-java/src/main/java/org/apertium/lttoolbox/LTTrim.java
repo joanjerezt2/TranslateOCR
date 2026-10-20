@@ -8,8 +8,8 @@ import org.apertium.lttoolbox.compile.TransducerCollection;
 import java.io.IOException;
 
 import org.apertium.CommandLineInterface;
-import org.apertium.lttoolbox.compile.TransducerComp;
-import org.apertium.lttoolbox.compile.TransducerTrim;
+import org.apertium.lttoolbox.compile.TransducerOldComp;
+import org.apertium.lttoolbox.compile.TransducerOldTrim;
 import org.apertium.lttoolbox.process.BasicFSTProcessor;
 
 /**
@@ -27,7 +27,7 @@ public class LTTrim {
   public static void main(String[] args) throws IOException {
     if (args.length==3) doTrim(args[0], args[1], args[2]);
     else if (args.length==4 && args[0].equals("-v")) {
-      TransducerComp.DEBUG = true; // hack - might give problems in concurrent environments
+      TransducerOldComp.DEBUG = true; // hack - might give problems in concurrent environments
       doTrim(args[1], args[2], args[3]);
     }
     else showHelp();
@@ -44,8 +44,8 @@ public class LTTrim {
     BasicFSTProcessor bil2 = new BasicFSTProcessor();
     bil2.load(bidixf);
 
-    for (TransducerComp t : mon.sections.values()) {
-      new TransducerTrim(t).trim(mon.alphabet, bil2);
+    for (TransducerOldComp t : mon.sections.values()) {
+      new TransducerOldTrim(t).trim(mon.alphabet, bil2);
       t.minimize();
     }
 /*

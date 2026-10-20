@@ -3,6 +3,7 @@ package org.apertium.recursive;
 import org.apertium.lttoolbox.Getopt;
 
 import java.io.*;
+import java.util.Arrays;
 
 import static java.lang.System.exit;
 import static org.apertium.utils.IOUtils.openInFileReader;
@@ -111,7 +112,7 @@ public class RTXProc {
         p.printTrees(haveT);
         p.printText(haveB || !haveT);
 
-        int optind = getopt.getOptind() - 1;
+        int optind = getopt.getOptind();
         if (argv.length == 0) {
             showHelp();
         }
@@ -120,23 +121,25 @@ public class RTXProc {
             showHelp();
         }
         else{
-            p.read(argv[optind]);
-            try(
-                    Reader input = openInFileReader(argv[optind + 1]);
-                    Writer output = openOutFileWriter(argv[optind + 2]);
-            ){
-                p.process(input, output);
-            }
-            catch(Exception e) {
-                if (optind <= (argv.length - 2)) {
-                    System.err.println("Unable to open " + argv[optind + 1] + " for reading.");
-                    System.exit(EXIT_FAILURE);
-                }
-                if (optind <= (argv.length - 3)) {
-                    System.err.println("Unable to open " + argv[optind + 2] + " for writing.");
-                    System.exit(EXIT_FAILURE);
-                } else {
-                    throw new RuntimeException(e);
+            p.read(argv[optind].substring(1, argv[optind].length() - 1));
+            if (argv.length > optind + 1) {
+                try (
+                        Reader input = openInFileReader(argv[optind + 1]);
+                        Writer output = openOutFileWriter(argv[optind + 2]);
+                ) {
+                    p.process(input, output);
+                } catch (Exception e) {
+                    System.out.print(Arrays.toString(e.getStackTrace()));
+                    if (optind <= (argv.length - 2)) {
+                        System.err.println("Unable to open " + argv[optind + 1] + " for reading.");
+                        System.exit(EXIT_FAILURE);
+                    }
+                    if (optind <= (argv.length - 3)) {
+                        System.err.println("Unable to open " + argv[optind + 2] + " for writing.");
+                        System.exit(EXIT_FAILURE);
+                    } else {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }

@@ -4,6 +4,7 @@
  */
 package org.apertium;
 
+import org.apertium.lex.LRXProc;
 import org.apertium.pipeline.ApertiumMain;
 import java.io.File;
 import org.apertium.lttoolbox.*;
@@ -13,6 +14,8 @@ import org.apertium.formatter.TextFormatter;
 import org.apertium.interchunk.ApertiumInterchunk;
 import org.apertium.postchunk.ApertiumPostchunk;
 import org.apertium.pretransfer.PreTransfer;
+import org.apertium.recursive.RTXProc;
+import org.apertium.separable.LSXProc;
 import org.apertium.tagger.Tagger;
 import org.apertium.transfer.ApertiumTransfer;
 import org.apertium.transfer.generation.TransferBytecode;
@@ -49,11 +52,12 @@ public class CommandLineInterface {
         + " " + bareCommand + " lt-validate  dic.dix        validate a  dictionary\n"
         + " " + bareCommand + " lt-comp lr dic.dix dic.bin  compile a dictionary\n"
         + " " + bareCommand + " lt-proc dic.bin             morphological analysis/generation\n"
+        + " " + bareCommand + " rtx-proc dic.rtx.bin        perform structural transfer\n"
         + " " + bareCommand + " apertium-tagger             tagging/disambigation\n"
         + " " + bareCommand + " apertium-transfer           lexical transfer\n"
         + " " + bareCommand + " apertium-destxt             lexical transfer\n"
         + "For more help on a task, run it without parameters, like: " + bareCommand + " lt-proc\n"
-        + "Note: Not all tasks shown, the above are just examples of Apertium commandt.\n"
+        + "Note: Not all tasks shown, the above are just examples of Apertium command.\n"
         + "See also http://wiki.apertium.org/wiki/Lttoolbox-java");
   }
 
@@ -110,6 +114,12 @@ public class CommandLineInterface {
       LTTrim.main(restOfArgs);
     else if (task.startsWith("lt-validate"))
       LTValidate.main(restOfArgs);
+    else if (task.startsWith("lsx-proc"))
+      LSXProc.main(restOfArgs);
+    else if (task.startsWith("lrx-proc"))
+      LRXProc.main(restOfArgs);
+    else if (task.startsWith("rtx-proc"))
+      RTXProc.main(restOfArgs);
     else if (task.startsWith("apertium-preprocess-transfer-bytecode"))
       TransferBytecode.main(restOfArgs);
     else if (task.equals("gui"))

@@ -4,6 +4,7 @@ import org.apertium.lttoolbox.Alphabet;
 import org.apertium.lttoolbox.Compression;
 import org.apertium.lttoolbox.Pair;
 import org.apertium.lttoolbox.collections.Transducer;
+import org.apertium.lttoolbox.collections.TransducerOld;
 import org.apertium.transfer.ApertiumRE;
 
 import java.io.*;
@@ -35,7 +36,7 @@ public class RTXProcessor {
     /**
      * Alphabet instance for the pattern transducer
      */
-    Alphabet alphabet;
+    Alphabet alphabet = new Alphabet();
     /**
      * The pattern transducer
      */
@@ -69,23 +70,23 @@ public class RTXProcessor {
     /**
      * Bytecode for input-time rules
      */
-    List<String> rule_map;
+    List<String> rule_map = new ArrayList<>();
     /**
      * Bytecode for output-time rules
      */
-    List<String> output_rules;
+    List<String> output_rules = new ArrayList<>();
     /**
      * Debug names for input-time rules (maybe empty)
      */
-    List<String> inRuleNames;
+    List<String> inRuleNames = new ArrayList<>();
     /**
      * Debug names for output-time rules (maybe empty)
      */
-    List<String> outRuleNames;
+    List<String> outRuleNames = new ArrayList<>();
     /**
      * Length of pattern of each input-time rule, including blanks
      */
-    List<Integer> pat_size;
+    List<Integer> pat_size = new ArrayList<>();
     /**
      * Maximum value of pat_size
      */
@@ -120,14 +121,14 @@ public class RTXProcessor {
      * currentInput is global rather than a parameter mostly for symmetry
      * with currentOutput
      */
-    List<Chunk> currentInput;
+    List<Chunk> currentInput = new ArrayList<>();;
     /**
      * Output from the virtual machine
      * The return value of the virtual machine is whether the rule was
      * rejected, and passing data by semi-global array saves some amount of
      * allocating and copying
      */
-    List<Chunk> currentOutput;
+    List<Chunk> currentOutput = new ArrayList<>();;
 
     /**
      * Chunk containing currentInput for output-time rules
@@ -136,7 +137,7 @@ public class RTXProcessor {
     /**
      * Chunks waiting to be written to output stream
      */
-    Deque<Chunk> outputQueue;
+    Deque<Chunk> outputQueue = new ArrayDeque<>();
 
     /**
      * The parse stack
@@ -155,7 +156,7 @@ public class RTXProcessor {
     /**
      * The next few tokens in the input stream (usually 5)
      */
-    Deque<Chunk> inputBuffer;
+    Deque<Chunk> inputBuffer = new ArrayDeque<>();;
     /**
      * Pseudo-input buffer used by checkForReduce()
      * Rules that output a single node are processed immediately
@@ -164,7 +165,7 @@ public class RTXProcessor {
      * node is pushed onto currentContinuation, with the next node to be
      * processed being currentContinuation.back()->back()
      */
-    List<List<Chunk>> currentContinuation;
+    List<List<Chunk>> currentContinuation = new ArrayList<>();
 
     /* SETTINGS */
 
@@ -263,28 +264,34 @@ public class RTXProcessor {
     }
 
     public void read(String filename) {
-        try (FileInputStream in = new FileInputStream(filename)) {
+        try (InputStream input = new FileInputStream(filename);
+             InputStream in = new BufferedInputStream(input)
+        ) {
             longestPattern = 2 * Compression.multibyte_read(in) - 1;
             int count = Compression.multibyte_read(in);
             for (int i = 0; i < count; i++) {
                 pat_size.addLast(Compression.multibyte_read(in));
                 rule_map.addLast(Compression.String_read(in));
             }
+            count = Compression.multibyte_read(in);
+            for(int i=0; i < count; i++){
+                output_rules.addLast(Compression.String_read(in));
+            }
             varCount = Compression.multibyte_read(in);
             Alphabet.read(in);
             Transducer t = new Transducer();
             Transducer.read(t, in, alphabet.size());
-            Map<Integer, Pair<Integer, Double>> finals = new HashMap<>();
-            HashMap<Integer, Double> finalWeights;
+            Map<Integer, Pair<Integer, Double>> rules = new HashMap<>();
+            HashMap<Integer, Double> finalWeights = new HashMap<>();
             for (int i = 0, limit = Compression.multibyte_read(in); i != limit; i++) {
                 int key = Compression.multibyte_read(in);
                 int rl = Compression.multibyte_read(in);
                 double wgt = Compression.multibyte_read(in);
                 Pair<Integer, Double> ruleWeight;
                 ruleWeight = new Pair<>(rl, wgt);
-                finals.put(key, ruleWeight);
+                rules.put(key, ruleWeight);
             }
-            mx = new MatchExe2(t, alphabet, finals, pat_size);
+            mx = new MatchExe2(t, alphabet, rules, pat_size);
             // attr_items
             boolean recompile_attr = !Compression.String_read(in).equals(pcre_version());
             for (int i = 0, limit = Compression.multibyte_read(in); i != limit; i++) {
@@ -324,6 +331,8 @@ public class RTXProcessor {
             }
 
         } catch (Exception e) {
+            System.err.println(Arrays.toString(e.getStackTrace()));
+            System.err.println(e.getMessage());
             System.err.println("Unable to open file " + filename);
             System.exit(EXIT_FAILURE);
         }

@@ -8,9 +8,9 @@ import org.apertium.lttoolbox.compile.TransducerCollection;
 import java.io.IOException;
 import java.io.PrintStream;
 import org.apertium.CommandLineInterface;
-import org.apertium.lttoolbox.compile.TransducerComp;
-import org.apertium.lttoolbox.compile.TransducerPrint;
-import org.apertium.lttoolbox.compile.TransducerPrintExpandish;
+import org.apertium.lttoolbox.compile.TransducerOldComp;
+import org.apertium.lttoolbox.compile.TransducerOldPrint;
+import org.apertium.lttoolbox.compile.TransducerOldPrintExpandish;
 
 /**
  * @author Jacob Nordfalk
@@ -37,8 +37,8 @@ public class LTPrint {
 
     TransducerCollection tc = new TransducerCollection();
     tc.read(file);
-    for (TransducerComp t : tc.sections.values()) {
-      new TransducerPrintExpandish(t).showLtExpandish(tc.alphabet, out);
+    for (TransducerOldComp t : tc.sections.values()) {
+      new TransducerOldPrintExpandish(t).showLtExpandish(tc.alphabet, out);
     }
   }
 
@@ -49,8 +49,8 @@ public class LTPrint {
     TransducerCollection tc = new TransducerCollection();
     tc.read(file);
     boolean first = true;
-    for (TransducerComp t : tc.sections.values()) {
-      new TransducerPrint(t).show(tc.alphabet, out);
+    for (TransducerOldComp t : tc.sections.values()) {
+      new TransducerOldPrint(t).show(tc.alphabet, out);
       if (!first) {
         //System.out.println("-- "+name);
         System.out.println("--");

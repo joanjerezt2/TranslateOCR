@@ -16,8 +16,6 @@ package org.apertium.lttoolbox.compile;
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  */
-import org.apertium.lttoolbox.*;
-import java.io.OutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -90,12 +88,12 @@ public class Compile {
   /**
    * List of named transducers-paradigms
    */
-  private final Map<String, TransducerComp> paradigms = new HashMap<>();
+  private final Map<String, TransducerOldComp> paradigms = new HashMap<>();
   /**
    * List of named dictionary sections.
    * MUST be sorted when writing .bin file to retain compatibility with C++ code.
    */
-  public Map<String, TransducerComp> sections = new TreeMap<>();
+  public Map<String, TransducerOldComp> sections = new TreeMap<>();
   /**
    * List of named prefix copy of a paradigm
    */
@@ -159,7 +157,7 @@ public class Compile {
       }
       reader.close();
       // Minimize transducers
-      for (TransducerComp transducer : sections.values()) {
+      for (TransducerOldComp transducer : sections.values()) {
         transducer.minimize();
       }
 
@@ -245,9 +243,9 @@ public class Compile {
       System.err.println("insertEntryTokens( " + elements);
     if (!current_paradigm.isEmpty()) {
       // compilation of paradigms
-      TransducerComp t = paradigms.get(current_paradigm);
+      TransducerOldComp t = paradigms.get(current_paradigm);
       if (t == null) {
-        t = new TransducerComp();
+        t = new TransducerOldComp();
         paradigms.put(current_paradigm, t);
       }
 
@@ -258,7 +256,7 @@ public class Compile {
 
         if (entry.isParadigm()) {
           if (!paradigms.containsKey(entry.paradigmName)) {
-            paradigms.put(entry.paradigmName, new TransducerComp());
+            paradigms.put(entry.paradigmName, new TransducerOldComp());
           }
           e = t.insertTransducer(e, paradigms.get(entry.paradigmName));
         } else if (entry.isSingleTransduction()) {
@@ -277,9 +275,9 @@ public class Compile {
       t.setFinal(e);
     } else {
       // compilation of the dictionary
-      TransducerComp t;
+      TransducerOldComp t;
       if (!sections.containsKey(current_section)) {
-        t = new TransducerComp();
+        t = new TransducerOldComp();
         sections.put(current_section, t);
       } else {
         t = sections.get(current_section);
@@ -323,7 +321,7 @@ public class Compile {
           } else {
             // paradigm intermediate
             if (!paradigms.containsKey(paradigmName)) {
-              paradigms.put(paradigmName, new TransducerComp());
+              paradigms.put(paradigmName, new TransducerOldComp());
             }
             t.setEpsilon_Tag(0);
             e = t.insertTransducer(e, paradigms.get(paradigmName));
@@ -352,7 +350,7 @@ public class Compile {
    * @param t the transducer
    * @return the last state of the inserted transduction
    */
-  int matchTransduction(ArrayList<Integer> pi, ArrayList<Integer> pd, int state, TransducerComp t) {
+  int matchTransduction(ArrayList<Integer> pi, ArrayList<Integer> pd, int state, TransducerOldComp t) {
     int izqda, dcha, limizqda, limdcha;
     if (direction.equals(COMPILER_RESTRICTION_LR_VAL)) {
       izqda = 0;
@@ -558,7 +556,7 @@ public class Compile {
 
         // detection of the use of undefined paradigms
         String p = par.paradigmName;
-        TransducerComp t = paradigms.get(p);
+        TransducerOldComp t = paradigms.get(p);
         if (t == null) {
           throw new RuntimeException("Error: Undefined paradigm '" + p + "'.");
         }
@@ -700,7 +698,7 @@ public class Compile {
           current_paradigm = "";
         }
       } else {
-        paradigms.put(current_paradigm, new TransducerComp());
+        paradigms.put(current_paradigm, new TransducerOldComp());
       }
     }
   }

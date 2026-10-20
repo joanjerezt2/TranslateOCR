@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apertium.lttoolbox.Alphabet;
 import org.apertium.lttoolbox.Compression;
-import org.apertium.lttoolbox.collections.Transducer;
+import org.apertium.lttoolbox.collections.TransducerOld;
 
 /**
  *
@@ -55,7 +55,7 @@ public class TransducerCompTest {
     String letters = Compression.String_read(input);
     Alphabet alphabet = Alphabet.read(input);
 
-    Map<String, TransducerComp> sections = new HashMap<>();
+    Map<String, TransducerOldComp> sections = new HashMap<>();
 
     int len = Compression.multibyte_read(input);
 
@@ -64,8 +64,8 @@ public class TransducerCompTest {
 
       System.out.println("reading : " + name);
       //if (len ==2) {System.exit(-1);}
-      TransducerComp t = new TransducerComp();
-      Transducer.read(t, input, 0);
+      TransducerOldComp t = new TransducerOldComp();
+      TransducerOld.read(t, input, 0);
       sections.put(name, t);
 
       len--;

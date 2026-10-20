@@ -20,7 +20,7 @@ package org.apertium.tagger;
 
 import java.util.ArrayList;
 import java.util.Map;
-import org.apertium.lttoolbox.collections.Transducer;
+import org.apertium.lttoolbox.collections.TransducerOld;
 import org.apertium.lttoolbox.collections.IntSet;
 
 /**
@@ -55,7 +55,7 @@ class MatchExe {
 
   // Slow
   @Deprecated
-  public MatchExe(Transducer t, Map<Integer, Integer> final_type) {
+  public MatchExe(TransducerOld t, Map<Integer, Integer> final_type) {
     // System.err.println("final_type = " + new TreeMap<Integer, Integer>(final_type));
     // approx every 7th value is set. For en-ca (big pair)
     // final_type = {14=1, 41=2, 48=2, 55=2, 62=2, 69=2, 76=2, 83=2, 90=2, 97=2, 103=90, 106=90, 109=90,

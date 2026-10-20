@@ -18,6 +18,9 @@
  */
 package org.apertium.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Stephen Tigner
  *
@@ -26,4 +29,5 @@ public class MiscUtils {
   public static String getLineSeparator() {
     return System.lineSeparator();
   }
+
 }

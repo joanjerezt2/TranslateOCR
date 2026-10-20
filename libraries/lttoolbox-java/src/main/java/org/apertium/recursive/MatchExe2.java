@@ -58,7 +58,7 @@ public class MatchExe2 {
         }
     }
 
-    public MatchExe2(Transducer t, Alphabet alphabet, Map<Integer, Pair<Integer, Double>> finals, List<Integer> patSize) {
+    public MatchExe2(Transducer t, Alphabet alphabet, Map<Integer, Pair<Integer, Double>> rules, List<Integer> patSize) {
         ArrayList<Map<Integer, IntSet>> trns = t.transitions;
         for(int outerKey = 0; outerKey < trns.size(); outerKey++) {
             Map<Integer, IntSet> innerMap = trns.get(outerKey);
@@ -73,7 +73,7 @@ public class MatchExe2 {
             }
             MatchNode2 matchnode = new MatchNode2();
             matchnode.setSize(totalTransitions);
-            nodes.set(outerKey, matchnode);
+            nodes.add(outerKey, matchnode);
 
             int i = 0;
             for (Map.Entry<Integer, IntSet> entry : innerMap.entrySet()) {
@@ -94,32 +94,34 @@ public class MatchExe2 {
                 }
             }
 
-            rule_count = finals.size();
+            rule_count = rules.size();
             rule_states = new int[rule_count];
             rule_numbers = new int[rule_count];
             rule_weights = new double[rule_count];
             rule_lengths = new int[rule_count];
+
             i=0;
-            for(int j=0; j < finals.size(); j++){
-                if(nodes.get(j).rule_begin == -1){
-                    nodes.get(j).rule_begin = i;
+            for(Map.Entry<Integer, Pair<Integer, Double>> entry : rules.entrySet()){
+                int first = entry.getKey();
+                Pair<Integer, Double> second = entry.getValue();
+                if(nodes.get(first).rule_begin == -1){
+                        nodes.get(first).rule_begin = i;
                 }
-                nodes.get(j).rule_end = i;
-                rule_states[i] = j;
-                rule_numbers[i] = finals.get(j).first;
-                rule_weights[i] = finals.get(j).second;
-                rule_lengths[i] = patSize.get(finals.get(j).first);
-                i++;
+                nodes.get(first).rule_end = i;
+                    rule_states[i] = first;
+                    rule_numbers[i] = second.first;
+                    rule_weights[i] = second.second;
+                    rule_lengths[i] = patSize.get(second.first-1); // TODO Index 60 out of bounds for length 52
+                    i++;
+                }
             }
 
             initial = t.getInitial();
             any_char = alphabet.cast("<ANY_CHAR>");
             any_tag = alphabet.cast("<ANY_TAG>");
             lookahead = alphabet.cast("<LOOK:AHEAD>");
-
             prematchIdx = 0;
 
-        }
     }
 
     int getInitial()

@@ -44,7 +44,7 @@ public class RegexpCompiler {
   /**
    * Transducer to store analysis
    */
-  TransducerComp transducer;
+  TransducerOldComp transducer;
   /**
    * Current state
    */
@@ -66,7 +66,7 @@ public class RegexpCompiler {
    * The constructor
    */
   RegexpCompiler() {
-    transducer = new TransducerComp();
+    transducer = new TransducerOldComp();
     brackets = new TreeSet<>();
   }
 
@@ -190,7 +190,7 @@ public class RegexpCompiler {
    */
   void Term() {
     if (!isReserved(token) || token == '\\') {
-      TransducerComp t = new TransducerComp();
+      TransducerOldComp t = new TransducerOldComp();
       t.setEpsilon_Tag(alphabet_cast00);
       Integer e = t.getInitial();
       Letra();
@@ -211,10 +211,10 @@ public class RegexpCompiler {
       postop = "";
       state = transducer.insertTransducer(state, t);
     } else if (token == '(') {
-      TransducerComp t = transducer;
+      TransducerOldComp t = transducer;
       t.setEpsilon_Tag(alphabet_cast00);
       Integer e = state;
-      transducer = new TransducerComp();
+      transducer = new TransducerOldComp();
       state = transducer.getInitial();
       consume('(');
       S();
@@ -297,7 +297,7 @@ public class RegexpCompiler {
    * RDP function
    */
   void Esp() {
-    TransducerComp t = new TransducerComp();
+    TransducerOldComp t = new TransducerOldComp();
     t.setEpsilon_Tag(alphabet_cast00);
     if (!isReserved(token) || token == '\\' || token == ']') {
       Lista();
@@ -421,7 +421,7 @@ public class RegexpCompiler {
    *
    * @return the transducer
    */
-  public TransducerComp getTransducer() {
+  public TransducerOldComp getTransducer() {
     return transducer;
   }
 

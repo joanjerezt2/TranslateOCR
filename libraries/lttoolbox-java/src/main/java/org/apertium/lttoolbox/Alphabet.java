@@ -31,7 +31,8 @@ import java.util.HashMap;
  * @author Raah
  */
 public class Alphabet {
-  /**
+
+    /**
    * Class to represent a pair of integers
    *
    * @author Raah
@@ -281,9 +282,9 @@ public class Alphabet {
     // First, we write the taglist
     Compression.multibyte_write(slexicinv.size(), output);
 
-    for (int i = 0, limit = slexicinv.size(); i < limit; i++) {
-      Compression.String_write(slexicinv.get(i).substring(1, 1 + slexicinv.get(i).length() - 2), output);
-    }
+      for (String s : slexicinv) {
+          Compression.String_write(s.substring(1, 1 + s.length() - 2), output);
+      }
 
     // Then we write the list of pairs
     // All numbers are biased + slexicinv.size() to be positive or zero
