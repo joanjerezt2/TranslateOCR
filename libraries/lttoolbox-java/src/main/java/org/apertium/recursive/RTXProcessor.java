@@ -278,7 +278,9 @@ public class RTXProcessor {
                 output_rules.addLast(Compression.String_read(in));
             }
             varCount = Compression.multibyte_read(in);
+
             Alphabet.read(in);
+
             Transducer t = new Transducer();
             Transducer.read(t, in, alphabet.size());
             Map<Integer, Pair<Integer, Double>> rules = new HashMap<>();
@@ -286,23 +288,30 @@ public class RTXProcessor {
             for (int i = 0, limit = Compression.multibyte_read(in); i != limit; i++) {
                 int key = Compression.multibyte_read(in);
                 int rl = Compression.multibyte_read(in);
-                double wgt = Compression.multibyte_read(in);
+                double wgt = Compression.long_multibyte_read(in);
                 Pair<Integer, Double> ruleWeight;
                 ruleWeight = new Pair<>(rl, wgt);
                 rules.put(key, ruleWeight);
             }
             mx = new MatchExe2(t, alphabet, rules, pat_size);
             // attr_items
-            boolean recompile_attr = !Compression.String_read(in).equals(pcre_version());
+            String attr = Compression.String_read(in);
+            System.out.println("\n[RTXProcessor] Recompile chname: " + !attr.isEmpty());
+            boolean recompile_attrs = !attr.isEmpty();
             for (int i = 0, limit = Compression.multibyte_read(in); i != limit; i++) {
                 String cad_k = Compression.String_read(in);
-                ApertiumRE item = attr_items.get(cad_k);
+                ApertiumRE item = new ApertiumRE("");
                 item.read(in);
                 String fallback = Compression.String_read(in);
-                if (recompile_attr) {
-                    attr_items.get(cad_k).compile(fallback);
+                if (recompile_attrs && cad_k.equals("chname")) {
+                    // chname was previously "({([^/]+)\\/)"
+                    // which was fine for PCRE, but ICU chokes on the unmatched bracket
+                    fallback = "(\\{([^/]+)\\/)";
                 }
+                item.compile(fallback);
+                attr_items.put(cad_k, item);
             }
+
             // variables
             for (int i = 0, limit = Compression.multibyte_read(in); i != limit; i++) {
                 String cad_k = Compression.String_read(in);
@@ -321,6 +330,9 @@ public class RTXProcessor {
                     listslow.put(cad_k, set_s2);
                 }
             }
+
+
+
             int nameCount = Compression.multibyte_read(in);
             for (int i = 0; i < nameCount; i++) {
                 inRuleNames.addLast(Compression.String_read(in));
@@ -331,15 +343,11 @@ public class RTXProcessor {
             }
 
         } catch (Exception e) {
-            System.err.println(Arrays.toString(e.getStackTrace()));
-            System.err.println(e.getMessage());
+            // System.err.println(Arrays.toString(e.getStackTrace()));
+            // System.err.println(e.getMessage());
             System.err.println("Unable to open file " + filename);
             System.exit(EXIT_FAILURE);
         }
-    }
-
-    private String pcre_version() {
-        return "8.45 2021-06-15";
     }
 
     private boolean beginsWith(String s1, String s2) {
@@ -2219,3 +2227,4 @@ public class RTXProcessor {
      */
 
 }
+

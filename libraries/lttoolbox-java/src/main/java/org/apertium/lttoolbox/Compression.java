@@ -294,4 +294,62 @@ public class Compression {
     DataOutputStream data = new DataOutputStream(out);
     data.writeDouble(d);
   }
+
+  /**
+   * Author: Joan Jerez, ToBeIT
+   * @param input Lectura del archivo
+   * @return El número decimal leído
+   * @throws IOException Si no es posible leer el archivo
+   */
+  public static double long_multibyte_read(InputStream input) throws IOException {
+    double result;
+
+    long mantissa;
+    long exponent;
+
+    // Convertimos el resultado de multibyteRead a un long sin signo mediante la máscara 0xFFFFFFFFL
+    long upMantissa = multibyte_read(input) & 0xFFFFFFFFL;
+    if (upMantissa < 0x04000000L) {
+      mantissa = upMantissa;
+    } else {
+      upMantissa = upMantissa & 0x03ffffffL;
+      long aux = upMantissa << 26;
+      long lowMantissa = multibyte_read(input) & 0xFFFFFFFFL;
+      mantissa = lowMantissa | aux;
+      mantissa = mantissa & 0xFFFFFFFFL; // Asegurar que se mantiene en el rango de 32 bits
+    }
+
+    long upExponent = multibyte_read(input) & 0xFFFFFFFFL;
+    if (upExponent < 0x04000000L) {
+      exponent = upExponent;
+    } else {
+      upExponent = upExponent & 0x03ffffffL;
+      long aux = upExponent << 26;
+      long lowExponent = multibyte_read(input) & 0xFFFFFFFFL;
+      exponent = lowExponent | aux;
+      exponent = exponent & 0xFFFFFFFFL; // Asegurar que se mantiene en el rango de 32 bits
+    }
+
+    // C++: static_cast<int>(mantissa)
+    // Forzamos el casteo a int en Java para recuperar el signo original si el bit 31 estaba activo.
+    int signedMantissa = (int) mantissa;
+    double value = (double) signedMantissa / 0x40000000;
+
+    // Equivalentes a std::numeric_limits<unsigned int>::max() -> 0xFFFFFFFFL
+    long uintMax = 0xFFFFFFFFL;
+
+    if (mantissa == uintMax && exponent >= (uintMax - 1)) {
+      if (exponent == (uintMax - 1)) {
+        result = Double.NEGATIVE_INFINITY;
+      } else {
+        result = Double.POSITIVE_INFINITY;
+      }
+    } else {
+      // Math.scalb(d, scaleFactor) es el equivalente exacto a ldexp(value, exponent)
+      // Se castea el exponente a int tal como hace el código de C++
+      result = Math.scalb(value, (int) exponent);
+    }
+
+    return result;
+  }
 }

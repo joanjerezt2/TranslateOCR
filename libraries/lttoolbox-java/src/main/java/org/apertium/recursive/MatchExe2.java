@@ -62,12 +62,12 @@ public class MatchExe2 {
         ArrayList<Map<Integer, IntSet>> trns = t.transitions;
         for(int outerKey = 0; outerKey < trns.size(); outerKey++) {
             Map<Integer, IntSet> innerMap = trns.get(outerKey);
-            if(innerMap == null) {
+            if (innerMap == null) {
                 continue;
             }
             int totalTransitions = 0;
-            for(IntSet set: innerMap.values()){
-                if(set != null){
+            for (IntSet set : innerMap.values()) {
+                if (set != null) {
                     totalTransitions += set.size();
                 }
             }
@@ -93,34 +93,34 @@ public class MatchExe2 {
                     nodes.get(outerKey).addTransition(innerKey, target, i++);
                 }
             }
+        }
 
-            rule_count = rules.size();
-            rule_states = new int[rule_count];
-            rule_numbers = new int[rule_count];
-            rule_weights = new double[rule_count];
-            rule_lengths = new int[rule_count];
+        rule_count = rules.size();
+        rule_states = new int[rule_count];
+        rule_numbers = new int[rule_count];
+        rule_weights = new double[rule_count];
+        rule_lengths = new int[rule_count];
 
-            i=0;
-            for(Map.Entry<Integer, Pair<Integer, Double>> entry : rules.entrySet()){
-                int first = entry.getKey();
-                Pair<Integer, Double> second = entry.getValue();
-                if(nodes.get(first).rule_begin == -1){
-                        nodes.get(first).rule_begin = i;
-                }
-                nodes.get(first).rule_end = i;
-                    rule_states[i] = first;
-                    rule_numbers[i] = second.first;
-                    rule_weights[i] = second.second;
-                    rule_lengths[i] = patSize.get(second.first-1); // TODO Index 60 out of bounds for length 52
-                    i++;
-                }
+        int i=0;
+        for(Map.Entry<Integer, Pair<Integer, Double>> entry : rules.entrySet()){
+            int first = entry.getKey();
+            Pair<Integer, Double> second = entry.getValue();
+            if(nodes.get(first).rule_begin == -1){
+                nodes.get(first).rule_begin = i;
             }
+            nodes.get(first).rule_end = i;
+            rule_states[i] = first;
+            rule_numbers[i] = second.first;
+            rule_weights[i] = second.second;
+            rule_lengths[i] = patSize.get(second.first-1);
+            i++;
+        }
 
-            initial = t.getInitial();
-            any_char = alphabet.cast("<ANY_CHAR>");
-            any_tag = alphabet.cast("<ANY_TAG>");
-            lookahead = alphabet.cast("<LOOK:AHEAD>");
-            prematchIdx = 0;
+        initial = t.getInitial();
+        any_char = alphabet.cast("<ANY_CHAR>");
+        any_tag = alphabet.cast("<ANY_TAG>");
+        lookahead = alphabet.cast("<LOOK:AHEAD>");
+        prematchIdx = 0;
 
     }
 
@@ -180,23 +180,23 @@ public class MatchExe2 {
                 case '<':
                     for(int j = i+1; j < ch.length(); j++)
                     {
-                    if(ch.charAt(j) == '>')
-                    {
-                        int symbol = alpha.cast(ch.substring(i, j - i + 1));
-                        // https://stackoverflow.com/questions/4276207/is-bool-guaranteed-to-be-0-or-1-when-converted-to-int
-                        if(symbol != 0)
+                        if(ch.charAt(j) == '>')
                         {
-                            step(state, range, symbol, any_tag);
+                            int symbol = alpha.cast(ch.substring(i, j - i + 1));
+                            // https://stackoverflow.com/questions/4276207/is-bool-guaranteed-to-be-0-or-1-when-converted-to-int
+                            if(symbol != 0)
+                            {
+                                step(state, range, symbol, any_tag);
+                            }
+                            else
+                            {
+                                step(state, range, any_tag);
+                            }
+                            i = j;
+                            break;
                         }
-                        else
-                        {
-                            step(state, range, any_tag);
-                        }
-                        i = j;
-                        break;
                     }
-                }
-                break;
+                    break;
                 default:
                     step(state, range, Character.toLowerCase(ch.charAt(i)), any_char);
                     break;
@@ -217,16 +217,16 @@ public class MatchExe2 {
                     break;
                 case '<':
                     for(int j = i+1; j < chunk.length(); j++)
+                    {
+                        if(chunk.charAt(j) == '>')
                         {
-                            if(chunk.charAt(j) == '>')
-                            {
-                                int symbol = alpha.cast(chunk.substring(i, j-i+1));
-                                prematchAlt[prematchIdx] = any_tag;
-                                prematch[prematchIdx++] = (symbol!=0 ? symbol : any_tag);
-                                i = j;
-                                break;
-                            }
+                            int symbol = alpha.cast(chunk.substring(i, j-i+1));
+                            prematchAlt[prematchIdx] = any_tag;
+                            prematch[prematchIdx++] = (symbol!=0 ? symbol : any_tag);
+                            i = j;
+                            break;
                         }
+                    }
                     break;
                 default:
                     prematchAlt[prematchIdx] = any_char;
@@ -275,53 +275,53 @@ public class MatchExe2 {
     }
 
     Pair<Integer, Double> getRule(int[] state, int first, int last){
-            int rule = -1;
-            double weight = 0.0;
-            int len = 0;
-            for(int i = first; i != last; i = (i+1)%RTXStateSize)
+        int rule = -1;
+        double weight = 0.0;
+        int len = 0;
+        for(int i = first; i != last; i = (i+1)%RTXStateSize)
+        {
+            MatchNode2 node = nodes.get(state[i]);
+            if(node.rule_begin == -1) continue;
+            for(int rl = node.rule_begin; rl <= node.rule_end; rl++)
             {
-                MatchNode2 node = nodes.get(state[i]);
-                if(node.rule_begin == -1) continue;
-                for(int rl = node.rule_begin; rl <= node.rule_end; rl++)
+                boolean rej = false;
+                for(int rj = 0; rj < rejectedCount; rj++)
                 {
-                    boolean rej = false;
-                    for(int rj = 0; rj < rejectedCount; rj++)
+                    if(rejected[rj] == rule_numbers[rl])
                     {
-                        if(rejected[rj] == rule_numbers[rl])
-                        {
-                            rej = true;
-                            break;
-                        }
+                        rej = true;
+                        break;
                     }
-                    if(rej) continue;
-                    if(rule_lengths[rl] > len)
-                    {
-                        rule = rule_numbers[rl];
-                        weight = rule_weights[rl];
-                        len = rule_lengths[rl];
-                        continue;
-                    }
-                    if(rule != -1 && rule_lengths[rl] < len) continue;
-                    if(rule != -1 && rule_weights[rl] < weight) continue;
-                    if(rule != -1 && rule_numbers[rl] > rule) continue;
-
+                }
+                if(rej) continue;
+                if(rule_lengths[rl] > len)
+                {
                     rule = rule_numbers[rl];
                     weight = rule_weights[rl];
+                    len = rule_lengths[rl];
+                    continue;
                 }
+                if(rule != -1 && rule_lengths[rl] < len) continue;
+                if(rule != -1 && rule_weights[rl] < weight) continue;
+                if(rule != -1 && rule_numbers[rl] > rule) continue;
+
+                rule = rule_numbers[rl];
+                weight = rule_weights[rl];
             }
-            return new Pair<>(rule, weight);
+        }
+        return new Pair<>(rule, weight);
     }
 
     int getRuleUnweighted(int[] state, int first, int last)
+    {
+        for(int i = first; i != last; i = (i+1)%RTXStateSize)
         {
-            for(int i = first; i != last; i = (i+1)%RTXStateSize)
+            if(nodes.get(state[i]).rule_begin != -1)
             {
-                if(nodes.get(state[i]).rule_begin != -1)
-                {
-                    return rule_numbers[nodes.get(state[i]).rule_begin];
-                }
+                return rule_numbers[nodes.get(state[i]).rule_begin];
             }
-            return -1;
+        }
+        return -1;
     }
 
     public void resetRejected() {

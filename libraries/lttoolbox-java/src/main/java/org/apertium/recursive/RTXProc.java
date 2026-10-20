@@ -78,7 +78,7 @@ public class RTXProc {
                         String optarg = "";
                         if(!p.setOutputMode(optarg))
                         {
-                            System.out.println("\"" + optarg + "\" is not a recognized tree mode. Valid options are \"flat\", \"nest\", \"latex\", \"dot\", and \"box\".");
+                            System.out.print("\"" + optarg + "\" is not a recognized tree mode. Valid options are \"flat\", \"nest\", \"latex\", \"dot\", and \"box\".");
                             exit(EXIT_FAILURE);
                         }
                         break;
@@ -121,15 +121,20 @@ public class RTXProc {
             showHelp();
         }
         else{
-            p.read(argv[optind].substring(1, argv[optind].length() - 1));
+            String path = argv[optind].startsWith("'") ? argv[optind].substring(1, argv[optind].length() - 1) : argv[optind];
+            p.read(path);
+
+            // ... DEBUGGED ...
+
             if (argv.length > optind + 1) {
                 try (
                         Reader input = openInFileReader(argv[optind + 1]);
-                        Writer output = openOutFileWriter(argv[optind + 2]);
+                        Writer output = openOutFileWriter(argv[optind + 2])
                 ) {
                     p.process(input, output);
                 } catch (Exception e) {
                     System.out.print(Arrays.toString(e.getStackTrace()));
+                    System.out.print(e.getMessage());
                     if (optind <= (argv.length - 2)) {
                         System.err.println("Unable to open " + argv[optind + 1] + " for reading.");
                         System.exit(EXIT_FAILURE);
@@ -146,3 +151,4 @@ public class RTXProc {
         System.exit(EXIT_SUCCESS);
     }
 }
+
