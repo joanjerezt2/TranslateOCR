@@ -113,7 +113,7 @@ public class RTXProc {
         p.printText(haveB || !haveT);
 
         int optind = getopt.getOptind();
-        if (argv.length == 0) {
+        if (argc == 0) {
             showHelp();
         }
         else if(optind > (argc - 1) || optind < (argc - 3))
@@ -124,24 +124,24 @@ public class RTXProc {
             String path = argv[optind].startsWith("'") ? argv[optind].substring(1, argv[optind].length() - 1) : argv[optind];
             p.read(path);
 
-            // ... DEBUGGED ...
-
             if (argv.length > optind + 1) {
                 try (
                         Reader input = openInFileReader(argv[optind + 1]);
                         Writer output = openOutFileWriter(argv[optind + 2])
                 ) {
+                    // ... DEBUGGED ...
                     p.process(input, output);
                 } catch (Exception e) {
-                    System.out.print(Arrays.toString(e.getStackTrace()));
-                    System.out.print(e.getMessage());
+                    System.out.println(Arrays.toString(e.getStackTrace()));
+                    System.out.println(e.getMessage());
+                    if (optind <= (argv.length - 3)) {
+                        System.err.println("Unable to open " + argv[optind + 2] + " for writing.");
+                        System.exit(EXIT_FAILURE);
                     if (optind <= (argv.length - 2)) {
                         System.err.println("Unable to open " + argv[optind + 1] + " for reading.");
                         System.exit(EXIT_FAILURE);
                     }
-                    if (optind <= (argv.length - 3)) {
-                        System.err.println("Unable to open " + argv[optind + 2] + " for writing.");
-                        System.exit(EXIT_FAILURE);
+
                     } else {
                         throw new RuntimeException(e);
                     }
@@ -151,4 +151,3 @@ public class RTXProc {
         System.exit(EXIT_SUCCESS);
     }
 }
-

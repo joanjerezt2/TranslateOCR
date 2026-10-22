@@ -4,7 +4,6 @@ import org.apertium.lttoolbox.Alphabet;
 import org.apertium.lttoolbox.Compression;
 import org.apertium.lttoolbox.Pair;
 import org.apertium.lttoolbox.collections.Transducer;
-import org.apertium.lttoolbox.collections.TransducerOld;
 import org.apertium.transfer.ApertiumRE;
 
 import java.io.*;
@@ -36,7 +35,7 @@ public class RTXProcessor {
     /**
      * Alphabet instance for the pattern transducer
      */
-    Alphabet alphabet = new Alphabet();
+    Alphabet alphabet;
     /**
      * The pattern transducer
      */
@@ -103,41 +102,57 @@ public class RTXProcessor {
      * so 32 is probably more than anyone will ever need
      */
     StackElement[] theStack = new StackElement[32];
+
     /**
      * Index of the top element on theStack
      */
     int stackIdx;
+
     /**
      * A parallel stack to store wordbound blanks that mimics the operations
      * of the main stack. wblanks are added everytime lemmas are clipped
      */
     String[] theWblankStack = new String[32];
+
     /**
      * wordbound blank to be output
      */
     String out_wblank;
+
     /**
      * Input to the virtual machine
      * currentInput is global rather than a parameter mostly for symmetry
      * with currentOutput
      */
-    List<Chunk> currentInput = new ArrayList<>();;
+    List<Chunk> currentInput = new ArrayList<>();
+
     /**
      * Output from the virtual machine
      * The return value of the virtual machine is whether the rule was
      * rejected, and passing data by semi-global array saves some amount of
      * allocating and copying
      */
-    List<Chunk> currentOutput = new ArrayList<>();;
+    List<Chunk> currentOutput = new ArrayList<>();
 
     /**
      * Chunk containing currentInput for output-time rules
      */
     Chunk parentChunk;
+
     /**
      * Chunks waiting to be written to output stream
      */
     Deque<Chunk> outputQueue = new ArrayDeque<>();
+
+    /**
+     * Blanks waiting to be written to output stream
+     * Note that this is updated by processGLR(), NOT readToken()
+     * The reason for this is that if a blank is outside a parse tree
+     * (such as at the very beginning or very end of the stream)
+     * then we want to output it directly, particularly if it's empty
+     * and because of lookahead, only processGLR() knows which blanks are which
+     */
+    List<String> blankQueue;
 
     /**
      * The parse stack
@@ -145,18 +160,22 @@ public class RTXProcessor {
      * of the input read in since the last flush
      */
     List<ParseNode> parseGraph = new ArrayList<>();
+
     /**
      * Pool allocator for Chunks, freed on output flush
      */
-    Pool<Chunk> chunkPool;
+    Pool<Chunk> chunkPool = new Pool<>(Chunk::new);
+
     /**
      * Pool allocator for ParseNodes, freed on output flush
      */
-    Pool<ParseNode> parsePool;
+    Pool<ParseNode> parsePool = new Pool<>(ParseNode::new);
+
     /**
      * The next few tokens in the input stream (usually 5)
      */
-    Deque<Chunk> inputBuffer = new ArrayDeque<>();;
+    Deque<Chunk> inputBuffer = new ArrayDeque<>();
+
     /**
      * Pseudo-input buffer used by checkForReduce()
      * Rules that output a single node are processed immediately
@@ -279,7 +298,7 @@ public class RTXProcessor {
             }
             varCount = Compression.multibyte_read(in);
 
-            Alphabet.read(in);
+            alphabet = Alphabet.read(in);
 
             Transducer t = new Transducer();
             Transducer.read(t, in, alphabet.size());
@@ -296,7 +315,7 @@ public class RTXProcessor {
             mx = new MatchExe2(t, alphabet, rules, pat_size);
             // attr_items
             String attr = Compression.String_read(in);
-            System.out.println("\n[RTXProcessor] Recompile chname: " + !attr.isEmpty());
+            System.out.print("\n[RTXProcessor] Recompile chname: " + !attr.isEmpty());
             boolean recompile_attrs = !attr.isEmpty();
             for (int i = 0, limit = Compression.multibyte_read(in); i != limit; i++) {
                 String cad_k = Compression.String_read(in);
@@ -331,8 +350,6 @@ public class RTXProcessor {
                 }
             }
 
-
-
             int nameCount = Compression.multibyte_read(in);
             for (int i = 0; i < nameCount; i++) {
                 inRuleNames.addLast(Compression.String_read(in));
@@ -343,8 +360,6 @@ public class RTXProcessor {
             }
 
         } catch (Exception e) {
-            // System.err.println(Arrays.toString(e.getStackTrace()));
-            // System.err.println(e.getMessage());
             System.err.println("Unable to open file " + filename);
             System.exit(EXIT_FAILURE);
         }
@@ -760,7 +775,7 @@ public class RTXProcessor {
                                     if (targ[c] == '{') chunk = true;
                                     Chunk temp = chunkPool.next();
                                     temp.isBlank = false;
-                                    temp.target = ch.target.substring(last, c - last);
+                                    temp.target = ch.target.substring(last, c);
                                     temp.wblank = out_wblank;
                                     out_wblank = EMPTY;
                                     if (chunk) {
@@ -774,7 +789,7 @@ public class RTXProcessor {
                                     if (c > last) {
                                         Chunk temp = chunkPool.next();
                                         temp.isBlank = true;
-                                        temp.target = ch.target.substring(last, c - last);
+                                        temp.target = ch.target.substring(last, c);
                                         if (chunk) {
                                             currentOutput.getLast().contents.addLast(temp);
                                         } else {
@@ -944,7 +959,7 @@ public class RTXProcessor {
                             }
                             ch = chunkPool.next();
                             ch.isBlank = false;
-                            ch.target = kid.target.substring(1, j - 1);
+                            ch.target = kid.target.substring(1, j);
                             ch.wblank = out_wblank;
                             out_wblank = EMPTY;
                             theStack[stackIdx].c.contents.addLast(ch);
@@ -1591,6 +1606,33 @@ public class RTXProcessor {
             }
         }
         if(tojoin != null) tojoin.output(out);
+        while(!blankQueue.isEmpty())
+        {
+            if(Objects.equals(blankQueue.getFirst(), " "))
+            {
+                blankQueue.removeFirst();
+            }
+            else {
+                writeBlank(out);
+            }
+        }
+    }
+
+    private void writeBlank(Writer out) throws IOException {
+        if(blankQueue.isEmpty())
+        {
+            blankQueue.addLast(" ");
+        }
+        Chunk blank = chunkPool.next();
+        blank.target = blankQueue.getFirst();
+        blankQueue.removeFirst();
+        blank.isBlank = true;
+        if (printingText) {
+            blank.output(out);
+        }
+        if (printingTrees) {
+            blank.writeTree(treePrintMode, out);
+        }
     }
 
     private boolean filterParseGraph() throws IOException {
@@ -1794,7 +1836,18 @@ public class RTXProcessor {
 
         while (true) {
             Chunk next = inputBuffer.getFirst(); // C++ front()
-            if(next.isBlank){ printingAll = false; }
+            if(next.isBlank){
+                printingAll = false;
+                if(!parseGraph.isEmpty() && !next.target.isEmpty())
+                {
+                    // if parseGraph is empty, we're about to write it immediately anyway,
+                    // so don't bother with the queue
+                    // if target is empty, we don't want to put it in the wrong place
+                    // if a rule asks for a space
+                    // -D.S. 2020-09-21
+                    blankQueue.addLast(next.target);
+                }
+            }
             if(printingAll)
             {
                 System.err.println();
@@ -1807,8 +1860,15 @@ public class RTXProcessor {
 
             if (parseGraph.isEmpty()) {
                 if (next.isBlank) {
-                    next.output(out);
-                    if (furtherInput) { inputBuffer.addLast(readToken(in)); }
+                    if (printingText) {
+                        next.output(out);
+                    }
+                    if (printingTrees) {
+                        next.writeTree(treePrintMode, out);
+                    }
+                    if (furtherInput) {
+                        inputBuffer.addLast(readToken(in));
+                    }
                     if(inputBuffer.isEmpty())
                     {
                         System.err.flush();
@@ -1824,7 +1884,6 @@ public class RTXProcessor {
                 node.wblankVars = wblankVariables;
                 node.chunkVars = new ArrayList<>(varCount);
                 checkForReduce(parseGraph, node);
-
             } else {
                 mx.prepareChunk(!next.source.isEmpty() ? next.source : next.target);
                 // conditional deals with unknowns
@@ -2227,4 +2286,3 @@ public class RTXProcessor {
      */
 
 }
-

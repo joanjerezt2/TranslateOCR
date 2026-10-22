@@ -118,14 +118,14 @@ public class Chunk {
                 for (int j = i + 1; j < limit; j++) {
                     if (target.charAt(j) == '>') {
                         if (isNum) {
-                            int n = Integer.parseInt(target.substring(last + 1, j - last - 1));
+                            int n = Integer.parseInt(target.substring(last + 1, j));
                             if (n != 0 && n <= parentTags.size()) {
                                 ret.addLast(parentTags.get(n - 1));
                                 last = j + 1;
                                 break;
                             }
                         }
-                        String tag = target.substring(last, j - last + 1);
+                        String tag = target.substring(last, j+1);
                         ret.addLast(tag);
                         last = j + 1;
                         break;
@@ -154,7 +154,7 @@ public class Chunk {
                 for (int j = i + 1; j < limit; j++) {
                     if (target.charAt(j) == '>') {
                         if (isNum) {
-                            int n = Integer.parseInt(target.substring(last + 1, j - last - 1));
+                            int n = Integer.parseInt(target.substring(last + 1, j));
                             if (n != 0 && n <= parentTags.size()) {
                                 result.append(parentTags.get(n - 1));
                             }
@@ -326,7 +326,7 @@ public class Chunk {
         for (int i = 0; i < source.length(); i++) {
             if (source.charAt(i) == '<') {
                 lem = source.substring(0, i);
-                tags = source.substring(i + 1, source.length() - i - 2);
+                tags = source.substring(i + 1, source.length() - 1);
                 break;
             }
         }
