@@ -34,7 +34,7 @@ public class MatchExe2 {
     int any_char;
     int any_tag;
     int lookahead;
-    Alphabet alpha;
+    Alphabet alpha = new Alphabet();
     int initial;
     int[] rejected = new int[RTXStackSize];
     int rejectedCount;
@@ -103,17 +103,17 @@ public class MatchExe2 {
 
         int i=0;
         for(Map.Entry<Integer, Pair<Integer, Double>> entry : rules.entrySet()){
-            int first = entry.getKey();
-            Pair<Integer, Double> second = entry.getValue();
-            if(nodes.get(first).rule_begin == -1){
-                nodes.get(first).rule_begin = i;
-            }
-            nodes.get(first).rule_end = i;
-            rule_states[i] = first;
-            rule_numbers[i] = second.first;
-            rule_weights[i] = second.second;
-            rule_lengths[i] = patSize.get(second.first-1);
-            i++;
+                int first = entry.getKey();
+                Pair<Integer, Double> second = entry.getValue();
+                if(nodes.get(first).rule_begin == -1){
+                        nodes.get(first).rule_begin = i;
+                }
+                nodes.get(first).rule_end = i;
+                rule_states[i] = first;
+                rule_numbers[i] = second.first;
+                rule_weights[i] = second.second;
+                rule_lengths[i] = patSize.get(second.first-1);
+                i++;
         }
 
         initial = t.getInitial();
@@ -182,7 +182,14 @@ public class MatchExe2 {
                     {
                         if(ch.charAt(j) == '>')
                         {
-                            int symbol = alpha.cast(ch.substring(i, j - i + 1));
+                            /*
+                            En C++, los parámetros son ch.substr(posición_inicial, longitud).
+                            En Java, los parámetros son ch.substring(posición_inicial, posición_final_excluyente).
+                            posicionFinalExcluyente = posicionInicial + longitud
+                             */
+                            System.out.print("\n[INFO] SYMBOL: " + ch.substring(i, j + 1) + "\n");
+                            int symbol = alpha.cast(ch.substring(i, j + 1));
+                            System.out.println("[INFO] SYMBOL (ret): " + symbol);
                             // https://stackoverflow.com/questions/4276207/is-bool-guaranteed-to-be-0-or-1-when-converted-to-int
                             if(symbol != 0)
                             {
@@ -195,8 +202,8 @@ public class MatchExe2 {
                             i = j;
                             break;
                         }
-                    }
-                    break;
+                }
+                break;
                 default:
                     step(state, range, Character.toLowerCase(ch.charAt(i)), any_char);
                     break;
@@ -217,16 +224,16 @@ public class MatchExe2 {
                     break;
                 case '<':
                     for(int j = i+1; j < chunk.length(); j++)
-                    {
-                        if(chunk.charAt(j) == '>')
                         {
-                            int symbol = alpha.cast(chunk.substring(i, j-i+1));
-                            prematchAlt[prematchIdx] = any_tag;
-                            prematch[prematchIdx++] = (symbol!=0 ? symbol : any_tag);
-                            i = j;
-                            break;
+                            if(chunk.charAt(j) == '>')
+                            {
+                                int symbol = alpha.cast(chunk.substring(i, j+1));
+                                prematchAlt[prematchIdx] = any_tag;
+                                prematch[prematchIdx++] = (symbol!=0 ? symbol : any_tag);
+                                i = j;
+                                break;
+                            }
                         }
-                    }
                     break;
                 default:
                     prematchAlt[prematchIdx] = any_char;
@@ -275,53 +282,53 @@ public class MatchExe2 {
     }
 
     Pair<Integer, Double> getRule(int[] state, int first, int last){
-        int rule = -1;
-        double weight = 0.0;
-        int len = 0;
-        for(int i = first; i != last; i = (i+1)%RTXStateSize)
-        {
-            MatchNode2 node = nodes.get(state[i]);
-            if(node.rule_begin == -1) continue;
-            for(int rl = node.rule_begin; rl <= node.rule_end; rl++)
+            int rule = -1;
+            double weight = 0.0;
+            int len = 0;
+            for(int i = first; i != last; i = (i+1)%RTXStateSize)
             {
-                boolean rej = false;
-                for(int rj = 0; rj < rejectedCount; rj++)
+                MatchNode2 node = nodes.get(state[i]);
+                if(node.rule_begin == -1) continue;
+                for(int rl = node.rule_begin; rl <= node.rule_end; rl++)
                 {
-                    if(rejected[rj] == rule_numbers[rl])
+                    boolean rej = false;
+                    for(int rj = 0; rj < rejectedCount; rj++)
                     {
-                        rej = true;
-                        break;
+                        if(rejected[rj] == rule_numbers[rl])
+                        {
+                            rej = true;
+                            break;
+                        }
                     }
-                }
-                if(rej) continue;
-                if(rule_lengths[rl] > len)
-                {
+                    if(rej) continue;
+                    if(rule_lengths[rl] > len)
+                    {
+                        rule = rule_numbers[rl];
+                        weight = rule_weights[rl];
+                        len = rule_lengths[rl];
+                        continue;
+                    }
+                    if(rule != -1 && rule_lengths[rl] < len) continue;
+                    if(rule != -1 && rule_weights[rl] < weight) continue;
+                    if(rule != -1 && rule_numbers[rl] > rule) continue;
+
                     rule = rule_numbers[rl];
                     weight = rule_weights[rl];
-                    len = rule_lengths[rl];
-                    continue;
                 }
-                if(rule != -1 && rule_lengths[rl] < len) continue;
-                if(rule != -1 && rule_weights[rl] < weight) continue;
-                if(rule != -1 && rule_numbers[rl] > rule) continue;
-
-                rule = rule_numbers[rl];
-                weight = rule_weights[rl];
             }
-        }
-        return new Pair<>(rule, weight);
+            return new Pair<>(rule, weight);
     }
 
     int getRuleUnweighted(int[] state, int first, int last)
-    {
-        for(int i = first; i != last; i = (i+1)%RTXStateSize)
         {
-            if(nodes.get(state[i]).rule_begin != -1)
+            for(int i = first; i != last; i = (i+1)%RTXStateSize)
             {
-                return rule_numbers[nodes.get(state[i]).rule_begin];
+                if(nodes.get(state[i]).rule_begin != -1)
+                {
+                    return rule_numbers[nodes.get(state[i]).rule_begin];
+                }
             }
-        }
-        return -1;
+            return -1;
     }
 
     public void resetRejected() {
