@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static org.apertium.grammar.Inlines.hash_value;
+
 /**
  * @author Joan Jerez Torres, ToBeIT
  * @serial GPL 3.0
@@ -82,16 +84,133 @@ public class Tag {
     int seed = 0;
     String tag = "";
     String tag_raw = "";
-    List<Set<Integer>> vs_sets = new ArrayList<>();
+    List<SetGrammar> vs_sets;
     List<String> vs_names = new ArrayList<>();
     Pattern regexp = null;
 
-    void parseTagRaw(char to, Grammar grammar) {
+    void parseTagRaw(char[] to, Grammar grammar) {
+        type = 0;
+	    int length = to.length;
+        if(length == 0) {
+            System.out.print("parseTagRaw() will not work with empty strings.");
+        }
 
+        if (to[0] == '"' || to[0] == '<') {
+            if ((to[0] == '"' && to[length - 1] == '"') || (to[0] == '<' && to[length - 1] == '>')) {
+                type |= T_TEXTUAL;
+                if (to[0] == '"' && to[length - 1] == '"') {
+                    if (to[1] == '<' && to[length - 2] == '>' && length > 4) {
+                        type |= T_WORDFORM;
+                    }
+                    else {
+                        type |= T_BASEFORM;
+                    }
+                }
+            }
+        }
+
+        tag = new String(to);
+
+        /* for (Pattern iter : grammar.regex_tags) {
+            UErrorCode status = U_ZERO_ERROR;
+            uregex_setText(iter, tag.data(), SI32(tag.size()), &status);
+            if (status == U_ZERO_ERROR) {
+                if (uregex_find(iter, -1, &status)) {
+                    type |= T_TEXTUAL;
+                }
+            }
+        }
+        for (auto iter : grammar->icase_tags) {
+            if (ux_strCaseCompare(tag, iter.tag)) {
+                type |= T_TEXTUAL;
+            }
+        }
+
+        if (tag.charAt(0) == '<' && tag[length - 1] == '>') {
+            parseNumeric(false);
+        }
+        if (tag[0] == '#') {
+            if (u_sscanf(tag.data(), "#%i->%i", &dep_self, &dep_parent) == 2 && dep_self != 0) {
+                type |= T_DEPENDENCY;
+            }
+            constexpr UChar local_dep_unicode[] = { '#', '%', 'i', u'\u2192', '%', 'i', 0 };
+            if (u_sscanf_u(tag.data(), local_dep_unicode, &dep_self, &dep_parent) == 2 && dep_self != 0) {
+                type |= T_DEPENDENCY;
+            }
+        }
+        if (tag[0] == 'I' && tag[1] == 'D' && tag[2] == ':' && u_isdigit(tag[3])) {
+            if (u_sscanf(tag.data(), "ID:%i", &dep_self) == 1 && dep_self != 0) {
+                type |= T_RELATION;
+            }
+        }
+        if (tag.charAt(0) == 'R' && tag.charAt(1) == ':') {
+            char[] relname = new char[256];
+            dep_parent = Integer.MAX_VALUE;
+            if (u_sscanf(tag.data(), "R:%[^:]:%i", &relname, &dep_parent) == 2 && dep_parent != std::numeric_limits<uint32_t>::max()) {
+                type |= T_RELATION;
+                Tag reltag = grammar.allocateTag(relname);
+                comparison_hash = reltag.hash;
+            }
+        }
+
+        type &= ~T_SPECIAL;
+        if (type & (T_NUMERICAL)) {
+            type |= T_SPECIAL;
+        }*/
     }
 
     int rehash() {
-        return 0;
+        hash = 0;
+        plain_hash = 0;
+
+        if (type == T_FAILFAST) {
+            hash = hash_value("^", hash);
+        }
+
+        if (type == T_META) {
+            hash = hash_value("META:", hash);
+        }
+        if (type == T_VARIABLE) {
+            hash = hash_value("VAR:", hash);
+        }
+        if (type == T_LOCAL_VARIABLE) {
+            hash = hash_value("LVAR:", hash);
+        }
+        if (type == T_SET) {
+            hash = hash_value("SET:", hash);
+        }
+
+        plain_hash = hash_value(tag);
+        if (hash != 0) {
+            hash = hash_value(String.valueOf(plain_hash), hash);
+        }
+        else {
+            hash = plain_hash;
+        }
+
+        if (type == T_CASE_INSENSITIVE) {
+            hash = hash_value("i", hash);
+        }
+        if (type == T_REGEXP) {
+            hash = hash_value("r", hash);
+        }
+        if (type == T_VARSTRING) {
+            hash = hash_value("v", hash);
+        }
+
+        hash += seed;
+
+        type &= ~T_SPECIAL;
+        if (type == MASK_TAG_SPECIAL) {
+            type |= T_SPECIAL;
+        }
+
+        /* if (dump_hashes_out) {
+            System.out.printf("DEBUG: Hash %d with seed %d for tag %S\n", hash, seed, tag);
+            System.out.printf("DEBUG: Plain hash %d with seed %d for tag %S\n", plain_hash, seed, tag);
+        }*/
+
+        return hash;
     }
 
     void markUsed() {

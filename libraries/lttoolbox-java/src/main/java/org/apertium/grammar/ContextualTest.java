@@ -1,5 +1,8 @@
 package org.apertium.grammar;
 
+import javax.naming.Context;
+import java.util.List;
+
 /**
  * @author Joan Jerez Torres, ToBeIT
  * @serial GPL 3.0
@@ -8,7 +11,23 @@ package org.apertium.grammar;
 
 public class ContextualTest {
 
-    int POS_CAREFUL        = (1); // C
+    public boolean is_used = false;
+    public int offset = 0;
+    public int offset_sub = 0;
+    public int line = 0;
+    public int hash = 0;
+    public int seed = 0;
+    public long pos = 0;
+    public int target = 0;
+    public int relation = 0;
+    public int barrier = 0;
+    public int cbarrier = 0;
+    public int jump_pos = POS_JUMP_POS.JUMP_MARK;
+    ContextualTest tmpl = null;
+    ContextualTest linked = null;
+    List<Object> ors;
+
+    static int POS_CAREFUL        = 1; // C
     int POS_NEGATE         = (1 <<  1); // Prefix NEGATE
     int POS_NOT            = (1 <<  2); // Prefix NOT
     int POS_SCANFIRST      = (1 <<  3); // *
@@ -36,7 +55,7 @@ public class ContextualTest {
     int POS_UNKNOWN        = (1 << 25); // ?
     int POS_RELATION       = (1 << 26); // r:
     int POS_ATTACH_TO      = (1 << 27); // A
-    int POS_NUMERIC_BRANCH = (1 << 28); // f
+    static int POS_NUMERIC_BRANCH = (1 << 28); // f
     int POS_BAG_OF_TAGS    = (1 << 29); // B
     int POS_DEP_GLOB       = (1 << 30); // pp or cc
     int POS_64BIT          = (1 << 31);
@@ -57,6 +76,31 @@ public class ContextualTest {
     int MASK_POS_SCAN      = POS_SCANFIRST | POS_SCANALL | POS_DEP_DEEP | POS_DEP_GLOB;
     long MASK_SELF_NB       = POS_SELF | POS_NO_BARRIER;
 
+    static class POS_JUMP_POS {
+        int JUMP_TARGET = -2;
+        int JUMP_ATTACH = -1;
+        static int JUMP_MARK = 0;
+        // All positive numbers are WITH's cohorts
+    };
 
+    static class GSR_SPECIALS {
+        int GSR_ANY = 32767;
+    };
+
+    public static void copy_cntx(ContextualTest src, ContextualTest trg) {
+        trg.offset = src.offset;
+        trg.offset_sub = src.offset_sub;
+        trg.line = src.line;
+        trg.hash = src.hash;
+        trg.seed = src.seed;
+        trg.pos = src.pos;
+        trg.target = src.target;
+        trg.relation = src.relation;
+        trg.barrier = src.barrier;
+        trg.cbarrier = src.cbarrier;
+        trg.jump_pos = src.jump_pos;
+        trg.tmpl = src.tmpl;
+        trg.linked = src.linked;
+    }
 
 }

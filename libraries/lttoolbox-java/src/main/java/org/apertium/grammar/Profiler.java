@@ -15,15 +15,15 @@ import java.util.TreeMap;
 
 public class Profiler {
 
-    int ET_RULE = 0;
-    int ET_CONTEXT = 1;
+    static int ET_RULE = 0;
+    static int ET_CONTEXT = 1;
 
-    Map<String, Integer> strings = new TreeMap<>(Comparator.naturalOrder());
+    Map<String, Integer> strings = new TreeMap<>();
     Map<Integer, Integer> grammars = new HashMap<>();
     int grammar_ast = 0;
     StringBuilder buf;
 
-    class Key {
+    static class Key {
         int type = ET_RULE;
         int id = 0;
 

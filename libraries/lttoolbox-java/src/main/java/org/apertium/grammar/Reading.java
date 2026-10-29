@@ -12,22 +12,29 @@ import java.util.Map;
  */
 
 public class Reading {
-    public AbundantIntSet tags;
+    public int baseform = 0;
+    public int hash = 0;
+    public int hash_plain = 0;
+    public int number = 0;
+
+    public Bloomish tags_bloom = new Bloomish();
+    public Bloomish tags_plain_bloom = new Bloomish();
+    public Bloomish tags_textual_bloom = new Bloomish();
+
+    public Tag mapping = null;
+    public Cohort parent = null;
+    public Reading next = null;
+    public List<Integer> hit_by;
     public List<Integer> tags_list;
-    public List<Integer> tags_bloom;
-    public String tags_string;
-    public int tags_string_hash;
-    public Tag mapping;
-    public Cohort parent;
-    public List<Integer> tags_textual;
-    public List<Integer> tags_textual_bloom;
-    public int baseform;
-    public Map<Integer, Tag> tags_numerical;
+    public List<Integer> tags;
     public List<Integer> tags_plain;
-    public List<Integer> tags_plain_bloom;
+    public List<Integer> tags_textual;
+    public Map<Integer, Tag> tags_numerical;
+
+    // Remove for real ordered mode
+    public String tags_string;
+    public int tags_string_hash = 0;
+
     public boolean noprint;
 
-    public void rehash() {
-
-    }
 }

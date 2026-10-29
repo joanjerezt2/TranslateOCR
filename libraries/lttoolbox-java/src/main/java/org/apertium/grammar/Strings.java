@@ -1,5 +1,8 @@
 package org.apertium.grammar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Joan Jerez Torres, ToBeIT
  * @serial GPL 3.0
@@ -7,6 +10,171 @@ package org.apertium.grammar;
  */
 
 public interface Strings {
+
+    List<char[]> cbuffers = new ArrayList<char[]>();
+
+    // El enum tal como lo definimos antes (asumiendo que empieza en 0)
+    enum Keywords {
+        K_IGNORE,
+        K_SETS,
+        K_SOFT_DELIMITERS,
+        K_PREFERRED_TARGETS,
+        K_MAPPING_PREFIX,
+        K_MAPPINGS,
+        K_CONSTRAINTS,
+        K_CORRECTIONS,
+        K_SECTION,
+        K_BEFORE_SECTIONS,
+        K_AFTER_SECTIONS,
+        K_NULL_SECTION,
+        K_ADD,
+        K_MAP,
+        K_REPLACE,
+        K_SELECT,
+        K_REMOVE,
+        K_IFF,
+        K_APPEND,
+        K_SUBSTITUTE,
+        K_START,
+        K_END,
+        K_ANCHOR,
+        K_EXECUTE,
+        K_JUMP,
+        K_REMVARIABLE,
+        K_SETVARIABLE,
+        K_DELIMIT,
+        K_MATCH,
+        K_SETPARENT,
+        K_SETCHILD,
+        K_ADDRELATION,
+        K_SETRELATION,
+        K_REMRELATION,
+        K_ADDRELATIONS,
+        K_SETRELATIONS,
+        K_REMRELATIONS,
+        K_TEMPLATE,
+        K_MOVE,
+        K_MOVE_AFTER,
+        K_MOVE_BEFORE,
+        K_SWITCH,
+        K_REMCOHORT,
+        K_STATIC_SETS,
+        K_UNMAP,
+        K_COPY,
+        K_ADDCOHORT,
+        K_ADDCOHORT_AFTER,
+        K_ADDCOHORT_BEFORE,
+        K_EXTERNAL,
+        K_EXTERNAL_ONCE,
+        K_EXTERNAL_ALWAYS,
+        K_OPTIONS,
+        K_STRICT_TAGS,
+        K_REOPEN_MAPPINGS,
+        K_SUBREADINGS,
+        K_SPLITCOHORT,
+        K_PROTECT,
+        K_UNPROTECT,
+        K_MERGECOHORTS,
+        K_RESTORE,
+        K_WITH,
+        K_OLIST,
+        K_OSET,
+        K_CMDARGS,
+        K_CMDARGS_OVERRIDE,
+        K_COPYCOHORT,
+        K_REMPARENT,
+        K_SWITCHPARENT,
+        KEYWORD_COUNT
+
+    }
+
+    // El equivalente a: constexpr UStringView keywords[KEYWORD_COUNT]
+    String[] keywords = {
+            "__CG3_DUMMY_KEYWORD__",
+            // Agrega los demás strings en el mismo orden que las constantes del enum
+            "SETS",
+            "LIST",
+            "SET",
+            "DELIMITERS",
+            "SOFT-DELIMITERS",
+            "PREFERRED-TARGETS",
+            "MAPPING-PREFIX",
+            "MAPPINGS",
+            "CONSTRAINTS",
+            "CORRECTIONS",
+            "SECTION",
+            "BEFORE-SECTIONS",
+            "AFTER-SECTIONS",
+            "NULL-SECTION",
+            "ADD",
+            "MAP",
+            "REPLACE",
+            "SELECT",
+            "REMOVE",
+            "IFF",
+            "APPEND",
+            "SUBSTITUTE",
+            "START",
+            "END",
+            "ANCHOR",
+            "EXECUTE",
+            "JUMP",
+            "REMVARIABLE",
+            "SETVARIABLE",
+            "DELIMIT",
+            "MATCH",
+            "SETPARENT",
+            "SETCHILD",
+            "ADDRELATION",
+            "SETRELATION",
+            "REMRELATION",
+            "ADDRELATIONS",
+            "SETRELATIONS",
+            "REMRELATIONS",
+            "TEMPLATE",
+            "MOVE",
+            "MOVE-AFTER",
+            "MOVE-BEFORE",
+            "SWITCH",
+            "REMCOHORT",
+            "STATIC-SETS",
+            "UNMAP",
+            "COPY",
+            "ADDCOHORT",
+            "ADDCOHORT-AFTER",
+            "ADDCOHORT-BEFORE",
+            "EXTERNAL",
+            "EXTERNAL-ONCE",
+            "EXTERNAL-ALWAYS",
+            "OPTIONS",
+            "STRICT-TAGS",
+            "REOPEN-MAPPINGS",
+            "SUBREADINGS",
+            "SPLITCOHORT",
+            "PROTECT",
+            "UNPROTECT",
+            "MERGECOHORTS",
+            "RESTORE",
+            "WITH",
+            "OLIST",
+            "OSET",
+            "CMDARGS",
+            "CMDARGS-OVERRIDE",
+            "COPYCOHORT",
+            "REMPARENT",
+            "SWITCHPARENT",
+
+    };
+
+    int S_IGNORE = 0;
+    int S_OR = 3;
+    int S_PLUS = 0;
+    int S_MINUS = 0;
+    int S_FAILFAST = 8;
+    int S_SET_DIFF = 0;
+    int S_SET_ISECT_U = 0;
+    int S_SET_SYMDIFF_U = 0;
+
     String STR_TARGET = "TARGET" ;
     String STR_AND = "AND" ;
     String STR_IF = "IF" ;
@@ -72,18 +240,18 @@ public interface Strings {
     String STR_VS1 = "\u00011";
     String STR_VS2 = "\u00012";
     String STR_VS3 = "\u00013";
-    public static final String STR_VS4 = "\u00014";
-    public static final String STR_VS5 = "\u00015";
-    public static final String STR_VS6 = "\u00016";
-    public static final String STR_VS7 = "\u00017";
-    public static final String STR_VS8 = "\u00018";
-    public static final String STR_VS9 = "\u00019";
-    String STR_VSu_raw = "%u" ;
-    String STR_VSU_raw = "%U" ;
+    String STR_VS4 = "\u00014";
+    String STR_VS5 = "\u00015";
+    String STR_VS6 = "\u00016";
+    String STR_VS7 = "\u00017";
+    String STR_VS8 = "\u00018";
+    String STR_VS9 = "\u00019";
+    String STR_VSu_raw = "%" ;
+    String STR_VSU_raw = "%" ;
     String STR_VSl_raw = "%l" ;
     String STR_VSL_raw = "%L" ;
-    String STR_VSu = "\u0001u" ;
-    String STR_VSU = "\u0001U" ;
+    String STR_VSu = "\u0001" ;
+    String STR_VSU = "\u0001" ;
     String STR_VSl = "\u0001l" ;
     String STR_VSL = "\u0001L" ;
     String STR_GPREFIX = "_G_" ;

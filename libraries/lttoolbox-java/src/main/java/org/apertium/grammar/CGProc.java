@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.apertium.grammar.Inlines.is_cg3b;
 import static org.apertium.utils.IOUtils.*;
 
 /*
@@ -189,15 +190,13 @@ public class CGProc {
 
             GrammarParser parser;
             if (is_cg3b(cbuffers.getFirst())) {
-                parser = new BinaryGrammar(grammar, System.err);
+                parser = new BinaryGrammar(grammar);
             } else {
                 // Forbidding text grammars makes debugging very annoying
                 System.err.println("Warning: Text grammar detected - to better process textual " +
                         "grammars, use `vislcg3'; to compile this grammar, use `cg-comp'");
-                parser = new TextualParser(grammar, System.err);
+                parser = new TextualParser(grammar);
             }
-
-            grammar.err = System.err;
 
             if (!parser.parse_grammar(argv[optind])) {
                 System.err.print("Error: Grammar could not be parsed - exiting!");
@@ -247,9 +246,5 @@ public class CGProc {
             }
         }
     }
-
-    private static boolean is_cg3b(byte[] s) {
-            return (s[0] == 'C' && s[1] == 'G' && s[2] == '3' && s[3] == 'B');
-        }
 }
 
