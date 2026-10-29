@@ -30,4 +30,27 @@ public class MiscUtils {
     return System.lineSeparator();
   }
 
+  /* Joan Jerez, ToBeIT */
+
+  public static int findAndReplace(StringBuilder str, String from, String to) {
+    if (from == null || from.isEmpty() || str == null) return 0;
+
+    // 1. Contar cuántas veces aparece "from" antes de reemplazar
+    int ocurrencias = 0;
+    int index = 0;
+    while ((index = str.indexOf(from, index)) != -1) {
+      ocurrencias++;
+      index += from.length();
+    }
+
+    // 2. Hacer el reemplazo global de un solo golpe
+    if (ocurrencias > 0) {
+      String reemplazado = str.toString().replace(from, to);
+      str.setLength(0);
+      str.append(reemplazado);
+    }
+
+    return ocurrencias;
+  }
+
 }
