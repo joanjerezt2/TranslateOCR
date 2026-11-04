@@ -4,6 +4,7 @@
  */
 package org.apertium;
 
+import org.apertium.anaphora.ApertiumAnaphora;
 import org.apertium.lex.LRXProc;
 import org.apertium.pipeline.ApertiumMain;
 import java.io.File;
@@ -114,12 +115,14 @@ public class CommandLineInterface {
       LTTrim.main(restOfArgs);
     else if (task.startsWith("lt-validate"))
       LTValidate.main(restOfArgs);
-    else if (task.startsWith("lsx-proc"))
-      LSXProc.main(restOfArgs);
     else if (task.startsWith("lrx-proc"))
       LRXProc.main(restOfArgs);
+    else if (task.startsWith("lsx-proc"))
+      LSXProc.main(restOfArgs);
     else if (task.startsWith("rtx-proc"))
       RTXProc.main(restOfArgs);
+    else if (task.startsWith("apertium-anaphora"))
+      ApertiumAnaphora.main(restOfArgs);
     else if (task.startsWith("apertium-preprocess-transfer-bytecode"))
       TransferBytecode.main(restOfArgs);
     else if (task.equals("gui"))
