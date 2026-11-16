@@ -11,7 +11,9 @@ import java.util.List;
 
 public interface Strings {
 
-    List<char[]> cbuffers = new ArrayList<char[]>();
+    List<char[]> cbuffers = new ArrayList<>();
+
+    char not_sign = '¬';
 
     // El enum tal como lo definimos antes (asumiendo que empieza en 0)
     enum Keywords {

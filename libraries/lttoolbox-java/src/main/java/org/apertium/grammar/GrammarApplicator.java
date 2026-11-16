@@ -67,7 +67,7 @@ public class GrammarApplicator {
     public List<Integer> valid_rules;
     public List<Integer> trace_rules;
     public List<Integer> debug_rules;
-    public Map<String, Integer> variables = new HashMap<>();
+    public Map<Integer, Integer> variables = new HashMap<>();
     public int verbosity_level = 0;
     public int debug_level = 0;
     public int section_max_count = 0;
@@ -168,7 +168,7 @@ public class GrammarApplicator {
         Cohort cohort = null;
         Reading reading = null;
         Reading subreading = null;
-    };
+    }
 
     public static class RuleContext {
         ReadingSpec target;
@@ -181,13 +181,13 @@ public class GrammarApplicator {
         int regexgrp_ct = 0;
         // regexgrps_t* regexgrps = nullptr;
         boolean is_with = false;
-    };
+    }
 
     protected static class ST_RETVALS {
         int TRV_BREAK         = 1;
         int TRV_BARRIER       = (1 <<  1);
         int TRV_BREAK_DEFAULT = (1 <<  2);
-    };
+    }
 
     public GrammarApplicator(PrintStream err) {
         Window gWindow = null;
@@ -353,7 +353,7 @@ public class GrammarApplicator {
             reading.parent.is_pright = tag.hash;
         } */
 
-        if (tag.type == T_MAPPING || tag.tag.charAt(0) == grammar.mapping_prefix) {
+        if (tag.type == T_MAPPING || tag.tag[0] == grammar.mapping_prefix) {
             tag.type |= T_MAPPING;
             if (reading.mapping != null && reading.mapping != tag) {
                 System.err.print("Error: addTagToReading() cannot add a mapping tag to a reading which already is mapped!\n");

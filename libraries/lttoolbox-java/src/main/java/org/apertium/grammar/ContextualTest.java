@@ -1,6 +1,5 @@
 package org.apertium.grammar;
 
-import javax.naming.Context;
 import java.util.List;
 
 /**
@@ -25,7 +24,7 @@ public class ContextualTest {
     public int jump_pos = POS_JUMP_POS.JUMP_MARK;
     ContextualTest tmpl = null;
     ContextualTest linked = null;
-    List<Object> ors;
+    List<ContextualTest> ors;
 
     static int POS_CAREFUL        = 1; // C
     int POS_NEGATE         = (1 <<  1); // Prefix NEGATE
@@ -76,16 +75,46 @@ public class ContextualTest {
     int MASK_POS_SCAN      = POS_SCANFIRST | POS_SCANALL | POS_DEP_DEEP | POS_DEP_GLOB;
     long MASK_SELF_NB       = POS_SELF | POS_NO_BARRIER;
 
+    public void markUsed(Grammar grammar) {
+        if (is_used) {
+            return;
+        }
+        is_used = true;
+
+        SetGrammar s;
+        if (target != 0) {
+            s = grammar.getSet(target);
+            s.markUsed(grammar);
+        }
+        if (barrier != 0) {
+            s = grammar.getSet(barrier);
+            s.markUsed(grammar);
+        }
+        if (cbarrier != 0) {
+            s = grammar.getSet(cbarrier);
+            s.markUsed(grammar);
+        }
+        if (tmpl != null) {
+            tmpl.markUsed(grammar);
+        }
+        for (ContextualTest idts : ors) {
+            idts.markUsed(grammar);
+        }
+        if (linked != null) {
+            linked.markUsed(grammar);
+        }
+    }
+
     static class POS_JUMP_POS {
         int JUMP_TARGET = -2;
         int JUMP_ATTACH = -1;
         static int JUMP_MARK = 0;
         // All positive numbers are WITH's cohorts
-    };
+    }
 
     static class GSR_SPECIALS {
         int GSR_ANY = 32767;
-    };
+    }
 
     public static void copy_cntx(ContextualTest src, ContextualTest trg) {
         trg.offset = src.offset;

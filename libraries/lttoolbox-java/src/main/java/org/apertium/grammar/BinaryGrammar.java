@@ -15,9 +15,36 @@ import java.util.Arrays;
 public class BinaryGrammar implements GrammarParser {
 
     Grammar grammar;
+    int verbosity = 0;
+
+    int BINF_DEP = 1;
+    int BINF_PREFIX       = (1 <<  1);
+    int BINF_SUB_LTR      = (1 <<  2);
+    int BINF_TAGS         = (1 <<  3);
+    int BINF_REOPEN_MAP   = (1 <<  4);
+    int BINF_PREF_TARGETS = (1 <<  5);
+    int BINF_ENCLS        = (1 <<  6);
+    int BINF_ANCHORS      = (1 <<  7);
+    int BINF_SETS         = (1 <<  8);
+    int BINF_DELIMS       = (1 <<  9);
+    int BINF_SOFT_DELIMS  = (1 << 10);
+    int BINF_CONTEXTS     = (1 << 11);
+    int BINF_RULES        = (1 << 12);
+    int BINF_RELATIONS    = (1 << 13);
+    int BINF_BAG          = (1 << 14);
+    int BINF_ORDERED      = (1 << 15);
+    int BINF_TEXT_DELIMS  = (1 << 16);
+    int BINF_ADDCOHORT_ATTACH = (1 << 17);
+
+    int BIN_REV_ANCIENT = 10297;
+    int BIN_REV_CMDARGS = 13898;
 
     public BinaryGrammar(Grammar result) {
         grammar = result;
+    }
+
+    public void setVerbosity(int v) {
+        verbosity = v;
     }
 
     @Override
@@ -54,11 +81,6 @@ public class BinaryGrammar implements GrammarParser {
             // Manejar fallos de lectura o error al abrir el archivo aquí si es necesario
             System.err.print(e.getMessage());
         }
-        return false;
-    }
-
-    @Override
-    public boolean parse_grammar(String s) throws FileNotFoundException {
         return false;
     }
 

@@ -2,7 +2,6 @@ package org.apertium.grammar;
 
 import org.apertium.lttoolbox.Pair;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,8 +23,8 @@ public class Profiler {
     StringBuilder buf;
 
     static class Key {
-        int type = ET_RULE;
-        int id = 0;
+        int type;
+        int id;
 
         public Key(int etRule, int n) {
             type = etRule;
@@ -40,11 +39,11 @@ public class Profiler {
         }
     }
 
-    class Entry {
-        int type = ET_RULE;
-        int grammar = 0;
-        int b = 0;
-        int e = 0;
+    static class Entry {
+        int type;
+        int grammar;
+        int b;
+        int e;
         int num_match = 0;
         int num_fail = 0;
         int example_window = 0;

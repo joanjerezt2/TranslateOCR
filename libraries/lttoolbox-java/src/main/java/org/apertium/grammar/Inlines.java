@@ -1,5 +1,10 @@
 package org.apertium.grammar;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Random;
 
 public class Inlines {
@@ -8,7 +13,21 @@ public class Inlines {
     static double NUMERIC_MAX = ((1L<< 48L) - 1);
     static int CG3_HASH_SEED = 705577479;
 
-    public static int hash_value(String s, int hash) {
+    static int hash_value(Long l){
+        return SuperFastHash(l.toString().toCharArray(), l.toString().length());
+    }
+    static int hash_value(int c, int h) {
+        if (h == 0) {
+            h = CG3_HASH_SEED;
+        }
+        h = c + (h << 6) + (h << 16) - h;
+        if (h == 0 || h == Integer.MAX_VALUE || h == Integer.MAX_VALUE - 1) {
+            h = CG3_HASH_SEED;
+        }
+        return h;
+    }
+
+    static int hash_value(String s, int hash) {
         return hash_value(s.toCharArray(), hash, 0);
     }
 
@@ -24,6 +43,14 @@ public class Inlines {
             len = str.length;
         }
         return Inlines.SuperFastHash(str, len, hash);
+    }
+
+    static int SuperFastHash(char[] data){
+        return SuperFastHash(data, 0, CG3_HASH_SEED);
+    }
+
+    static int SuperFastHash(char[] data, int length){
+        return SuperFastHash(data, length, CG3_HASH_SEED);
     }
 
     static int SuperFastHash(char[] data, int len, int hash) {
@@ -79,6 +106,10 @@ public class Inlines {
         return SKIPWS(data, pointer, a, '0', false);
     }
 
+    public static int SKIPWS(char[] data, int pointer, char a, char b) {
+        return SKIPWS(data, pointer, a, b, false);
+    }
+
     public static int SKIPWS(char[] text, int p, char a, char b, boolean allowhash) {
         int s = 0;
         while (text[p] != a && text[p] != b) {
@@ -97,8 +128,15 @@ public class Inlines {
         return s;
     }
 
-    private static boolean ISSPACE(char c) {
-        return false;
+    static boolean ISDELIM(char c){
+        return c == '(' || c == ')' || c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '%' || c == '=';
+    }
+
+    static boolean ISSPACE(char c) {
+        if (c <= 0xFF && c != 0x09 && c != 0x0A && c != 0x0D && c != 0x20 && c != 0xA0) {
+            return false;
+        }
+        return (c == 0x20 || c == 0x09 || c == 0x0A || c == 0x0D || c == 0xA0 || Character.isWhitespace(c));
     }
 
     private static int SKIPLN(char[] text, int p) {
@@ -141,4 +179,125 @@ public class Inlines {
     {
         return (s[0] == 'C' && s[1] == 'G' && s[2] == '3' && s[3] == 'B');
     }
+
+    public static int SKIPTOWS(char[] text, int p, char a, boolean allowhash, boolean allowscol){
+        return 0;
+    }
+
+    public static int IS_ICASE(char[] input, int p, String delimiters, String delimiters1) {
+        // N - 1 due to null terminator for string constants
+        if (ISSTRING(Arrays.toString(input), p, delimiters.length()-1)) {
+            return 0;
+        }
+        int i = 0;
+        for (; i < delimiters.length()-1; ++i) {
+            if (input[i] != delimiters.charAt(i) && input[i] != delimiters1.charAt(i)) {
+                return 0;
+            }
+        }
+
+        if (!Character.isAlphabetic(input[delimiters.length()-1]) && !Character.isDigit(input[delimiters.length()-1])) {
+            return i;
+        }
+        return 0;
+    }
+
+    private static boolean ISSTRING(String text, int currentPos, int length) {
+        // 1. Validar límites de seguridad para no salirnos de la cadena
+        if (currentPos - 1 < 0 || currentPos + length + 1 > text.length()) {
+            return false;
+        }
+
+        char charBefore = text.charAt(currentPos - 1); // Equivalente a p[-1]
+        char charAfter = text.charAt(currentPos + length + 1); // Equivalente a p[c+1]
+
+        if (charBefore == '"' && charAfter == '"') {
+            return true;
+        }
+        return charBefore == '<' && charAfter == '>';
+    }
+
+    public static int SKIPTOWS(char[] text, int p, char c) {
+        return SKIPTOWS(text, p, c, false, false);
+    }
+
+    public static int SKIPTOWS(char[] text, int p, char c, boolean allowhash) {
+        return SKIPTOWS(text, p, c, allowhash, false);
+    }
+
+    public static int SKIPTOWS(char[] text, int p) {
+        return SKIPTOWS(text, p, '0');
+    }
+
+    // uextras.hpp
+
+    public static boolean ux_stripBOM(InputStream input) throws IOException {
+            PushbackInputStream stream = new PushbackInputStream(input, 3);
+            int a = stream.read();
+            if (a == -1) { // -1 es el equivalente a std::istream::traits_type::eof()
+                return false;
+            }
+            if (a != 0xEF) {
+                stream.unread(a); // Equivalente a putback
+                return false;
+            }
+
+            int b = stream.read();
+            if (b == -1) {
+                stream.unread(a);
+                return false;
+            }
+            if (b != 0xBB) {
+                stream.unread(b); // En Java se devuelven en orden inverso al que se leyeron
+                stream.unread(a);
+                return false;
+            }
+
+            int c = stream.read();
+            if (c == -1) {
+                stream.unread(b);
+                stream.unread(a);
+                return false;
+            }
+            if (c != 0xBF) {
+                stream.unread(c);
+                stream.unread(b);
+                stream.unread(a);
+                return false;
+            }
+
+            return true; // Se detectó y descartó el BOM con éxito
+    }
+
+    static void insert_if_exists(BitSet cont, BitSet other) {
+        // En Java, los objetos se pasan por referencia.
+        // Comprobamos que 'other' no sea nulo y que contenga al menos un bit en 'true'.
+        if (other != null && !other.isEmpty()) {
+            // El méto-do .or() de Java realiza la operación Bitwise OR (cont |= other)
+            // y expande automáticamente el tamaño interno de 'cont' si 'other' es más grande.
+            cont.or(other);
+        }
+    }
+
+    public static Reading reverse(Reading head) {
+        Reading nr = null;
+        while (head != null) {
+            Reading next = head.next;
+            head.next = nr;
+            nr = head;
+            head = next;
+        }
+        return nr;
+    }
+
+    static boolean is_textual(String s) {
+        return (s.charAt(0) == '"' && s.charAt(s.length()-1) == '"') || (s.charAt(0) == '<' && s.charAt(s.length()-1) == '>');
+    }
+
+    static boolean is_not_internal(String s) {
+        return (s.charAt(0) != '_' || s.charAt(1) != 'G' || s.charAt(2) != '_');
+    }
+
+
 }
+

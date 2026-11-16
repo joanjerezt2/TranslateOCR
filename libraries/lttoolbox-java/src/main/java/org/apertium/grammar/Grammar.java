@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import static org.apertium.grammar.Inlines.hash_value;
 import static org.apertium.grammar.SetGrammar.*;
 import static org.apertium.grammar.Strings.*;
-import static org.apertium.grammar.Strings.Keywords.K_PROTECT;
 import static org.apertium.grammar.Tag.*;
 
 /**
@@ -46,7 +45,7 @@ public class Grammar {
     public String sets_all;
     public Map<String, SetGrammar> sets_by_name;
     public Map<String, Integer> set_name_seeds;
-    public List<Pair<Integer, Object>> sets_by_contents;
+    public Map<Integer, Object> sets_by_contents;
     public Map<Integer, Integer>  set_alias;
     public List<SetGrammar> maybe_used_sets;
 
@@ -133,10 +132,10 @@ public class Grammar {
         rules_any = null;
 
         for (Tag iter : single_tags_list) {
-            if (iter.regexp != null && !is_textual(iter.tag)) {
+            if (iter.regexp != null && !is_textual(Arrays.toString(iter.tag))) {
                 regex_tags.add(iter.regexp);
             }
-            if ((iter.type == T_CASE_INSENSITIVE) && !is_textual(iter.tag)) {
+            if ((iter.type == T_CASE_INSENSITIVE) && !is_textual(Arrays.toString(iter.tag))) {
                 icase_tags.add(iter);
             }
             if (is_binary) {
@@ -162,7 +161,7 @@ public class Grammar {
             // En Java, 'regex_tags' debe ser una colección de objetos 'java.util.regex.Pattern'
             for (Pattern pattern : regex_tags) {
                 // Vincula el texto del tag actual al patrón de la expresión regular
-                Matcher matcher = pattern.matcher(titer.tag);
+                Matcher matcher = pattern.matcher(Arrays.toString(titer.tag));
                 // uregex_find equivale a matcher.find()
                 if (matcher.find()) {
                     titer.type |= T_TEXTUAL; // Operación Bitwise OR para encender el flag
@@ -175,7 +174,7 @@ public class Grammar {
             for (Tag iter : icase_tags) {
                 // ux_strCaseCompare equivale a equalsIgnoreCase en Java
                 // Nota: Si en C++ 'ux_strCaseCompare' devuelve verdadero cuando son IGUALES:
-                if (titer.tag.equalsIgnoreCase(iter.tag)) {
+                if (Arrays.toString(titer.tag).equalsIgnoreCase(Arrays.toString(iter.tag))) {
                     titer.type |= T_TEXTUAL;
                     break; // Opcional
                 }
@@ -540,7 +539,7 @@ public class Grammar {
         return true;
     }
 
-    private SetGrammar getSet(int which) {
+    SetGrammar getSet(int which) {
         Pair<Integer, Object> iter = sets_by_contents.get(which);
         if (iter != null) {
             return (SetGrammar) iter.second;
@@ -599,7 +598,7 @@ public class Grammar {
         }
     }
 
-    private Tag allocateTag(String txt) {
+    Tag allocateTag(String txt) {
         if (txt.charAt(0) == 0) {
             System.err.printf("Error: Empty tag on line %d! Forgot to fill in a ()?\n", lines);
             System.exit(1);
@@ -650,7 +649,7 @@ public class Grammar {
         return single_tags.get(hash);
     }
 
-    public List<Tag> getTagList_Any(boolean maplist) {
+    public List<Tag> getTagList_Any(SetGrammar maplist) {
         return null;
     }
 

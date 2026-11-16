@@ -4,7 +4,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apertium.lttoolbox.Pair;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -61,6 +60,7 @@ public class TextualParser implements GrammarParser {
         new TextualParser(grammar, false);
     }
 
+
     @Override
     public boolean parse_grammar(char[] filename) {
         String filebase = FilenameUtils.getBaseName(Arrays.toString(filename));
@@ -82,7 +82,7 @@ public class TextualParser implements GrammarParser {
         }
 
         // 1. Leer el archivo completo interpretándolo como UTF-8 de forma nativa
-        String fileContent = "";
+        /* String fileContent = "";
         try {
             // Files.readString maneja automáticamente la lectura binaria y conversión a UTF-16.
             fileContent = Files.readString(path, StandardCharsets.UTF_8);
@@ -94,12 +94,12 @@ public class TextualParser implements GrammarParser {
         // 2. Eliminar el BOM (Byte Order Mark) de UTF-8 si está presente (\uFEFF)
         if (fileContent.startsWith("\uFEFF")) {
             fileContent = fileContent.substring(1);
-        }
+        } */
 
         // 3. Replicar el buffer con un desplazamiento (offset) de 4 caracteres al principio
         // En C++ se creaba un array de caracteres con 4 espacios vacíos al inicio.
         // En Java podemos usar un bloque de caracteres vacíos iniciales o representarlo en un arreglo.
-        int originalSize = fileContent.length();
+        /* int originalSize = fileContent.length();
         char[] data = new char[originalSize + 4 + 1]; // +4 del offset, +1 del terminador opcional
 
         // Llenar los primeros 4 elementos con ceros (nulos) como hace el código original
@@ -117,7 +117,8 @@ public class TextualParser implements GrammarParser {
         grammarbufs.add(Arrays.toString(data));
 
         // 5. Pasar los datos procesados a la función de análisis
-        return parse_grammar(Arrays.toString(data));
+        return parse_grammar(Arrays.toString(data)); */
+        return false;
     }
 
     public boolean parse_grammar(String data) {
@@ -252,7 +253,7 @@ public class TextualParser implements GrammarParser {
             if ((tag.type & T_VARSTRING) == 0) {
                 continue;
             }
-            char[] text = tag.tag.toCharArray();
+            char[] text = tag.tag;
             int p = 0, n = 0;
             do {
                 p = SKIPTO(text, p, '{');

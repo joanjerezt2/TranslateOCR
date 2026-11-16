@@ -11,11 +11,9 @@ import java.util.regex.Pattern;
 
 public interface GrammarParser {
     Grammar result = new Grammar();
-    int verbosity = 0;
     Pattern nrules = null;
     Pattern nrules_inv = null;
 
     boolean parse_grammar(char[] filename);
-
-    boolean parse_grammar(String s) throws FileNotFoundException;
+    // boolean parse_grammar(String s) throws FileNotFoundException;
 }

@@ -18,7 +18,6 @@ public class Bloomish {
     }
 
     // Equivalente al operador de asignación (operator=)
-    // En Java no hay sobrecarga de operadores, se usa un método de utilidad.
     public Bloomish copyFrom(Bloomish other) {
         System.arraycopy(other.value, 0, this.value, 0, 4);
         return this;

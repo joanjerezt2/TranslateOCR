@@ -198,7 +198,7 @@ public class CGProc {
                 parser = new TextualParser(grammar);
             }
 
-            if (!parser.parse_grammar(argv[optind])) {
+            if (!parser.parse_grammar(argv[optind].toCharArray())) {
                 System.err.print("Error: Grammar could not be parsed - exiting!");
                 System.exit(EXIT_FAILURE);
             }
