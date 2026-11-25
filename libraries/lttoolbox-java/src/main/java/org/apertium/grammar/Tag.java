@@ -114,7 +114,7 @@ public class Tag {
             }
         }
 
-        tag = to;
+        tag = new StringBuilder(to.toString());
 
         /* for (Pattern iter : grammar.regex_tags) {
             UErrorCode status = U_ZERO_ERROR;
@@ -126,17 +126,17 @@ public class Tag {
             }
         } */
         for (Tag iter : grammar.icase_tags) {
-            if (Arrays.equals(tag, iter.tag)) {
+            if (tag == iter.tag) {
                 type |= T_TEXTUAL;
             }
         }
 
-        if (tag[0] == '<' && tag[length - 1] == '>') {
+        if (tag.charAt(0) == '<' && tag.charAt(length - 1) == '>') {
             parseNumeric(false);
         }
-        if (tag[0] == '#') {
+        if (tag.charAt(0) == '#') {
             // C++ if (u_sscanf(tag.data(), "#%i->%i", &dep_self, &dep_parent) == 2 && dep_self != 0) {
-            Matcher m1 = Pattern.compile("^#(-?\\d+)->(-?\\d+)").matcher(Arrays.toString(tag));
+            Matcher m1 = Pattern.compile("^#(-?\\d+)->(-?\\d+)").matcher(tag);
             if (m1.find()) {
                 this.dep_self = Integer.parseInt(m1.group(1));
                 this.dep_parent = Integer.parseInt(m1.group(2));
@@ -151,7 +151,7 @@ public class Tag {
             // --------------------------------------------------------------------------------
             // Convertimos el formato estilo C (ej: "%i->%i") a un patrón Regex adecuado ("(-?\\d+)->(-?\\d+)")
             String regexFromFormat = Arrays.toString(local_dep_unicode).replace("%i", "(-?\\d+)");
-            Matcher m2 = Pattern.compile("^" + regexFromFormat).matcher(Arrays.toString(tag));
+            Matcher m2 = Pattern.compile("^" + regexFromFormat).matcher(tag);
             if (m2.find() && m2.groupCount() >= 2) {
                 this.dep_self = Integer.parseInt(m2.group(1));
                 this.dep_parent = Integer.parseInt(m2.group(2));
@@ -161,11 +161,11 @@ public class Tag {
                 }
             }
         }
-        if (tag[0] == 'I' && tag[1] == 'D' && tag[2] == ':' && Character.isDigit(tag[3])) {
+        if (tag.charAt(0) == 'I' && tag.charAt(1) == 'D' && tag.charAt(2) == ':' && Character.isDigit(tag.charAt(3))) {
             // --------------------------------------------------------------------------------
             // LINEA 3: u_sscanf(tag.data(), "ID:%i", &dep_self) == 1 && dep_self != 0
             // --------------------------------------------------------------------------------
-            Matcher m3 = Pattern.compile("^ID:(-?\\d+)").matcher(Arrays.toString(tag));
+            Matcher m3 = Pattern.compile("^ID:(-?\\d+)").matcher(tag);
             if (m3.find()) {
                 this.dep_self  = Integer.parseInt(m3.group(1));
                 if (this.dep_self  != 0) {
@@ -174,13 +174,13 @@ public class Tag {
                 }
             }
         }
-        if (tag[0] == 'R' && tag[1] == ':') {
+        if (tag.charAt(0) == 'R' && tag.charAt(1) == ':') {
             String relname;
             dep_parent = UINT32_MAX;
             // --------------------------------------------------------------------------------
             // LINEA 4: u_sscanf(tag.data(), "R:%[^:]:%i", &relname, &dep_parent) == 2 && dep_parent != uint32_t::max()
             // --------------------------------------------------------------------------------
-            Matcher m4 = Pattern.compile("^R:([^:]+):(-?\\d+)").matcher(Arrays.toString(tag));
+            Matcher m4 = Pattern.compile("^R:([^:]+):(-?\\d+)").matcher(tag);
             if (m4.find()) {
                 relname = m4.group(1); // El grupo ([^:]+) captura to-do hasta encontrar un ':'
                 // Usamos Long para poder evaluar el valor de un uint32_t sin problemas de signo en Java
@@ -221,7 +221,7 @@ public class Tag {
             hash = hash_value("SET:", hash);
         }
 
-        plain_hash = hash_value(Arrays.toString(tag));
+        plain_hash = hash_value(tag.toString());
         if (hash != 0) {
             hash = hash_value(String.valueOf(plain_hash), hash);
         }
@@ -284,7 +284,7 @@ public class Tag {
         expresión matemática de la etiqueta.
         */
 
-        if (tag.length >= 256) {
+        if (tag.length() >= 256) {
             return;
         }
         char[] tkey = new char[256];
@@ -292,7 +292,7 @@ public class Tag {
         tkey[0] = 0;
         top[0] = 0;
         Pattern p = Pattern.compile("^<?([^<>=:!]+)([<>=:!]+)");
-        Matcher matcher = p.matcher(Arrays.toString(tag));
+        Matcher matcher = p.matcher(tag);
         // sscanf == 2 && top[0] se cumple si la regex encuentra ambos grupos
         if (!matcher.find()) {
             return;
@@ -304,14 +304,14 @@ public class Tag {
         int toz = top.length;
 
         // if (UIZ(tkz + toz + 1) >= tag.size())
-        if ((tkz + toz + 1) >= tag.length) {
+        if ((tkz + toz + 1) >= tag.length()) {
             return;
         }
 
         // Extrae 'txval': desde después de tkey y top (+1 por el '<' inicial opcional u omitido)
         // hasta el penúltimo carácter (tag.length() - 1 elimina el '>' de cierre habitual de las etiquetas CG3)
         // En Java, substring(inicio, fin) no incluye el índice de fin.
-        String txval = Arrays.toString(tag).substring(tkz + toz + 1, tag.length - 1);
+        String txval = tag.substring(tkz + toz + 1, tag.length() - 1);
 
         if (txval.isEmpty()) {
             return;
@@ -345,7 +345,7 @@ public class Tag {
                     // Instanciación de tu MathParser migrado a Java
                     MathParser mp = new MathParser(NUMERIC_MIN, NUMERIC_MAX);
                     // remove_prefix y remove_suffix se resuelven con un substring limpio
-                    String exp = Arrays.toString(tag).substring(this.comparison_offset, tag.length - 1);
+                    String exp = tag.substring(this.comparison_offset, tag.length() - 1);
                     mp.eval(exp);
                 } catch (Exception e) { // Equivalente a catch (...)
                     this.comparison_offset = 0;
