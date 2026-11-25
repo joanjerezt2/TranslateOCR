@@ -87,7 +87,7 @@ public class Tag {
     int plain_hash = 0;
     int number = 0;
     int seed = 0;
-    char[] tag;
+    StringBuilder tag;
     String tag_raw = "";
     List<SetGrammar> vs_sets;
     List<String> vs_names = new ArrayList<>();

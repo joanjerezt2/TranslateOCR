@@ -28,7 +28,7 @@ public class SingleWindow implements Pool.Recyclable {
     List<Set<Cohort>> nested_rule_to_cohorts;
     Map<Integer, Integer> variables_set = new HashMap<>();
     public Set<Integer> variables_rem;
-    public List<Integer> variables_output;
+    public Set<Integer> variables_output;
     public Reading bag_of_tags;
 
     static Pool<SingleWindow> pool_swindows;

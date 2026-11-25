@@ -12,6 +12,12 @@ import static java.lang.Math.floor;
 import static java.lang.Math.log10;
 import static org.apertium.grammar.Inlines.hash_value;
 import static org.apertium.grammar.Strings.*;
+import static org.apertium.grammar.Strings.Keywords.K_ADDRELATION;
+import static org.apertium.grammar.Strings.Keywords.K_ADDRELATIONS;
+import static org.apertium.grammar.Strings.Keywords.K_REMRELATION;
+import static org.apertium.grammar.Strings.Keywords.K_REMRELATIONS;
+import static org.apertium.grammar.Strings.Keywords.K_SETRELATION;
+import static org.apertium.grammar.Strings.Keywords.K_SETRELATIONS;
 import static org.apertium.grammar.Tag.*;
 import static org.apertium.utils.MiscUtils.findAndReplace;
 
@@ -353,7 +359,7 @@ public class GrammarApplicator {
             reading.parent.is_pright = tag.hash;
         } */
 
-        if (tag.type == T_MAPPING || tag.tag[0] == grammar.mapping_prefix) {
+        if (tag.type == T_MAPPING || tag.tag.charAt(0) == grammar.mapping_prefix) {
             tag.type |= T_MAPPING;
             if (reading.mapping != null && reading.mapping != tag) {
                 System.err.print("Error: addTagToReading() cannot add a mapping tag to a reading which already is mapped!\n");
@@ -580,15 +586,144 @@ public class GrammarApplicator {
         return theTags;
     }
 
+    Reading initEmptyCohort(Cohort cCohort) {
+        return new Reading(cCohort);
+        /* Reading cReading = alloc_reading(cCohort);
+        if (allow_magic_readings) {
+            assert makeBaseFromWord(cCohort.wordform) != null;
+            cReading.baseform = makeBaseFromWord(cCohort.wordform).hash;
+        }
+        else {
+            cReading.baseform = cCohort.wordform.hash;
+        }
+        insert_if_exists(cReading.parent.possible_sets, grammar.sets_any);
+        addTagToReading(cReading, cCohort.wordform);
+        cReading.noprint = true;
+        cCohort.appendReading(cReading);
+        ++numReadings;
+        return cReading;*/
+    }
+
+    void printTrace(PrintStream output, int hit_by) {
+        if (hit_by < grammar.rule_by_number.size()) {
+            Rule r = grammar.rule_by_number.get(hit_by);
+
+            output.printf("%S", keywords[r.type.ordinal()]);
+            if (r.type == K_ADDRELATION || r.type == K_SETRELATION || r.type == K_REMRELATION ||
+                    r.type == K_ADDRELATIONS || r.type == K_SETRELATIONS || r.type == K_REMRELATIONS) {
+                output.printf("(%S", r.maplist.getNonEmpty().firstKey().tag);
+                if (r.type == K_ADDRELATIONS || r.type == K_SETRELATIONS || r.type == K_REMRELATIONS) {
+                    output.printf(",%S", r.sublist.getNonEmpty().firstKey().tag);
+                }
+                output.print(")");
+            }
+            if (!trace_name_only || r.name.isEmpty()) {
+                output.printf(":%d", r.line);
+            }
+            if (!r.name.isEmpty()) {
+                output.write(':');
+                output.printf("%S", r.name);
+            }
+        }
+        else {
+            int pass = Integer.MAX_VALUE - (hit_by);
+            output.printf("ENCL:%d", pass);
+        }
+    }
+
+    void runGrammarOnWindow() {
+
+    }
+
+    void initEmptySingleWindow(SingleWindow cSWindow) {
+
+    }
+
+    void printPlainTextLine(StringBuilder stringBuilder, PrintStream output) {
+
+    }
+
+    void resetIndexes() {
+
+    }
+
+    boolean doesSetMatchCohortNormal(Cohort cCohort, int number) {
+        return true;
+    }
+
+    void splitMappings(List<Tag> mappings, Cohort cohort, Reading reading){
+        splitMappings(mappings, cohort, reading, false);
+    }
+
+    void splitMappings(List<Tag> mappings, Cohort cohort, Reading reading, boolean mapped) {
+        /* for (Tag mapping: mappings) {
+            Tag tag = mapping;
+            while ((tag.type & T_VARSTRING) != 0) {
+                tag = generateVarstringTag(tag);
+            }
+            if ((tag.type & T_MAPPING) == 0 || tag.tag.charAt(0) == grammar.mapping_prefix) {
+                addTagToReading(reading, tag);
+                mappings.remove(mapping);
+            }
+        }
+
+        if (reading.mapping != null) {
+            mappings.addLast(reading.mapping);
+            delTagFromReading(reading, reading.mapping.hash);
+        }
+
+        Tag tag = mappings.getLast();
+        mappings.removeLast();
+        int i = mappings.size();
+        for (Tag ttag : mappings) {
+            // To avoid duplicating needlessly many times, check for a similar reading in the cohort that's already got this mapping
+            boolean found = false;
+            for (Reading itr : cohort.readings) {
+                if (itr.hash_plain == reading.hash_plain && itr.mapping != null && itr.mapping.hash == ttag.hash) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                continue;
+            }
+            Reading nr = alloc_reading(reading);
+            nr.mapped = mapped;
+            nr.number = reading.number - i--;
+            int mp = addTagToReading(nr, ttag);
+            if (mp != ttag.hash) {
+                nr.mapping = grammar.single_tags.get(mp);
+            }
+            else {
+                nr.mapping = ttag;
+            }
+            cohort.appendReading(nr);
+            ++numReadings;
+        }
+
+        reading.mapped = mapped;
+        int mp = addTagToReading(reading, tag);
+        if (mp != tag.hash) {
+            reading.mapping = grammar.single_tags.get(mp);
+        }
+        else {
+            reading.mapping = tag;
+        } */
+    }
+
     private List<Tag> getTagList(SetGrammar theSet, boolean unif_mode) {
         List<Tag> theTags = new ArrayList<>();
         getTagList(theSet, theTags, unif_mode);
         return theTags;
     }
 
-    public int addTagToReading(Reading reading, int utag, boolean rehash){
-        Tag tag = new Tag();
-        // Tag tag = grammar.single_tags.find(utag).second;
-        return addTagToReading(reading, tag, rehash);
+    public int addTagToReading(Reading reading, int hash){
+        // return addTagToReading(reading, hash, false);
+        return 0; // TODO
+    }
+
+    public int addTagToReading(Reading reading, Tag tag){
+        return 0; // TODO
+        // return addTagToReading(reading, tag, false);
     }
 }
